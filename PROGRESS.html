@@ -63,10 +63,10 @@
 </header>
 
 <div class="summary">
-  <div class="chip"><b>Current step</b>Step 1: Laetitia ✔, Georges-Anthony to do</div>
-  <div class="chip"><b>Steps done</b>1 of 9 (Step 0)</div>
+  <div class="chip"><b>Current step</b>Step 2 — Tailscale (together)</div>
+  <div class="chip"><b>Steps done</b>2 of 9 (Steps 0–1)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>20 Nov 2026, 14:43</div>
+  <div class="chip"><b>Last update</b>20 Nov 2026, 15:39</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -143,13 +143,11 @@ git push -u origin main</pre>
   </ul>
 </section>
 
-<h2 class="section-title">In progress</h2>
-
 <!-- ===================== STEP 1 ===================== -->
 <section class="step" id="step-1">
   <div class="step-head">
     <h3>Step 1 — Create our virtual machines (VMs)</h3>
-    <span class="badge progress">In progress</span>
+    <span class="badge done">Done</span>
     <span class="date">started 20 Nov 2026</span>
   </div>
 
@@ -350,6 +348,11 @@ cd heat && ls</pre>
             HTML, but it would break shell scripts inside the Ubuntu VMs. Fix: we added a <code>.gitattributes</code> file
             (<code>* text=auto eol=lf</code>) that keeps Unix (LF) line endings everywhere. (Also seen: "using up to 16 threads",
             so Laetitia's laptop has 16 logical CPU cores.)</td></tr>
+    <tr><td>25</td><td>Opened the <b>Multipass app</b> (Windows key → "Multipass")</td>
+        <td>"Welcome to Multipass" catalog page (Ubuntu Server 26.04, Core, Fedora, Debian)</td>
+        <td>The catalog creates <b>new</b> VMs, so we don't click Launch there (it defaults to 26.04, the wrong version). Our VM is under the
+            second icon in the left bar (badge "1"). The app only offers buttons (start, stop, open shell). Inside the VM it's still the
+            text shell: Ubuntu Server has no desktop, and we don't need one. Later we'll use VS Code Remote-SSH for editing code.</td></tr>
   </table>
 
   <h4>Workaround: download Ubuntu ourselves, verify it, launch from the file</h4>
@@ -369,11 +372,11 @@ multipass launch file:///Users/User/Downloads/noble.img --name heat-laetitia --c
   <h4>Checklist</h4>
   <ul class="checks">
     <li class="ok">Multipass installed on Laetitia's laptop (1.17.0, driver hcs)</li>
-    <li>Multipass installed on Georges-Anthony's laptop</li>
+    <li class="ok">Multipass installed on Georges-Anthony's laptop</li>
     <li class="ok">VM <code>heat-laetitia</code> created and running (Ubuntu 24.04.5, IP 10.97.0.114)</li>
-    <li>VM <code>heat-georges</code> created and running</li>
-    <li class="ok">Packages installed on heat-laetitia (Open MPI 4.1.6). Waiting for heat-georges to compare</li>
-    <li class="ok">Repo cloned to <code>~/heat</code> in heat-laetitia. heat-georges still to do</li>
+    <li class="ok">VM <code>heat-georges</code> created and running (20 Nov, by 15:35)</li>
+    <li class="ok">Packages installed on heat-laetitia (Open MPI 4.1.6) and heat-georges (version to confirm = 4.1.6)</li>
+    <li class="ok">Repo cloned to <code>~/heat</code> in both VMs</li>
     <li>Facts table filled in</li>
     <li>Third machine found (for the demo)</li>
   </ul>
@@ -397,13 +400,114 @@ multipass launch file:///Users/User/Downloads/noble.img --name heat-laetitia --c
   </ul>
 </section>
 
+<h2 class="section-title">In progress</h2>
+
+<!-- ===================== STEP 2 ===================== -->
+<section class="step" id="step-2">
+  <div class="step-head">
+    <h3>Step 2 — Connect the VMs with Tailscale</h3>
+    <span class="badge progress">In progress</span>
+    <span class="date">started 20 Nov 2026, 15:39</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> Our two VMs live on two different laptops, maybe on different Wi-Fi networks, each hidden behind its
+    own router. They can't see each other. <b>Tailscale</b> builds a private, encrypted network between them (our
+    <b>tailnet</b>). Each VM gets a fixed address like <code>100.x.y.z</code> and a name (<code>heat-laetitia</code>,
+    <code>heat-georges</code>), and they can reach each other from anywhere. MPI will send all its messages through it.
+  </div>
+
+  <h4>Who does what</h4>
+  <table>
+    <tr><th>Part</th><th>Laetitia</th><th>Georges-Anthony</th></tr>
+    <tr><td>A. Account</td><td>Creates the Tailscale account (she owns the tailnet) and invites Georges-Anthony</td><td>Accepts the invite email</td></tr>
+    <tr><td>B. Install</td><td colspan="2">Each installs Tailscale <b>inside their own VM</b> (at the same time)</td></tr>
+    <tr><td>C. Log in</td><td>VM name <code>heat-laetitia</code></td><td>VM name <code>heat-georges</code></td></tr>
+    <tr><td>D. Test</td><td colspan="2">Each pings the other's VM and notes "direct" or "via DERP"</td></tr>
+  </table>
+
+  <h4>A. Account (Laetitia, in the Windows browser)</h4>
+  <ol>
+    <li>Go to <code>tailscale.com</code> → <b>Get started</b> → sign in (Google, GitHub or Microsoft). The free plan is enough.</li>
+    <li>Skip the "install on this device" screens. We install Tailscale in the VMs, not on Windows.</li>
+    <li>Open the <b>admin console</b> (<code>login.tailscale.com/admin</code>) → <b>Users</b> → <b>Invite users</b> → Georges-Anthony's email.</li>
+    <li>Georges-Anthony accepts the invitation email and signs in. He is now a member of our tailnet.</li>
+  </ol>
+
+  <h4>B. Install Tailscale (each of us, inside our own VM)</h4>
+<pre># on Windows, open the VM shell
+multipass shell heat-laetitia          # Georges-Anthony: heat-georges
+
+# inside the VM
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale version</pre>
+
+  <h4>C. Join the tailnet (each of us, inside our own VM)</h4>
+<pre>sudo tailscale up --hostname=heat-laetitia     # Georges-Anthony: --hostname=heat-georges</pre>
+  <p>It prints a link like <code>https://login.tailscale.com/a/xxxxxxxx</code>. Copy it into the <b>Windows browser</b> and sign
+     in with the same account you used in part A. The terminal then says "Success."</p>
+<pre>tailscale status          # lists BOTH VMs once both have joined
+tailscale ip -4           # our VM's 100.x.y.z address
+ip addr show tailscale0   # the network card MPI will use (name must be "tailscale0")</pre>
+
+  <h4>D. Test the connection (each of us, towards the other)</h4>
+<pre># Laetitia's VM → Georges-Anthony's VM   (Georges-Anthony does the opposite: heat-laetitia)
+ping -c 3 heat-georges
+tailscale ping heat-georges</pre>
+  <p><code>tailscale ping</code> ends with either <b>"via &lt;IP:port&gt;"</b>, meaning a <b>direct</b> connection (good), or
+     <b>"via DERP(xxx)"</b>, meaning traffic goes through a relay server (slower). Write it down: it explains our timings later.</p>
+
+  <h4>Results to record</h4>
+  <table>
+    <tr><th></th><th>heat-laetitia</th><th>heat-georges</th></tr>
+    <tr><td>Tailscale version</td><td>…</td><td>…</td></tr>
+    <tr><td>Tailscale IP (100.x.y.z)</td><td>…</td><td>…</td></tr>
+    <tr><td>Network (home Wi-Fi / campus / hotspot / cable)</td><td>…</td><td>…</td></tr>
+    <tr><td>ping time to the other VM</td><td>…</td><td>…</td></tr>
+    <tr><td>tailscale ping: direct or DERP?</td><td>…</td><td>…</td></tr>
+  </table>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li class="ok">Tailscale account created (owner: Laetitia, via GitHub; tailnet <code>englaetitia.github</code>)</li>
+    <li>Georges-Anthony invited and accepted</li>
+    <li>Tailscale installed in heat-laetitia</li>
+    <li>Tailscale installed in heat-georges</li>
+    <li>Both VMs appear in <code>tailscale status</code></li>
+    <li>ping works in both directions</li>
+    <li>"direct" or "DERP" recorded for the pair</li>
+  </ul>
+
+  <h4>If something goes wrong</h4>
+  <ul>
+    <li><b>Install script fails or hangs</b>: slow internet. Run the same <code>curl … | sh</code> line again.</li>
+    <li><b>Only one VM in <code>tailscale status</code></b>: the other person signed in with an account that isn't in our tailnet. Use the invited account.</li>
+    <li><b>ping by name fails but ping by 100.x IP works</b>: MagicDNS is off. Admin console → DNS → enable MagicDNS.</li>
+    <li><b>Always "via DERP"</b>: the network (campus Wi-Fi often) blocks direct connections. It still works, just slower. Try a hotspot to compare.</li>
+  </ul>
+
+  <h4>Simple words</h4>
+  <ul>
+    <li><b>Tailnet</b>: our private network, made of only our devices.</li>
+    <li><b>MagicDNS</b>: lets us use names (<code>heat-georges</code>) instead of numbers (<code>100.x.y.z</code>).</li>
+    <li><b>DERP</b>: Tailscale's relay servers, used when two devices can't connect directly. They work, but add delay (latency).</li>
+    <li><b>Latency</b>: how long one message takes to arrive. This will be the key number for our performance study.</li>
+  </ul>
+
+  <h4>What actually happened — session log</h4>
+  <table>
+    <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Laetitia: tailscale.com → Get started → signed in with <b>GitHub</b></td>
+        <td>Admin console "Machines" page, tailnet name <code>englaetitia.github</code>, "Add your first device"</td>
+        <td>Account created. Our tailnet is called <code>englaetitia.github</code>. It's empty because no device has joined yet.
+            We don't click "Add first device" (that wizard installs Tailscale on Windows). The VMs join with
+            <code>sudo tailscale up</code> instead. Next: invite Georges-Anthony (☰ menu → Users → Invite users).</td></tr>
+  </table>
+</section>
+
 <h2 class="section-title">Coming next</h2>
 
 <div class="upcoming">
-  <section class="step" id="step-2">
-    <div class="step-head"><h3>Step 2 — Connect the VMs with Tailscale</h3><span class="badge next">Not started</span></div>
-    <p>Join the VMs into one private network so they can talk to each other from anywhere.</p>
-  </section>
   <section class="step" id="step-3">
     <div class="step-head"><h3>Step 3 — Passwordless SSH</h3><span class="badge next">Not started</span></div>
     <p>Let each VM log into the other without a password, because MPI starts programs remotely through SSH.</p>

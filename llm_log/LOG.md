@@ -219,3 +219,53 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-20 14:43 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (pasted output of `git add . ; git commit -m "Log: reconnect + pull in VM" ; git push`: LF→CRLF warnings for PROGRESS.html and llm_log/LOG.md; commit c8efd1e; pushed c39e354..c8efd1e)
+
+**Response (summary):** push succeeded; the LF/CRLF warning is harmless for HTML but would break shell scripts in the VMs, so added `.gitattributes` (`* text=auto eol=lf`, binaries marked binary). Recorded row 24 in `PROGRESS.html` (also: the laptop has 16 logical cores).
+
+**Files created/modified:** `.gitattributes` (new), `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 14:44 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "will wait for my friend to finish step 1"
+
+**Response (summary):** fine; for Georges-Anthony: follow SETUP.md, get noble.img from Laetitia if his internet is slow, send back his `mpirun --version`. Meanwhile: save the chat transcript, fill in the CPU model, create the Tailscale account, start maths Tasks 3.2 and 3.4.
+
+**Files modified:** `llm_log/LOG.md` (this entry).
+
+---
+
+## 2026-11-20 14:46–14:50 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "i have a question , i am using the vm in powershil , is it possible to use the app?"; "ok while waiting for georges , i will run the app"; (screenshot of the Multipass app "Welcome to Multipass" catalog page); "it is a shell , not an interface?"
+
+**Responses (summary):** the Multipass desktop app exists (start/stop/open shell) but inside the VM it is still the text shell; don't Launch from the catalog (defaults to 26.04 and would create a new VM); the VM is under the instances icon; Ubuntu Server has no desktop, which is normal; later use VS Code Remote-SSH for editing.
+
+**Files modified:** `PROGRESS.html` (Step 1 row 25), `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 15:35 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "ok georges finished step 1 , we want to start stp 2 in parallel together , tell us what to do"
+
+**Response (summary):** Step 1 marked done. Step 2 instructions: Laetitia creates the Tailscale account and invites Georges-Anthony; both install Tailscale inside their VM (`curl -fsSL https://tailscale.com/install.sh | sh`), join with `sudo tailscale up --hostname=heat-<name>` (log in via the printed link), check `tailscale status`, `tailscale ip -4`, `ip addr show tailscale0`, then test `ping -c 3` and `tailscale ping` to the other VM and record direct vs DERP. Added the full Step 2 section to `PROGRESS.html`.
+
+**Files modified:** `PROGRESS.html` (Step 1 done, new Step 2 section), `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 15:39 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (screenshot of the Tailscale admin console "Machines" page, tailnet englaetitia.github, "Add your first device")
+
+**Response (summary):** account created (tailnet englaetitia.github); don't use "Add first device"; invite Georges-Anthony via ☰ → Users → Invite users; then both install Tailscale in the VMs and run `sudo tailscale up --hostname=...`. Recorded in Step 2 session log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
