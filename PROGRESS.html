@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heat MPI Project — Progress Journal</title>
+<style>
+  :root {
+    --bg: #faf8f5; --card: #ffffff; --ink: #1f2328; --muted: #6b6f76;
+    --line: #e6e2dc; --accent: #c2410c; --accent-soft: #fff1e8;
+    --done: #15803d; --done-soft: #e9f7ee; --todo: #a16207; --todo-soft: #fdf6e3;
+    --next: #6b7280; --next-soft: #f1f2f4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+  header h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  header p { margin: 0; color: var(--muted); }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+             gap: 10px; margin: 24px 0 8px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+          padding: 10px 14px; font-size: .92rem; }
+  .chip b { display: block; font-size: 1.05rem; }
+  h2.section-title { font-size: 1.1rem; text-transform: uppercase; letter-spacing: .06em;
+                     color: var(--muted); margin: 36px 0 12px; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 22px 24px; margin-bottom: 16px; }
+  .step-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .step-head h3 { margin: 0; font-size: 1.25rem; flex: 1; }
+  .badge { font-size: .78rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .badge.done { color: var(--done); background: var(--done-soft); }
+  .badge.progress { color: var(--todo); background: var(--todo-soft); }
+  .badge.next { color: var(--next); background: var(--next-soft); }
+  .date { color: var(--muted); font-size: .88rem; }
+  .step h4 { margin: 18px 0 6px; font-size: 1rem; }
+  .why { background: var(--accent-soft); border-left: 4px solid var(--accent);
+         padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  ul { padding-left: 22px; margin: 6px 0; }
+  li { margin: 3px 0; }
+  ul.checks { list-style: none; padding-left: 0; }
+  ul.checks li::before { content: "☐ "; color: var(--todo); font-weight: 700; }
+  ul.checks li.ok::before { content: "✔ "; color: var(--done); }
+  code { background: #f3f1ee; border: 1px solid var(--line); border-radius: 4px;
+         padding: 1px 5px; font-size: .9em; }
+  pre { background: #1f2328; color: #f3f3f3; padding: 14px 16px; border-radius: 8px;
+        overflow-x: auto; font-size: .88rem; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: .94rem; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line);
+           vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .upcoming .step { padding: 14px 24px; }
+  .upcoming p { margin: 6px 0 0; color: var(--muted); }
+  footer { color: var(--muted); font-size: .85rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>Heat Diffusion with MPI — Progress Journal</h1>
+  <p>Parallel Programming project · Team: Laetitia Daou &amp; Georges-Anthony El Hajj · One section per step, in simple words.</p>
+</header>
+
+<div class="summary">
+  <div class="chip"><b>Current step</b>Step 1: Laetitia ✔, Georges-Anthony to do</div>
+  <div class="chip"><b>Steps done</b>1 of 9 (Step 0)</div>
+  <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
+  <div class="chip"><b>Last update</b>20 Nov 2026, 14:37</div>
+</div>
+
+<h2 class="section-title">Steps done</h2>
+
+<!-- ===================== STEP 0 ===================== -->
+<section class="step" id="step-0">
+  <div class="step-head">
+    <h3>Step 0 — Set up the project folder, GitHub and AI logging</h3>
+    <span class="badge done">Done</span>
+    <span class="date">20 Nov 2026</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> Before writing any code, we need one shared place for all our work
+    (a Git repository). The course also requires us to record <i>every</i> conversation we have with
+    an AI. If we set this up first, we never forget.
+  </div>
+
+  <h4>What we did, in simple words</h4>
+  <ul>
+    <li>We created the <b>project folder</b> on Laetitia's PC (<code>Desktop\Parallel Project</code>) and
+        the <b>GitHub repository</b> <code>englaetitia/Parallel_Programming-</code>, which is still empty.</li>
+    <li>We created <b>empty folders</b> for each kind of work, so everything has its place from day one.</li>
+    <li>We wrote a <b>README</b>. It is the "front page" of the project: what it is and how to run it.</li>
+    <li>We wrote <b>AGENTS.md / CLAUDE.md</b>. AI coding tools read these files automatically. They tell the AI
+        to write every conversation into our log.</li>
+    <li>We started the <b>AI log</b> (<code>llm_log/LOG.md</code>) with a first entry for our Claude conversation.</li>
+    <li>We added a <b>.gitignore</b> so Git doesn't save useless files, like compiled programs and huge result files.</li>
+    <li>We added <b>hosts.example</b>, the list of computers MPI will use. We fill in the real names in Step 1.</li>
+  </ul>
+
+  <h4>The folders and what goes in them</h4>
+  <table>
+    <tr><th>Folder / file</th><th>What it's for</th></tr>
+    <tr><td><code>src/</code></td><td>Our heat-simulation program (serial, strips, blocks)</td></tr>
+    <tr><td><code>tools/</code></td><td>Small test programs: hello-world MPI and the ping-pong network test</td></tr>
+    <tr><td><code>scripts/</code></td><td>Scripts that run many tests automatically, compare outputs, and draw plots</td></tr>
+    <tr><td><code>results/raw/</code></td><td>The raw output of every run. We never delete these.</td></tr>
+    <tr><td><code>tasks/</code></td><td>Our answers to the maths Tasks of the background notes</td></tr>
+    <tr><td><code>report/</code></td><td>The final report and its figures</td></tr>
+    <tr><td><code>llm_log/</code></td><td>The complete record of every AI conversation (required)</td></tr>
+    <tr><td><code>README.md</code></td><td>Explains the project, how to build it and how to run it</td></tr>
+    <tr><td><code>PROGRESS.html</code></td><td>This page: our step-by-step journal</td></tr>
+  </table>
+
+  <h4>One important decision we wrote down</h4>
+  <p>The plate is stored in the computer as <b>one long list of numbers, row after row</b>, starting from the
+     bottom row. The number for point <code>(i, j)</code> is at position <code>j × (N+1) + i</code>.
+     We must both use this same rule everywhere, or our results won't match.</p>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li class="ok">Create the folder structure, README, AGENTS.md / CLAUDE.md, LOG.md, .gitignore</li>
+    <li>Save the full Claude conversation into <code>llm_log/transcripts/2026-11-20_laetitia_claude.md</code></li>
+    <li class="ok">Write the teammate's name in README.md (and in this page's header)</li>
+    <li class="ok">Push everything to GitHub (commands below)</li>
+    <li>Add the teammate as a collaborator on GitHub, and the teammate clones the repo</li>
+  </ul>
+
+  <h4>Commands to send it to GitHub (run once, in Git Bash or PowerShell)</h4>
+<pre>cd "C:\Users\User\OneDrive\Desktop\Parallel Project"
+git init
+git branch -M main
+git add .
+git commit -m "Step 0: repo structure, README, AI logging rules"
+git remote add origin https://github.com/englaetitia/Parallel_Programming-.git
+git push -u origin main</pre>
+
+  <h4>What we learned</h4>
+  <ul>
+    <li>A Git repository lets two people work on the same code without overwriting each other.</li>
+    <li>The course allows AI help, but only if <b>every</b> conversation is saved in full. We must also be able
+        to explain every line ourselves.</li>
+  </ul>
+</section>
+
+<h2 class="section-title">In progress</h2>
+
+<!-- ===================== STEP 1 ===================== -->
+<section class="step" id="step-1">
+  <div class="step-head">
+    <h3>Step 1 — Create our virtual machines (VMs)</h3>
+    <span class="badge progress">In progress</span>
+    <span class="date">started 20 Nov 2026</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> MPI needs several computers that run the same system and the same MPI version.
+    Laetitia's and Georges-Anthony's laptops are different (Windows, different settings). So each of us runs a small
+    <b>virtual machine</b>: a "computer inside the computer" running Ubuntu Linux. All the VMs are identical, so MPI
+    sees a clean, uniform cluster.
+  </div>
+
+  <h4>Who does what</h4>
+  <p>Both of us do this step, each on our own laptop. Each VM gets a name: <code>heat-laetitia</code> and
+     <code>heat-georges</code>. We also need a <b>third machine</b> (a lab PC, a family laptop…) because the final
+     demo needs at least 3 VMs.</p>
+
+  <h4>1. Install Multipass on the laptop (Windows) — from the terminal</h4>
+  <p>Open <b>PowerShell as Administrator</b> (Start → type "PowerShell" → right-click → <i>Run as administrator</i>).</p>
+<pre># a) Which Windows edition do I have? (Home or Pro decides the VM engine)
+(Get-ComputerInfo).WindowsProductName
+
+# b1) Windows PRO only: turn on Hyper-V, then restart the PC
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+# b2) Windows HOME only: install VirtualBox (Multipass uses it as the engine)
+winget install Oracle.VirtualBox
+
+# c) Install Multipass (both editions)
+winget install --id Canonical.Multipass -e --accept-source-agreements --accept-package-agreements
+
+# d) Check it is installed
+winget list multipass                                         # shows: Multipass  Canonical.Multipass  1.17.0
+Test-Path "C:\Program Files\Multipass\bin\multipass.exe"     # shows: True
+
+# e) If "multipass is not recognized": add it to PATH for this window
+#    (restarting Windows fixes it permanently)
+$env:Path += ";C:\Program Files\Multipass\bin"
+
+# f) Final check
+multipass version            # multipass 1.17.0+win / multipassd 1.17.0+win
+multipass get local.driver   # hcs  (the new Windows engine in Multipass 1.17 — normal)</pre>
+  <p><b>Simple words:</b> <code>winget</code> is Windows' built-in app installer for the terminal.
+     The <b>driver</b> is the engine that actually runs the VM; in Multipass 1.17 on Windows it is called
+     <code>hcs</code> (it replaced the older <code>hyperv</code> driver).</p>
+
+  <h4>2. Create the VM (in PowerShell)</h4>
+<pre>multipass launch 24.04 --name heat-laetitia --cpus 2 --memory 4G --disk 15G
+multipass list                     # should show heat-laetitia "Running"
+multipass shell heat-laetitia      # opens a terminal INSIDE the VM</pre>
+  <p>Georges-Anthony uses <code>--name heat-georges</code>. If your laptop has many cores and lots of RAM,
+     you can give more (e.g. <code>--cpus 4 --memory 8G</code>).</p>
+
+  <h4>3. Install the software (inside the VM)</h4>
+<pre>sudo apt update
+sudo apt install -y build-essential cmake git openmpi-bin libopenmpi-dev python3-numpy python3-matplotlib
+mpirun --version      # write down the version: it must be the SAME on every VM
+g++ --version</pre>
+  <p>What these are: <code>build-essential</code> = the C++ compiler; <code>cmake</code> = build tool;
+     <code>openmpi</code> = the MPI library and <code>mpirun</code>; <code>numpy/matplotlib</code> = for plots later.</p>
+
+  <h4>4. Get our code inside the VM</h4>
+<pre>cd ~
+git clone https://github.com/englaetitia/Parallel_Programming-.git heat
+cd heat && ls</pre>
+  <p>Both VMs must keep the code at the <b>same path</b> (<code>/home/ubuntu/heat</code>), because MPI starts the
+     program at the same place on every machine.</p>
+
+  <h4>5. Write down the facts for the report</h4>
+  <table>
+    <tr><th></th><th>Laetitia</th><th>Georges-Anthony</th><th>3rd machine</th></tr>
+    <tr><td>Host CPU model</td><td>…</td><td>…</td><td>…</td></tr>
+    <tr><td>VM vCPUs / RAM / disk</td><td>2 / 4 GB / 15 GB (Ubuntu 24.04.5)</td><td>…</td><td>…</td></tr>
+    <tr><td>Open MPI / g++</td><td>4.1.6 / 13.3.0</td><td>…</td><td>…</td></tr>
+    <tr><td>Multipass / driver</td><td>1.17.0 / hcs</td><td>…</td><td>…</td></tr>
+    <tr><td>Wi-Fi or cable?</td><td>…</td><td>…</td><td>…</td></tr>
+  </table>
+  <p>Host CPU model on Windows: Settings → System → About ("Processor").</p>
+
+  <h4>What actually happened — session log (20 Nov 2026, Laetitia's laptop)</h4>
+  <p>Every command we ran, what we saw, and what it meant. Kept so we can explain problems in the report and
+     so Georges-Anthony can avoid them.</p>
+  <table>
+    <tr><th>#</th><th>Command (PowerShell)</th><th>What we saw</th><th>What it meant / what we did</th></tr>
+    <tr><td>1</td><td><code>multipass version</code></td>
+        <td><i>"The term 'multipass' is not recognized…"</i></td>
+        <td>Windows couldn't find the program. Either not installed, or the terminal didn't know where it was.</td></tr>
+    <tr><td>2</td><td><code>winget list multipass</code><br><code>Test-Path "C:\Program Files\Multipass\bin\multipass.exe"</code></td>
+        <td><code>Multipass Canonical.Multipass 1.17.0</code><br><code>True</code></td>
+        <td>It <b>is</b> installed. Problem = PATH (the list of folders Windows searches for programs) not refreshed.</td></tr>
+    <tr><td>3</td><td><code>$env:Path += ";C:\Program Files\Multipass\bin"</code><br><code>multipass version</code><br><code>multipass get local.driver</code></td>
+        <td><code>multipass 1.17.0+win</code>, <code>multipassd 1.17.0+win</code><br><code>hcs</code></td>
+        <td>Fixed for this window. Driver is <code>hcs</code>. ✔</td></tr>
+    <tr><td>4</td><td><code>multipass launch 24.04 --name heat-laetitia --cpus 2 --memory 4G --disk 15G</code></td>
+        <td><i>launch failed: Hash of …/noble-20261017/ubuntu-24.04-server-cloudimg-amd64.img does not match
+            (expected 04e8f246… but got 477809eb…)</i></td>
+        <td>The downloaded Ubuntu image is damaged. A "hash" is a fingerprint of a file: if the fingerprint
+            doesn't match the official one, the file is incomplete or corrupted.</td></tr>
+    <tr><td>5</td><td><code>multipass delete --purge heat-laetitia</code></td>
+        <td><i>instance "heat-laetitia" does not exist</i></td>
+        <td>Normal: the VM was never created, nothing to delete.</td></tr>
+    <tr><td>6</td><td><code>Stop-Service Multipass</code> / <code>Start-Service Multipass</code></td>
+        <td><i>Cannot open Multipass service on computer '.'</i></td>
+        <td>The window was <b>not</b> "Run as administrator", so Windows refused to stop/start the service.</td></tr>
+    <tr><td>7</td><td><code>Remove-Item -Recurse -Force "C:\ProgramData\Multipass\cache\hcs\vault\images\noble-*"</code><br>then launch again</td>
+        <td>"Creating heat-laetitia…" then <i>launch failed … got e3b0c442…b855</i></td>
+        <td><code>e3b0c442…b855</code> is the fingerprint of an <b>empty file</b>: the download gave 0 bytes.</td></tr>
+    <tr><td>8</td><td>As <b>Administrator</b>:<br><code>$env:Path += ";C:\Program Files\Multipass\bin"</code><br><code>Stop-Service Multipass</code><br><code>Remove-Item -Recurse -Force "C:\ProgramData\Multipass\cache\hcs\vault\images\*"</code><br><code>Start-Service Multipass</code><br><code>multipass launch 24.04 --name heat-laetitia --cpus 2 --memory 4G --disk 15G</code></td>
+        <td><i>launch failed … got d31b8d57…</i></td>
+        <td>A <b>different</b> wrong fingerprint every time → the ~600 MB download is being cut off part-way.
+            Most likely cause: the network (Wi-Fi drops, firewall/proxy). Next: download the image ourselves with a
+            tool that can resume, check its fingerprint, and launch from the file (see below).</td></tr>
+    <tr><td>9</td><td>As Administrator:<br><code>curl.exe -L -C - -o "C:\Users\User\Downloads\noble.img" https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img</code></td>
+        <td><code>0 592.5M 0 2.46M … 79163 … 2:10:48 … 00:32 … 0</code></td>
+        <td>The file is 592.5 MB, but our connection gives only ~79 KB/s, with moments at 0 speed. That means about 2 hours,
+            with frequent stalls. This confirms the network is the problem, not Multipass. Decision: finish the download on a faster
+            connection (home Wi-Fi or phone hotspot), resuming with the same command, or copy the file from Georges-Anthony
+            by USB.</td></tr>
+    <tr><td>10</td><td>Same <code>curl.exe -L -C - …</code> command, left running</td>
+        <td><code>87 592.5M 87 516.6M … 265.4k … 33:13 … 04:52 457.1k</code> and then it stopped</td>
+        <td>After 33 minutes, 516.6 of 592.5 MB (87%) had arrived, at about 265 KB/s on average. The connection dropped before the end.
+            Because of <code>-C -</code> nothing is lost: running the same line again downloads only the missing ~76 MB.</td></tr>
+    <tr><td>11</td><td>Same <code>curl.exe -L -C - …</code> command again</td>
+        <td><code>** Resuming transfer from byte position 542162944</code><br><code>100 75.45M 100 75.45M … 391.3k … 03:17</code></td>
+        <td>curl continued from byte 542,162,944 (the 516.6 MB already downloaded) and fetched the last 75.45 MB in 3 min 17 s.
+            Download complete (100%). Next: check the fingerprint before using the file.</td></tr>
+    <tr><td>12</td><td><code>curl.exe -L https://cloud-images.ubuntu.com/releases/noble/release/SHA256SUMS | Select-String "server-cloudimg-amd64.img"</code><br>
+        <code>Get-FileHash "C:\Users\User\Downloads\noble.img" -Algorithm SHA256</code></td>
+        <td>Official: <code>04e8f2461a16a44e78a370284471f29616cdd9baf1893df25807b71f985b6c94</code><br>
+            Ours: <code>04E8F2461A16A44E78A370284471F29616CDD9BAF1893DF25807B71F985B6C94</code></td>
+        <td><b>Identical</b> (upper/lower case doesn't matter). The file is complete and authentic. (The stray "1" and "0" around the
+            official line in the terminal were just curl's progress bar mixed into the output.) It is also the exact fingerprint
+            Multipass expected in rows 4–8, which proves the earlier failures were broken downloads.</td></tr>
+    <tr><td>13</td><td><code>$env:Path += ";C:\Program Files\Multipass\bin"</code><br>
+        <code>multipass launch file://C:/Users/User/Downloads/noble.img --name heat-laetitia --cpus 2 --memory 4G --disk 15G</code></td>
+        <td><i>launch failed: Invalid file URL `file://C:/Users/User/Downloads/noble.img`; did you forget a slash?</i></td>
+        <td>A file address on Windows needs <b>three</b> slashes: <code>file:///C:/…</code>. Two slashes is a typo in our instructions.</td></tr>
+    <tr><td>14</td><td><code>multipass launch file:///C:/Users/User/Downloads/noble.img --name heat-laetitia --cpus 2 --memory 4G --disk 15G</code></td>
+        <td><i>launch failed: Invalid file URL `file://C:/C:/Users/User/Downloads/noble.img`; did you forget a slash?</i></td>
+        <td>Multipass 1.17 on Windows added its own <code>C:/</code> in front, so the drive letter appeared twice.
+            So it wants the path <b>without</b> the drive letter: <code>file:///Users/…</code>.</td></tr>
+    <tr><td>15</td><td>Option B (as Administrator):<br><code>Stop-Service Multipass</code><br>
+        <code>$dir = "C:\ProgramData\Multipass\cache\hcs\vault\images\noble-20261017"</code><br>
+        <code>New-Item -ItemType Directory -Force $dir</code><br>
+        <code>Copy-Item "C:\Users\User\Downloads\noble.img" "$dir\ubuntu-24.04-server-cloudimg-amd64.img" -Force</code><br>
+        <code>Start-Service Multipass</code><br>
+        <code>multipass launch 24.04 --name heat-laetitia --cpus 2 --memory 4G --disk 15G</code></td>
+        <td><code>d----- 11/20/2026 12:34 PM noble-20261017</code><br><code>Retrieving image: 14%</code> (slowly)</td>
+        <td>Multipass did <b>not</b> reuse our copied file. It started downloading the whole image again (it keeps its own
+            records of what it downloaded, and our file wasn't in them). Option B doesn't reuse our file.</td></tr>
+    <tr><td>15b</td><td>(left running)</td>
+        <td><code>Retrieving image: 31%</code> at 14:03 (it was 14% at 13:58)</td>
+        <td>About 17% in 5 minutes (≈ 3.4% per minute), so roughly 20 more minutes. We let it continue. If it ends with
+            "Hash … does not match" again, we use Option A.</td></tr>
+    <tr><td>15c</td><td>(same launch, still running)</td>
+        <td><code>Waiting for initialization to complete \</code> at 14:21</td>
+        <td><b>The download finished and passed the fingerprint check.</b> The VM is now booting Ubuntu for the first time
+            (cloud-init sets up the user, network and SSH). This can take a few minutes. Option A was not needed.</td></tr>
+    <tr><td>16</td><td><code>multipass list</code><br><code>multipass shell heat-laetitia</code></td>
+        <td><code>heat-laetitia  Running  10.97.0.114  Ubuntu 24.04 LTS  zone1</code><br>
+            <i>Welcome to Ubuntu 24.04.5 LTS (GNU/Linux 6.8.0-147-generic x86_64)</i> · disk 13.49 GB · memory 7% used<br>
+            <i>New release '26.04.1 LTS' available. Run 'do-release-upgrade'</i></td>
+        <td><b>The VM works!</b> We are inside Ubuntu 24.04.5. The address <code>10.97.0.114</code> is only visible from
+            Laetitia's laptop (Tailscale will give the address the other machines use, in Step 2).
+            <b>We do NOT run do-release-upgrade</b>: the project requires Ubuntu 24.04 on every VM so all get the same Open MPI.</td></tr>
+    <tr><td>17</td><td>Inside the VM (prompt <code>ubuntu@heat-laetitia:~$</code>):<br>
+        <code>multipass shell heat-laetitia</code></td>
+        <td><i>multipass: command not found</i></td>
+        <td>We were already inside the VM. <code>multipass</code> only exists on Windows, not inside Ubuntu. Harmless.
+            Tip: to paste inside the VM window, right-click or press Ctrl+Shift+V.</td></tr>
+    <tr><td>18</td><td><code>sudo apt update</code><br>
+        <code>sudo apt install -y build-essential cmake git openmpi-bin libopenmpi-dev python3-numpy python3-matplotlib</code></td>
+        <td>Finished without errors (about 10 min on our connection).</td>
+        <td>Compiler, CMake, Git, Open MPI and the Python plotting libraries are installed in the VM.</td></tr>
+    <tr><td>19</td><td><code>mpirun --version</code><br><code>g++ --version</code></td>
+        <td><code>mpirun (Open MPI) 4.1.6</code><br><code>g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0</code></td>
+        <td>Open MPI <b>4.1.6</b> and g++ <b>13.3.0</b>. Georges-Anthony's VM must show the <b>same</b> Open MPI version.</td></tr>
+    <tr><td>20</td><td><code>cd ~ &amp;&amp; git clone https://github.com/englaetitia/Parallel_Programming-.git heat</code><br><code>ls heat</code></td>
+        <td><i>Cloning into 'heat'… Receiving objects: 100% (12/12)</i><br>
+            <code>AGENTS.md CLAUDE.md README.md hosts.example llm_log report results scripts src tasks tools</code></td>
+        <td>Our code is in the VM at <code>/home/ubuntu/heat</code>. (PROGRESS.html and SETUP.md weren't there yet because they
+            hadn't been pushed to GitHub. Fix: push from Windows, then <code>git pull</code> in the VM.)</td></tr>
+  </table>
+
+  <h4>Workaround: download Ubuntu ourselves, verify it, launch from the file</h4>
+<pre># 1. Download with curl.exe (built into Windows). "-C -" resumes if the connection drops:
+#    just run the same line again until it finishes.
+curl.exe -L -C - -o "C:\Users\User\Downloads\noble.img" https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img
+
+# 2. Get the official fingerprints and our file's fingerprint
+curl.exe -L https://cloud-images.ubuntu.com/releases/noble/release/SHA256SUMS | Select-String "server-cloudimg-amd64.img"
+Get-FileHash "C:\Users\User\Downloads\noble.img" -Algorithm SHA256
+
+# 3. If the two fingerprints are identical, launch from the local file
+multipass launch file:///Users/User/Downloads/noble.img --name heat-laetitia --cpus 2 --memory 4G --disk 15G   # no "C:" (see rows 13-15)</pre>
+  <p><b>Simple words:</b> the <b>SHA256 fingerprint</b> is a long code computed from every byte of a file. Change one
+     byte and the code changes completely. Comparing ours with Ubuntu's official one proves the file is complete.</p>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li class="ok">Multipass installed on Laetitia's laptop (1.17.0, driver hcs)</li>
+    <li>Multipass installed on Georges-Anthony's laptop</li>
+    <li class="ok">VM <code>heat-laetitia</code> created and running (Ubuntu 24.04.5, IP 10.97.0.114)</li>
+    <li>VM <code>heat-georges</code> created and running</li>
+    <li class="ok">Packages installed on heat-laetitia (Open MPI 4.1.6). Waiting for heat-georges to compare</li>
+    <li class="ok">Repo cloned to <code>~/heat</code> in heat-laetitia. heat-georges still to do</li>
+    <li>Facts table filled in</li>
+    <li>Third machine found (for the demo)</li>
+  </ul>
+
+  <h4>If something goes wrong</h4>
+  <ul>
+    <li><b>"launch failed" / timeout</b>: run the launch again; the first download of Ubuntu can be slow.</li>
+    <li><b>Hyper-V not available</b> (Windows Home): choose VirtualBox during Multipass install.</li>
+    <li><b>apt errors</b>: run <code>sudo apt update</code> again, then retry the install.</li>
+    <li><b>"multipass is not recognized"</b>: run <code>$env:Path += ";C:\Program Files\Multipass\bin"</code> or restart Windows.</li>
+    <li><b>"Hash … does not match"</b>: the download was damaged. Clear the cache (as Administrator) or use the
+        download-and-verify workaround above.</li>
+    <li><b>"Cannot open Multipass service"</b>: PowerShell is not running as Administrator.</li>
+  </ul>
+
+  <h4>Simple words</h4>
+  <ul>
+    <li><b>VM (virtual machine)</b>: a full computer simulated by software inside your laptop.</li>
+    <li><b>Multipass</b>: a tool that creates Ubuntu VMs in one command.</li>
+    <li><b>vCPU</b>: a processor core given to the VM. Later, we run at most this many MPI processes per VM.</li>
+  </ul>
+</section>
+
+<h2 class="section-title">Coming next</h2>
+
+<div class="upcoming">
+  <section class="step" id="step-2">
+    <div class="step-head"><h3>Step 2 — Connect the VMs with Tailscale</h3><span class="badge next">Not started</span></div>
+    <p>Join the VMs into one private network so they can talk to each other from anywhere.</p>
+  </section>
+  <section class="step" id="step-3">
+    <div class="step-head"><h3>Step 3 — Passwordless SSH</h3><span class="badge next">Not started</span></div>
+    <p>Let each VM log into the other without a password, because MPI starts programs remotely through SSH.</p>
+  </section>
+  <section class="step" id="step-4">
+    <div class="step-head"><h3>Step 4 — First MPI run on all VMs</h3><span class="badge next">Not started</span></div>
+    <p>Run <code>hostname</code> and a hello-world MPI program across all machines.</p>
+  </section>
+  <section class="step" id="step-5">
+    <div class="step-head"><h3>Step 5 — Measure the network (ping-pong)</h3><span class="badge next">Not started</span></div>
+    <p>Measure how long a message takes to start arriving (latency) and how much data per second gets through (bandwidth).</p>
+  </section>
+  <section class="step" id="step-6">
+    <div class="step-head"><h3>Step 6 — The maths Tasks</h3><span class="badge next">Not started</span></div>
+    <p>Derive the update formula and the stability limit from the background notes.</p>
+  </section>
+  <section class="step" id="step-7">
+    <div class="step-head"><h3>Step 7 — Serial solver</h3><span class="badge next">Not started</span></div>
+    <p>Write the one-computer version of the simulation and prove it is correct (the convergence study).</p>
+  </section>
+  <section class="step" id="step-8">
+    <div class="step-head"><h3>Step 8 — Checkpoint C1</h3><span class="badge next">Not started</span></div>
+    <p>Show the cluster working, the network table, and the verified serial solver.</p>
+  </section>
+</div>
+
+<footer>Updated after every step. Weeks 2–4 (strips, blocks, performance, report) will be added as we reach them.</footer>
+
+</main>
+</body>
+</html>
