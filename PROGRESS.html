@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 1: Laetitia ✔, Georges-Anthony to do</div>
   <div class="chip"><b>Steps done</b>1 of 9 (Step 0)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>20 Nov 2026, 14:41</div>
+  <div class="chip"><b>Last update</b>20 Nov 2026, 14:43</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -219,7 +219,7 @@ cd heat && ls</pre>
   <h4>5. Write down the facts for the report</h4>
   <table>
     <tr><th></th><th>Laetitia</th><th>Georges-Anthony</th><th>3rd machine</th></tr>
-    <tr><td>Host CPU model</td><td>…</td><td>…</td><td>…</td></tr>
+    <tr><td>Host CPU model</td><td>… (16 logical cores)</td><td>…</td><td>…</td></tr>
     <tr><td>VM vCPUs / RAM / disk</td><td>2 / 4 GB / 15 GB (Ubuntu 24.04.5)</td><td>…</td><td>…</td></tr>
     <tr><td>Open MPI / g++</td><td>4.1.6 / 13.3.0</td><td>…</td><td>…</td></tr>
     <tr><td>Multipass / driver</td><td>1.17.0 / hcs</td><td>…</td><td>…</td></tr>
@@ -343,6 +343,13 @@ cd heat && ls</pre>
             <code>PROGRESS.html | 417 +</code>, <code>SETUP.md | 145 +</code>, <code>llm_log/LOG.md | 163 +</code> · 3 files changed, 725 insertions</td>
         <td>The VM now has exactly the same files as GitHub and Laetitia's PC. Update loop that works: <b>edit on Windows → push →
             <code>git pull</code> in the VM</b>.</td></tr>
+    <tr><td>24</td><td>Windows PowerShell:<br><code>git add . ; git commit -m "Log: reconnect + pull in VM" ; git push</code></td>
+        <td><code>warning: in the working copy of 'PROGRESS.html', LF will be replaced by CRLF…</code><br>
+            <code>[main c8efd1e] …</code> · <code>c39e354..c8efd1e main -> main</code></td>
+        <td>Pushed. The warning means Git on Windows wanted to switch line endings to the Windows style (CRLF). That's harmless for
+            HTML, but it would break shell scripts inside the Ubuntu VMs. Fix: we added a <code>.gitattributes</code> file
+            (<code>* text=auto eol=lf</code>) that keeps Unix (LF) line endings everywhere. (Also seen: "using up to 16 threads",
+            so Laetitia's laptop has 16 logical CPU cores.)</td></tr>
   </table>
 
   <h4>Workaround: download Ubuntu ourselves, verify it, launch from the file</h4>

@@ -1,0 +1,7 @@
+# Keep Unix (LF) line endings in the repo and in working copies, on Windows too.
+# Shell scripts with Windows (CRLF) endings fail inside the Ubuntu VMs.
+* text=auto eol=lf
+*.bin binary
+*.img binary
+*.png binary
+*.pdf binary

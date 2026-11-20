@@ -209,3 +209,13 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `llm_log/LOG.md` (this entry).
 
 ---
+
+## 2026-11-20 14:40–14:41 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "i closed powershell by mistake"; then pasted output of `cd ~/heat && git pull` in the VM (fffb530..c39e354, fast-forward, PROGRESS.html/SETUP.md/LOG.md, 725 insertions).
+
+**Responses (summary):** closing PowerShell doesn't stop the VM; reopen with the PATH fix, `multipass list`, `multipass shell heat-laetitia`; the pull succeeded, so the VM is in sync with GitHub. Recorded rows 21–23 in `PROGRESS.html`.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
