@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 1: Laetitia ✔, Georges-Anthony to do</div>
   <div class="chip"><b>Steps done</b>1 of 9 (Step 0)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>20 Nov 2026, 14:37</div>
+  <div class="chip"><b>Last update</b>20 Nov 2026, 14:41</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -330,6 +330,19 @@ cd heat && ls</pre>
             <code>AGENTS.md CLAUDE.md README.md hosts.example llm_log report results scripts src tasks tools</code></td>
         <td>Our code is in the VM at <code>/home/ubuntu/heat</code>. (PROGRESS.html and SETUP.md weren't there yet because they
             hadn't been pushed to GitHub. Fix: push from Windows, then <code>git pull</code> in the VM.)</td></tr>
+    <tr><td>21</td><td>Windows PowerShell:<br><code>cd "C:\Users\User\OneDrive\Desktop\Parallel Project"</code><br>
+        <code>git add .</code><br><code>git commit -m "Step 1: progress journal, setup guide, logs"</code><br><code>git push</code></td>
+        <td>Commit <code>c39e354</code> pushed to GitHub</td>
+        <td>The journal, setup guide and log are now on GitHub for both of us.</td></tr>
+    <tr><td>22</td><td>(closed PowerShell by mistake, then reopened it)<br>
+        <code>$env:Path += ";C:\Program Files\Multipass\bin"</code><br><code>multipass list</code><br><code>multipass shell heat-laetitia</code></td>
+        <td><i>Last login: Fri Nov 20 14:23:19 2026 from 10.97.0.1</i></td>
+        <td>Closing PowerShell does <b>not</b> stop the VM: it keeps running in the background. We just reopened a shell into it.</td></tr>
+    <tr><td>23</td><td>Inside the VM:<br><code>cd ~/heat &amp;&amp; git pull</code></td>
+        <td><code>fffb530..c39e354 main -> origin/main</code> · Fast-forward ·
+            <code>PROGRESS.html | 417 +</code>, <code>SETUP.md | 145 +</code>, <code>llm_log/LOG.md | 163 +</code> · 3 files changed, 725 insertions</td>
+        <td>The VM now has exactly the same files as GitHub and Laetitia's PC. Update loop that works: <b>edit on Windows → push →
+            <code>git pull</code> in the VM</b>.</td></tr>
   </table>
 
   <h4>Workaround: download Ubuntu ourselves, verify it, launch from the file</h4>

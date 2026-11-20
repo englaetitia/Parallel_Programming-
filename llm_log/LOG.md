@@ -199,3 +199,13 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `PROGRESS.html` (rows 17–20, checklist, facts table), `SETUP.md` (expected versions), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-20 14:39 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "ok so i giev you the acess to do : cd ~/heat && git pull  and check eveything done on my pc"
+
+**Response (summary):** the assistant cannot run commands inside the Multipass VM (its device shell is a separate sandbox), so `git pull` in the VM must be run by the user. Read-only checks of the project folder: on branch main, commit c39e354 "Step 1: progress journal, setup guide, logs" (after fffb530 "Step 0 ..."), tracking origin/main, working tree clean; PROGRESS.html, SETUP.md and LOG.md identical to the assistant's latest versions; `llm_log/transcripts/` still empty.
+
+**Files modified:** `llm_log/LOG.md` (this entry).
+
+---
