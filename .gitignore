@@ -1,0 +1,18 @@
+# build
+build/
+*.o
+*.out
+heat
+tools/hello_mpi
+tools/pingpong
+# large field files (keep summary outputs in results/raw instead)
+*.bin
+# python
+__pycache__/
+.ipynb_checkpoints/
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
