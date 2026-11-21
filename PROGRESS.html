@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 5 — ping-pong</div>
   <div class="chip"><b>Steps done</b>5 of 9 (Steps 0–4)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 12:03</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 12:16</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -858,18 +858,18 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
     <tr><th>Pair</th><th>Connection</th><th>ts (latency)</th><th>Bandwidth</th></tr>
     <tr><td>heat-laetitia ↔ heat-laetitia (same VM)</td><td>local (TCP)</td><td>0.014 ms</td><td>2,554 MB/s</td></tr>
     <tr><td>heat-georges ↔ heat-georges (same VM)</td><td>local (TCP)</td><td>0.004 ms</td><td>5,021 MB/s</td></tr>
-    <tr><td>heat-laetitia ↔ heat-georges</td><td>direct (65 ms tailscale ping)</td><td>≈ 47 ms (to redo)</td><td>≈ 0.08 MB/s (to redo)</td></tr>
+    <tr><td>heat-laetitia ↔ heat-georges</td><td>direct (65 ms tailscale ping)</td><td><b>45.2 ms</b></td><td><b>0.15 MB/s</b></td></tr>
   </table>
   <p>Note: our <code>run_mpi.sh</code> uses <code>--mca btl tcp,self</code>, so even same-VM messages go through TCP (not shared memory).
      Same-VM numbers are therefore "TCP inside one machine". We say so in the report.</p>
 
   <h4>Checklist</h4>
   <ul class="checks">
-    <li>pingpong compiled in both VMs</li>
+    <li class="ok">pingpong compiled in both VMs</li>
     <li class="ok">Run (a) same VM heat-laetitia, saved</li>
     <li class="ok">Run (b) same VM heat-georges, saved</li>
-    <li>Run (c) across VMs, saved (network type noted)</li>
-    <li>Fit done, table filled, plot saved</li>
+    <li class="ok">Run (c) across VMs, saved (both on home Wi-Fi/home internet)</li>
+    <li class="ok">Fit done, table filled, plot saved</li>
     <li>Raw CSV files and plot committed to Git</li>
   </ul>
 
@@ -918,6 +918,30 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
         <td>(1) Optional maximum size: <code>tools/pingpong 1048576</code> stops at 1 MB. (2) The number of repetitions is chosen automatically
             so each size takes about 2 s (between 3 and 1000 round trips). (3) 3 tiny exchanges before timing, to open the connection. So the
             cross-VM run fits in a few minutes even on a slow upload.</td></tr>
+    <tr><td>8</td><td>heat-laetitia (12:11), typed by hand:<br><code>bash scripts/run_mpi.sh … | tee results/raw/piingpong_laeitia_georges.csv…</code></td>
+        <td>Output starting with <code># rank0=heat-laetitia rank1=heat-laetitia</code> and <code>50</code> repetitions on every line</td>
+        <td>Not the cross-VM run: both ranks were on our own VM, it was the old program (fixed 50 repetitions), and the file name was mistyped.
+            Lesson: <b>copy-paste</b> long commands, and always check the first line (<code>rank1=heat-georges</code>).</td></tr>
+    <tr><td>9</td><td>Both VMs: <code>cd ~/heat</code>, <code>git pull</code>, <code>mpicxx -O2 -o tools/pingpong tools/pingpong.cpp</code><br>
+        heat-laetitia: <code>ls results/raw/</code>, <code>rm results/raw/piingpong_*</code></td>
+        <td><code>Updating 9eacb73..d45233b · PROGRESS.html | 34 · llm_log/LOG.md | 10 · tools/pingpong.cpp | 37</code><br>
+            <code>pingpong_georges_same.csv  pingpong_laetitia_georges.csv  pingpong_laetitia_same.csv</code><br>
+            <code>rm: cannot remove 'results/raw/piingpong_*': No such file or directory</code></td>
+        <td>New program in place. The misspelled file didn't exist, so nothing to delete.</td></tr>
+    <tr><td>10</td><td>heat-laetitia (Georges-Anthony idle):<br>
+        <code>bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpong 1048576 | tee results/raw/pingpong_laetitia_georges.csv</code></td>
+        <td><code># rank0=heat-laetitia rank1=heat-georges</code><br><code>8,28,9.038e-02,4.519e-02,0.000</code><br>
+            <code>16,43,5.281e-02,2.640e-02,0.001</code><br><code>32,28,5.096e-02,2.548e-02,0.001</code><br>
+            <code>64,42,5.702e-02,2.851e-02,0.002</code> … up to 1048576</td>
+        <td>Correct run: one rank per VM, and the repetitions adapt to each size (28, 43, …). Small messages take about 25–45 ms one way.</td></tr>
+    <tr><td>11</td><td><code>python3 scripts/fit_pingpong.py results/raw/pingpong_*.csv</code></td>
+        <td><code>pingpong_georges_same.csv      0.004 ms   5021.43 MB/s</code><br>
+            <code>pingpong_laetitia_georges.csv 45.191 ms      0.15 MB/s   (fit all: 43.383 ms, 0.15 MB/s)</code><br>
+            <code>pingpong_laetitia_same.csv     0.014 ms   2554.16 MB/s</code><br><code>plot saved to results/pingpong.png</code></td>
+        <td><b>Final numbers.</b> Across our cluster: <b>ts ≈ 45 ms</b> and bandwidth ≈ <b>0.15 MB/s</b> (≈ 1.2 Mbit/s), so tw ≈ 6.7 µs per byte
+            (≈ 53 µs per double). Compared with inside one VM, latency is about <b>3,000–10,000× worse</b> and bandwidth about
+            <b>17,000–33,000× worse</b>. Compared with a supercomputer (ts ≈ 1 µs), our latency is about <b>45,000× worse</b>. These numbers go into
+            the performance model of Parts 3–4. Both fit methods agree (43–45 ms, 0.15 MB/s), so the model t(m) = ts + m·tw fits well.</td></tr>
   </table>
 </section>
 

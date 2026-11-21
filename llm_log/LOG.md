@@ -439,3 +439,13 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `tools/pingpong.cpp` (header comment; max_bytes from argv[1]; pre-loop connection warm-up; warm-up timing + MPI_Bcast of reps), `PROGRESS.html` (Step 5 rows 5–7, results table), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 12:11–12:16 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "for now :" + a mistyped command and same-VM output (rank1=heat-laetitia, 50 reps); screenshot (git pull d45233b, ls results/raw, rm failed "No such file", correct cross-VM run starting rank0=heat-laetitia rank1=heat-georges with adaptive reps); final fit table (georges_same 0.004 ms 5021.43 MB/s; laetitia_georges 45.191 ms 0.15 MB/s, fit-all 43.383 ms 0.15 MB/s; laetitia_same 0.014 ms 2554.16 MB/s)
+
+**Responses (summary):** the first paste was a same-VM run with the old binary and a mistyped filename; redo after pull/compile with copy-paste; the second run is correct; final cross-VM ts ≈ 45 ms, bandwidth ≈ 0.15 MB/s (tw ≈ 6.7 µs/byte); next: copy the CSV files and the plot from the VM to Windows with `multipass transfer` and push them to GitHub. Recorded rows 8–11 and the final results table.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
