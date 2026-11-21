@@ -459,3 +459,33 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `scripts/fit_pingpong.py` (ts = median of m ≤ 1024), `PROGRESS.html` (Step 5 rows 12–14, done; new Steps 6–7 sections with owners), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 12:25 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "explain more these tasks , we did not undretsand them"
+
+**Response (summary):** plain-language explanation of the essential background-notes Tasks: the big picture (derivatives → arithmetic on grid points, via Taylor series); 3.2 (adding the Taylor expansions of f(x+h) and f(x−h) gives f'' ≈ (f(x−h) − 2f(x) + f(x+h))/h², error h²/12·f'''' → 2nd order, numerical check with sin x); 3.4 (5-point discrete Laplacian, plus-shaped stencil with weights 1,1,1,1,−4 over h², link with the mean-value formula); 5.2 (forward Euler → u_new = u + r·(sum of 4 neighbours − 4u), r = αΔt/h², cost ≈ 7 flops, 5 reads, 1 write); 5.5 (τ = O(Δt) + O(h²), p=1, q=2, consistent); 6.3 (von Neumann: G = 1 − 4r[sin²(θ/2) + sin²(φ/2)], worst mode checkerboard θ=φ=π gives G = 1 − 8r, so r ≤ 1/4; 1D 1/2, 3D 1/6; general αΔt(1/Δx² + 1/Δy²) ≤ 1/2); 7.1 (r fixed ⇒ Δt ∝ h² ⇒ 2nd order in h, error ÷4 when N doubles); 8.2 (strips: 2 messages of N+1 values per step; blocks: 4 messages of ~N/√P; time models; small ts favours blocks for large P, large ts favours strips; comm/comp ratio for strips ∝ P(ts + N·tw)/(N²·tc), which shrinks as N grows). Reminder that the team must write and understand the derivations themselves.
+
+**Files modified:** `llm_log/LOG.md` (this entry).
+
+---
+
+## 2026-11-21 12:31–12:36 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "let's go through the tasks together , one by one , and guide me to the solution , to be able to answer"; "after we finihs this how many steps left until we finish the project"; "at what percentage are we now"; "i am solving all the tasks and will send the results to you"
+
+**Responses (summary):** started guided work on Task 2.1 (Taylor's theorem; asked the student to write f(x+h) up to h⁴ + O(h⁵) herself); listed the remaining steps after Step 6 (7 serial solver, 8 C1, 9 strips/C2, 10 blocks, 11 performance/C3, 12 report and deliverables, 13 demo, optional 14 GPU); progress estimate ≈ 12% overall (⅓ of C1); acknowledged that the student will solve all Tasks herself and send them for checking, with tips on format and priorities.
+
+**Files modified:** `llm_log/LOG.md` (this entry).
+
+---
+
+## 2026-11-21 12:56–13:00 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "is it possible to continue . and jump to next steps without doing the tasks?"; "ok georges will be doing the tasks , meanwhile tell me what shouudl i do"
+
+**Responses (summary):** yes, the code only needs the update rule and r ≤ 1/4, but the essential Tasks are required for C1 and all non-optional Tasks for the final hand-in. Georges-Anthony does the Tasks, Laetitia starts Step 7. The assistant wrote the first serial solver: `CMakeLists.txt` (C++17, -O2 -ffp-contract=off, optional MPI with USE_MPI), `src/heat.hpp` (Params, idx, declarations), `src/heat.cpp` (initial/boundary values of cases 1/2/V, exact_V, update_block kernel with a fixed order of operations), `src/serial.cpp` (two arrays, swap, steady_clock timing of the loop only), `src/main.cpp` (options, stability refusal, steps = ceil(T/(r h²)) and dt = T/steps, output file, key=value summary, err_inf/err_l2 for V, `--force-unstable` only for Task 6.7), `scripts/convergence.py` (Task 7.2 table + plot), `scripts/heatmap.py`; README Build/Run sections updated. Tested in the assistant's sandbox (g++ 13.3, no MPI, plain g++ and CMake): test V N=64 err_l2 5.17e-5; r=0.3 refused; convergence p_obs = 2.006, 2.001, 2.000, 2.000; r=0.26 forced gives a checkerboard blow-up (±7.4e3).
+
+**Files created/modified:** `CMakeLists.txt`, `src/heat.hpp`, `src/heat.cpp`, `src/serial.cpp`, `src/main.cpp`, `scripts/convergence.py`, `scripts/heatmap.py` (all new, whole files); `README.md` (Build, Run, options); `PROGRESS.html` (Step 7 files, edge rules, rows 1–4); `llm_log/LOG.md`.
+
+---

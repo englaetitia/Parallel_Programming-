@@ -30,11 +30,25 @@ in three versions: serial, 1D strips and 2D blocks.
 
 ## Build
 
-_To be written (CMake, one command)._
+In each VM, from the repository root (one command after the first configure):
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build
+```
+
+This produces `build/heat`. Flags: C++17, `-O2 -ffp-contract=off` (identical floating-point results on every machine).
+If MPI is not installed, only the serial version is built (with a warning).
 
 ## Run
 
-_To be written._ Planned options:
+```bash
+./build/heat --case V --N 64 --r 0.2 --T 0.05                 # test V, prints err_inf and err_l2
+./build/heat --case 2 --N 512 --r 0.24 --steps 500 --out u.bin  # case 2, saves the field
+python3 scripts/heatmap.py u.bin 512                          # picture of the field -> u.png
+python3 scripts/convergence.py                                # convergence study (Task 7.2)
+```
+
+Options:
 
 | Option            | Meaning                       | Example           |
 | ----------------- | ----------------------------- | ----------------- |

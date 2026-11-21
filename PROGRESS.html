@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Step 7 (solver, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 12:20</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 13:00</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -112,6 +112,7 @@
     <tr><td><code>PROGRESS.html</code></td><td>This page: our step-by-step journal</td></tr>
     <tr><td><code>SETUP.md</code></td><td>Clean list of the setup commands that worked (to share)</td></tr>
     <tr><td><code>hosts</code></td><td>Our real MPI hostfile (added in Step 4)</td></tr>
+    <tr><td><code>CMakeLists.txt</code>, <code>build/</code></td><td>Build recipe of the solver; <code>build/</code> holds the compiled program (not saved in Git)</td></tr>
   </table>
 
   <h4>One important decision we wrote down</h4>
@@ -985,7 +986,7 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
 <section class="step" id="step-7">
   <div class="step-head">
     <h3>Step 7 — Serial solver (owner: Laetitia)</h3>
-    <span class="badge progress">Starting</span>
+    <span class="badge progress">In progress</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> The one-computer version of the simulation. It must be proven correct (convergence study) because every
@@ -998,9 +999,43 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
     <li>Error norms for V; convergence study N = 16…256 at T = 0.05 (table + log-log plot)</li>
     <li>Task 6.7: r 5% too big → picture of the blow-up; heat-map script</li>
   </ul>
+
+  <h4>The files of the solver (first version, 21 Nov)</h4>
+  <table>
+    <tr><th>File</th><th>What's inside, in simple words</th></tr>
+    <tr><td><code>CMakeLists.txt</code></td><td>Build recipe: C++17, <code>-O2 -ffp-contract=off</code>, links MPI if present. One command builds <code>build/heat</code>.</td></tr>
+    <tr><td><code>src/heat.hpp</code></td><td>Shared definitions: the options (<code>Params</code>), the index function <code>idx(i,j) = j·(N+1)+i</code>, and the list of functions.</td></tr>
+    <tr><td><code>src/heat.cpp</code></td><td>Starting/boundary values of Cases 1, 2, V; the exact solution of V; and <b><code>update_block</code></b>, the update formula
+        applied to a rectangle of nodes. All versions (serial, strips, blocks) will call this same function, so they do exactly the same arithmetic
+        → bit-for-bit identical results.</td></tr>
+    <tr><td><code>src/serial.cpp</code></td><td>The serial version: two arrays, fill both with the starting values, then repeat "update all interior nodes, swap arrays".
+        Times only this loop.</td></tr>
+    <tr><td><code>src/main.cpp</code></td><td>Reads the options, refuses r &gt; 1/4, computes the number of steps and dt, runs the version, writes the field file and the summary
+        line, and the errors for case V.</td></tr>
+    <tr><td><code>scripts/convergence.py</code></td><td>Task 7.2: runs test V for N = 16…256 at T = 0.05, prints the table with p_obs, saves CSV + log-log plot.</td></tr>
+    <tr><td><code>scripts/heatmap.py</code></td><td>Draws a field file as a coloured picture.</td></tr>
+  </table>
+
+  <h4>How Case 2's edges are set</h4>
+  <p>Bottom row (j = 0) and top row (j = N) = 1, <b>including the 4 corners</b>; left (i = 0) and right (i = N) columns = 0 for the other rows;
+     interior = 0. Case 1: every edge node = 1. Case V: interior = sin(πx)·sin(πy), edges = 0.</p>
+
   <h4>What actually happened — session log</h4>
   <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
-    <tr><td>1</td><td>—</td><td>(to fill in as we go)</td><td></td></tr></table>
+    <tr><td>1</td><td>Claude (test build in its own sandbox, g++ 13.3, without MPI):<br><code>./build/heat --case V --N 64 --r 0.2 --T 0.05</code></td>
+        <td><code>decomp=serial P=1 case=V N=64 steps=1024 r=0.2 dt=4.882813e-05 T=0.05 … err_inf=1.034425e-04 err_l2=5.172124e-05</code></td>
+        <td>The program runs. With r = 0.2 and T = 0.05, steps = 0.25·N² exactly (1024 for N = 64), so r stays exactly 0.2.</td></tr>
+    <tr><td>2</td><td><code>./build/heat --case 1 --N 32 --r 0.3 --steps 10</code></td>
+        <td><i>error: r = 0.3 is unstable. The explicit 2D scheme needs r = dt/h^2 &lt;= 1/4 (Task 6.3); …</i> (exit code 1)</td>
+        <td>The program refuses an unstable r and says why, as required.</td></tr>
+    <tr><td>3</td><td><code>python3 scripts/convergence.py 0.2</code></td>
+        <td>N = 16, 32, 64, 128, 256 → err_2h = 8.32e-4, 2.07e-4, 5.17e-5, 1.29e-5, 3.23e-6; <b>p_obs = 2.006, 2.001, 2.000, 2.000</b></td>
+        <td>The error drops by exactly 4× each time N doubles: <b>second-order convergence</b>, as predicted by Task 7.1. The solver is correct.
+            (To redo in our VM, the results to keep and hand in.)</td></tr>
+    <tr><td>4</td><td><code>./build/heat --case 1 --N 64 --r 0.26 --steps 300 --force-unstable --out bad.bin</code><br><code>python3 scripts/heatmap.py bad.bin 64</code></td>
+        <td>Values between −7457 and +7414 (instead of 0…1), in a <b>checkerboard</b> pattern</td>
+        <td>Task 6.7 preview: just above the limit, the checkerboard mode (θ = φ = π, the worst mode of Task 6.3) grows at every step and explodes.</td></tr>
+  </table>
 </section>
 
 <h2 class="section-title">Coming next</h2>
