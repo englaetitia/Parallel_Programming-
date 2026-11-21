@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 5 — ping-pong</div>
   <div class="chip"><b>Steps done</b>5 of 9 (Steps 0–4)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 11:55</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 12:03</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -856,9 +856,9 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
   <h4>Results table (for C1)</h4>
   <table>
     <tr><th>Pair</th><th>Connection</th><th>ts (latency)</th><th>Bandwidth</th></tr>
-    <tr><td>heat-laetitia ↔ heat-laetitia (same VM)</td><td>local</td><td>…</td><td>…</td></tr>
-    <tr><td>heat-georges ↔ heat-georges (same VM)</td><td>local</td><td>…</td><td>…</td></tr>
-    <tr><td>heat-laetitia ↔ heat-georges</td><td>direct (65 ms tailscale ping)</td><td>…</td><td>…</td></tr>
+    <tr><td>heat-laetitia ↔ heat-laetitia (same VM)</td><td>local (TCP)</td><td>0.014 ms</td><td>2,554 MB/s</td></tr>
+    <tr><td>heat-georges ↔ heat-georges (same VM)</td><td>local (TCP)</td><td>0.004 ms</td><td>5,021 MB/s</td></tr>
+    <tr><td>heat-laetitia ↔ heat-georges</td><td>direct (65 ms tailscale ping)</td><td>≈ 47 ms (to redo)</td><td>≈ 0.08 MB/s (to redo)</td></tr>
   </table>
   <p>Note: our <code>run_mpi.sh</code> uses <code>--mca btl tcp,self</code>, so even same-VM messages go through TCP (not shared memory).
      Same-VM numbers are therefore "TCP inside one machine". We say so in the report.</p>
@@ -867,7 +867,7 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
   <ul class="checks">
     <li>pingpong compiled in both VMs</li>
     <li class="ok">Run (a) same VM heat-laetitia, saved</li>
-    <li>Run (b) same VM heat-georges, saved</li>
+    <li class="ok">Run (b) same VM heat-georges, saved</li>
     <li>Run (c) across VMs, saved (network type noted)</li>
     <li>Fit done, table filled, plot saved</li>
     <li>Raw CSV files and plot committed to Git</li>
@@ -894,6 +894,30 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
         <td><code>ValueError: not enough values to unpack (expected 5, got 1)</code></td>
         <td>The files of the failed runs (b) and (c) contained mpirun's error text instead of numbers, and the script crashed on it. We fixed the
             script so it skips non-number lines and says when a file has no measurements.</td></tr>
+    <tr><td>5</td><td>Georges-Anthony: <code>git pull</code> + <code>mpicxx -O2 -o tools/pingpong tools/pingpong.cpp</code><br>
+        heat-laetitia: <code>git pull</code>, then runs (b) and (c) again</td>
+        <td>Run (c) (across VMs), last lines before stopping:<br>
+        <code>4096,50,1.236e-01,6.180e-02,0.066</code><br><code>8192,50,1.797e-01,8.987e-02,0.091</code><br>
+        <code>16384,50,3.919e-01,1.960e-01,0.084</code><br><code>32768,50,1.008e+00,5.040e-01,0.065</code><br>
+        <code>65536,50,2.467e+00,1.233e+00,0.053</code><br><code>131072,10,3.094e+00,1.547e+00,0.085</code><br>
+        then <b>Ctrl+C</b> → <i>WARNING: Open MPI failed to TCP connect to a peer … connect() to 100.75.82.44:1024 failed</i></td>
+        <td>Across the internet, a 64 KB message takes <b>1.2 s</b> one way, so the bandwidth is only about <b>0.05–0.09 MB/s</b>
+            (≈ 0.5–0.7 Mbit/s, most likely the home internet <b>upload</b> limit). At that speed the 16 MB messages would have taken over half an
+            hour, so the run was stopped with Ctrl+C after 128 KB. The WARNING is just the result of the Ctrl+C (the processes were killed
+            mid-message): harmless.</td></tr>
+    <tr><td>6</td><td><code>python3 scripts/fit_pingpong.py results/raw/pingpong_*.csv</code></td>
+        <td><code>pingpong_georges_same.csv      0.004 ms   5021.43 MB/s   -0.006 ms  5197.38 MB/s</code><br>
+            <code>pingpong_laetitia_georges.csv  46.821 ms     0.08 MB/s   49.679 ms     0.08 MB/s</code><br>
+            <code>pingpong_laetitia_same.csv     0.014 ms   2554.16 MB/s    0.027 ms  2605.73 MB/s</code><br>
+            <code>plot saved to results/pingpong.png</code></td>
+        <td><b>First numbers for the model.</b> Same VM: latency 4–14 µs, bandwidth 2.5–5 GB/s. Across VMs: latency ≈ <b>47 ms</b>
+            (≈ 3,000–10,000× worse) and bandwidth ≈ <b>0.08 MB/s</b> (≈ 30,000–60,000× worse). The negative "ts (fit all)" for heat-georges is just a
+            straight-line fit going slightly below zero; we use the "ts (small msg)" column. The cross-VM run must be <b>redone completely</b>
+            (it stopped at 128 KB, and Georges-Anthony was also running measurements at the same time, which disturbs the network).</td></tr>
+    <tr><td>7</td><td>Improved <code>tools/pingpong.cpp</code></td><td>—</td>
+        <td>(1) Optional maximum size: <code>tools/pingpong 1048576</code> stops at 1 MB. (2) The number of repetitions is chosen automatically
+            so each size takes about 2 s (between 3 and 1000 round trips). (3) 3 tiny exchanges before timing, to open the connection. So the
+            cross-VM run fits in a few minutes even on a slow upload.</td></tr>
   </table>
 </section>
 
