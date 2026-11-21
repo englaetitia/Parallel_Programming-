@@ -5,7 +5,8 @@ Usage:  python3 scripts/fit_pingpong.py results/raw/pingpong_*.csv
 Prints one line per file (latency ts, bandwidth 1/tw) and saves results/pingpong.png.
 
 How the fit works (simple version of what the project sheet asks):
-  * ts (latency)   = the one-way time of the smallest message (8 bytes): almost pure start-up cost.
+  * ts (latency)   = the MEDIAN one-way time of the small messages (<= 1 KB): almost pure start-up cost.
+                     (median, so one unlucky slow measurement doesn't spoil it)
   * tw             = slope of a straight line through the large messages (>= 1 MB), where the
                      size dominates; bandwidth = 1/tw.
   * We also give a least-squares fit over ALL points, for comparison.
@@ -48,14 +49,15 @@ def main(files):
     if not files:
         print(__doc__)
         return 1
-    print(f"{'file':40s} {'ts (small msg)':>15s} {'bandwidth (big msgs)':>21s} {'ts (fit all)':>13s} {'bw (fit all)':>13s}")
+    print(f"{'file':40s} {'ts (median <=1KB)':>17s} {'bandwidth (big msgs)':>21s} {'ts (fit all)':>13s} {'bw (fit all)':>13s}")
     plt.figure(figsize=(7, 5))
     for path in files:
         hosts, m, t = load(path)
         if m is None or len(m) < 2:
             print(f"{os.path.basename(path):40s} (no measurements in this file: did the run fail? skipped)")
             continue
-        ts_small = t[0]
+        small = m <= 1024
+        ts_small = float(np.median(t[small])) if small.any() else t[0]
         big = m >= 1024 * 1024
         if big.sum() >= 2:
             tw_big, _ = np.polyfit(m[big], t[big], 1)
@@ -63,7 +65,7 @@ def main(files):
             tw_big = t[-1] / m[-1]
         tw_all, ts_all = np.polyfit(m, t, 1)
         name = os.path.basename(path)
-        print(f"{name:40s} {ts_small*1e3:12.3f} ms {1/tw_big/1e6:15.2f} MB/s {ts_all*1e3:10.3f} ms {1/tw_all/1e6:10.2f} MB/s")
+        print(f"{name:40s} {ts_small*1e3:14.3f} ms {1/tw_big/1e6:15.2f} MB/s {ts_all*1e3:10.3f} ms {1/tw_all/1e6:10.2f} MB/s")
         line, = plt.loglog(m, t, "o", label=f"{name} ({hosts})")
         mm = np.logspace(np.log10(m[0]), np.log10(m[-1]), 100)
         plt.loglog(mm, ts_small + mm * tw_big, "-", color=line.get_color(), alpha=0.6)
