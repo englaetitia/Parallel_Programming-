@@ -780,3 +780,23 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 17:46 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim, shortened):** heat-laetitia `git pull` 5555701..12f6b99 (llm_log/LOG.md) → `12f6b99 (HEAD -> main, origin/main, origin/HEAD) check_identical: report failed runs, never reuse old files`.
+
+**Response (summary):** the VM now has the fixed script. Georges-Anthony pulls too (same 12f6b99). Next: run the six blocks P=6 tests with --oversubscribe and paste the output.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:47–17:54 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, shortened):** "i opened a new vm shell by mistake :" + six `-bash: ./build/heat: No such file or directory` / `scripts/run_mpi.sh: No such file or directory` / DIFFERENT lines (shell in ~); then the rerun in ~/heat: six lines `decomp=blocks P=6 layout=3x2 … t_total≈27–36 s t_comp≈0.0006 s t_comm≈27–36 s` (case V: err_l2=3.466430e-05 for N=64, 2.944952e-05 for N=67), each followed by `OK case=… blocks P=6`.
+
+**Response (summary):** first attempt ran in the wrong folder (cd ~/heat first). The rerun proves the P=6 (3x2) runs across both VMs are identical to serial → checkpoint C2 complete, 54/54 real. Timing preview: about 133 ms per step of communication vs 0.6 ms of computation in total for N=64 (oversubscribed, not used in the performance study). Steps 9 and 10 marked Done in PROGRESS.html. Next: start perf_scaling.sh (estimated 6–8 hours; small N results first), with both VMs kept on.
+
+**Files created/modified:** `PROGRESS.html` (part C rows 6–7, Steps 9–10 Done), `llm_log/LOG.md`.
+
+---

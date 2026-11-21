@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 17:50</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 18:00</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1158,7 +1158,7 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
 <section class="step" id="step-9">
   <div class="step-head">
     <h3>Step 9 — Strips: the first parallel version (owner: Laetitia) — checkpoint C2</h3>
-    <span class="badge progress">Code ready · waiting for runs</span>
+    <span class="badge done">Done — identical across 2 VMs</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> Project Part 2. Split the plate between several processes so each one computes only a part.
@@ -1220,7 +1220,7 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
         <td>rank 2 owns rows 6..7, rank 1 rows 4..5, rank 0 rows 1..3 (3 + 2 + 2); top ghost of rank 2 = row 8 = all 1.0 (hot edge);
             bottom ghost of rank 0 = row 0 = all 1.0</td>
         <td>The uneven split and the ghost rows are right (the "debugging a halo exchange" check of the project sheet).</td></tr>
-    <tr><td>5</td><td>Laetitia (VM): the "Next commands" below</td>
+    <tr><td>5</td><td>Laetitia (VM): the "Next commands" below (cluster result: see "Plan → C — what happened")</td>
         <td>(1) Open MPI: <i>"There are not enough slots available in the system to satisfy the 2 slots that were requested …
             Alternatively, you can use the --oversubscribe option"</i>.<br>
             (2) <code>error: unknown option --debug</code> — and the usage line printed does <b>not</b> list <code>--debug</code>.<br>
@@ -1258,7 +1258,7 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
 <section class="step" id="step-10">
   <div class="step-head">
     <h3>Step 10 — Blocks: the 2D parallel version (owner: Laetitia) — checkpoint C3</h3>
-    <span class="badge progress">Code ready · waiting for runs</span>
+    <span class="badge done">Done — identical across 2 VMs (P up to 6)</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> Project Part 3. Instead of bands, cut the plate into a grid of rectangles. Each process then has 4 neighbours
@@ -1288,7 +1288,8 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <td>27 / 27 OK, layouts 1x1, 2x1, 3x1, 2x2, 3x2</td><td>Identical to serial, including uneven splits (N = 67) and a 3×2 grid.</td></tr>
     <tr><td>2</td><td><code>FAKEMPI_NP=4 ./build/heat --decomp blocks --case V --N 64 --r 0.2 --T 0.05</code></td>
         <td><code>layout=2x2 … err_inf=1.034425e-04 err_l2=5.172124e-05</code></td><td>Same error digits as the serial run of Step 7.</td></tr>
-    <tr><td>3</td><td>Laetitia / cluster — <i>to do</i> (same check script as Step 9)</td><td></td><td></td></tr>
+    <tr><td>3</td><td>Cluster (both VMs), see "Plan → C — what happened", rows 4 and 7</td><td>blocks P = 1, 2, 3, 4 and 6 (layouts 1x1, 2x1, 3x1, 2x2, 3x2): all identical to serial</td>
+        <td>Blocks verified across the two VMs.</td></tr>
   </table>
 </section>
 
@@ -1418,6 +1419,19 @@ tail -f scaling.log                                     # watch it (Ctrl+C stops
         <td>Now: the old output file is deleted before each run, and a run that does not start or crashes is reported as <code>FAILED</code> and counted as a failure.
             Tested in the sandbox with a fake mpirun that refuses P = 6: six <code>FAILED</code> lines, <code>48 / 54 identical</code>.</td>
         <td>A check must fail when something goes wrong — otherwise it proves nothing. Next: rerun the six P = 6 tests on the cluster with <code>--oversubscribe</code>.</td></tr>
+    <tr><td>6</td><td>Windows: <code>git add . ; git commit -m "check_identical: report failed runs, never reuse old files" ; git push</code>;
+        VM: <code>git pull</code> → <code>12f6b99 … check_identical: report failed runs, never reuse old files</code> (Georges-Anthony the same).<br>
+        First try in a new VM shell: <code>-bash: ./build/heat: No such file or directory</code> ×6 → the new shell was in <code>~</code>, not <code>~/heat</code>; nothing ran.</td>
+        <td></td><td>A new terminal always starts in the home folder: <code>cd ~/heat</code> first.</td></tr>
+    <tr><td>7</td><td>heat-laetitia, in <code>~/heat</code>: for case 1, 2, V and N = 64, 67: serial run, then
+        <code>bash scripts/run_mpi.sh --oversubscribe -np 6 ./build/heat --decomp blocks … --steps 200 --out build/check/b6.bin</code>, then <code>cmp</code></td>
+        <td><code>decomp=blocks P=6 layout=3x2 case=1 N=64 steps=200 … t_total=26.696399 t_comp=0.000617 t_comm=26.695742</code> → <code>OK case=1 N=64 blocks P=6</code><br>
+            same for case 1 N = 67, case 2 N = 64 / 67, case V N = 64 (<code>err_l2=3.466430e-05</code>), case V N = 67 (<code>err_l2=2.944952e-05</code>): <b>6 × OK</b>, all <code>layout=3x2</code>.</td>
+        <td><b>Checkpoint C2 done: 54 / 54 runs across the two VMs give exactly the same bytes as the serial version</b> (48 in row 4 + these 6, which this time really ran:
+            each printed its <code>layout=3x2</code> line). <br>
+            The times are a preview of Step 11: 200 steps took about 27 s, of which <b>0.0006 s computing and 26.7 s communicating</b> (≈ 133 ms per step for 4 exchanges
+            over Tailscale). For such a small grid the network is everything — just what Task 8.2(d) predicts. (6 processes on 4 cores, so these times are not used
+            in the performance study.)</td></tr>
   </table>
   <p>Note: in the cluster check, only rank 0 (on heat-laetitia) writes the output files, so Georges's VM only needs the built program.</p>
   <p>When <code>perf_scaling.sh</code> has finished: <code>python3 scripts/analyze_perf.py</code>, copy <code>results/</code> to Windows, push.</p>
