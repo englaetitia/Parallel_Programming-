@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-11-21" />
+  <title>Essential Tasks of the heat-equation project</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+</style>
+  <style type="text/css">:root {
+--bg: #ffffff;
+--text: #1f2328;
+--muted: #59636e;
+--accent: #0b5cad;
+--rule: #d8dee4;
+--code-bg: #f3f5f7;
+--head-bg: #eef2f6;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--bg: #14181d;
+--text: #e4e8ec;
+--muted: #9aa5b1;
+--accent: #6cb0f5;
+--rule: #333b44;
+--code-bg: #1e242b;
+--head-bg: #1e252d;
+}
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+background: var(--bg);
+color: var(--text);
+font-family: Georgia, "Times New Roman", serif;
+font-size: 1.06rem;
+line-height: 1.6;
+max-width: 46rem;
+margin: 0 auto;
+padding: 1.5rem 1rem 4rem;
+}
+header#title-block-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule); padding-bottom: 1rem; }
+h1.title { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.3rem; }
+p.subtitle { margin: 0; font-size: 1.1rem; color: var(--muted); }
+p.date { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.95rem; }
+h1, h2, h3 { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; line-height: 1.3; }
+h2 { font-size: 1.45rem; margin-top: 2.6rem; padding-top: 0.4rem; border-top: 1px solid var(--rule); }
+a { color: var(--accent); }
+nav#TOC {
+background: var(--head-bg);
+border-radius: 8px;
+padding: 0.6rem 1.2rem;
+margin-bottom: 2rem;
+font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+font-size: 0.95rem;
+}
+nav#TOC ul { list-style: none; padding-left: 0; margin: 0.3rem 0; }
+nav#TOC li { margin: 0.2rem 0; }
+code {
+font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+background: var(--code-bg);
+padding: 0.1em 0.35em;
+border-radius: 4px;
+font-size: 0.88em;
+overflow-wrap: anywhere;
+}
+table { border-collapse: collapse; margin: 1.2rem auto; font-size: 0.93rem; max-width: 100%; }
+td { overflow-wrap: break-word; }
+th, td { border-bottom: 1px solid var(--rule); padding: 0.4rem 0.75rem; text-align: left; vertical-align: top; }
+thead th { background: var(--head-bg); border-bottom: 2px solid var(--rule); font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+math { font-size: 1.05em; }
+
+menclose {
+background: color-mix(in srgb, var(--accent) 12%, transparent);
+padding: 0.25em 0.5em;
+border-radius: 4px;
+}
+math[display="block"] { display: block; overflow-x: auto; overflow-y: hidden; padding: 0.3rem 0; max-width: 100%; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: 0.25rem 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0 1.5rem; }
+@media print {
+body { max-width: none; padding: 0; font-size: 11pt; }
+nav#TOC { display: none; }
+h2 { page-break-after: avoid; }
+table, math[display="block"] { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Essential Tasks of the heat-equation project</h1>
+<p class="subtitle">Step-by-step solutions of Tasks 3.2, 3.4, 5.2, 5.5,
+6.3, 7.1, 7.2 and 8.2</p>
+<p class="date">21 November 2026 — Georges-Anthony El Hajj; reviewed and corrected with our measured values (Laetitia Daou)</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#the-one-tool-taylor-series" id="toc-the-one-tool-taylor-series">The one tool: Taylor series</a></li>
+<li><a href="#task-3.2-the-second-derivative" id="toc-task-3.2-the-second-derivative">Task 3.2: the second
+derivative</a></li>
+<li><a href="#task-3.4-the-discrete-laplacian" id="toc-task-3.4-the-discrete-laplacian">Task 3.4: the discrete
+Laplacian</a></li>
+<li><a href="#task-5.2-the-update-rule" id="toc-task-5.2-the-update-rule">Task 5.2: the update rule</a></li>
+<li><a href="#task-5.5-accuracy-of-the-scheme" id="toc-task-5.5-accuracy-of-the-scheme">Task 5.5: accuracy of the
+scheme</a></li>
+<li><a href="#task-6.3-why-rle-14" id="toc-task-6.3-why-rle-14">Task
+6.3: why
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mn>1</mn><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">r\le 1/4</annotation></semantics></math></a></li>
+<li><a href="#tasks-7.1-and-7.2-what-convergence-to-expect" id="toc-tasks-7.1-and-7.2-what-convergence-to-expect">Tasks 7.1 and 7.2:
+what convergence to expect</a></li>
+<li><a href="#task-8.2-strips-against-blocks" id="toc-task-8.2-strips-against-blocks">Task 8.2: strips against
+blocks</a></li>
+<li><a href="#notes-before-writing-the-report" id="toc-notes-before-writing-the-report">Notes before writing the
+report</a></li>
+<li><a href="#how-the-answers-were-checked" id="toc-how-the-answers-were-checked">How the answers were
+checked</a></li>
+</ul>
+</nav>
+<p>Notation:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">u_{i,j}</annotation></semantics></math>
+is the temperature at column
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+row
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mi>α</mi><mspace width="0.167em"></mspace><mi mathvariant="normal">Δ</mi><mi>t</mi><mi>/</mi><msup><mi>h</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r=\alpha\,\Delta t/h^2</annotation></semantics></math>.
+A “flop” is one floating-point operation.</p>
+<h2 id="the-one-tool-taylor-series">The one tool: Taylor series</h2>
+<p>For a smooth
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>,
+the value at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>+</mo><mi>h</mi></mrow><annotation encoding="application/x-tex">x+h</annotation></semantics></math>
+is built from the derivatives at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mo accent="false">∞</mo></munderover><mfrac><msup><mi>h</mi><mi>k</mi></msup><mrow><mi>k</mi><mi>!</mi></mrow></mfrac><mspace width="0.167em"></mspace><msup><mi>f</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">f(x+h)=\sum_{k=0}^{\infty}\frac{h^k}{k!}\,f^{(k)}(x).</annotation></semantics></math>
+For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>−</mo><mi>h</mi></mrow><annotation encoding="application/x-tex">x-h</annotation></semantics></math>,
+replace
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">-h</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mi>k</mi></msup><annotation encoding="application/x-tex">h^k</annotation></semantics></math>
+becomes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>h</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msup><msup><mi>h</mi><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">(-h)^k=(-1)^kh^k</annotation></semantics></math>,
+so the terms with odd
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+change sign and the even ones do not. That is why the two expansions
+differ only in the signs of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mo>′</mo></msup><annotation encoding="application/x-tex">f&#39;</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mo>‴</mo></msup><annotation encoding="application/x-tex">f&#39;&#39;&#39;</annotation></semantics></math>
+terms.</p>
+<p>Every Task below adds, subtracts or combines these expansions so that
+the unwanted terms cancel.</p>
+<h2 id="task-3.2-the-second-derivative">Task 3.2: the second
+derivative</h2>
+<p><strong>Goal:</strong> a formula for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mo>″</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f&#39;&#39;(x)</annotation></semantics></math>
+using only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x-h)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x+h)</annotation></semantics></math>.</p>
+<p><strong>Step 1.</strong> Write both expansions up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>4</mn></msup><annotation encoding="application/x-tex">h^4</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo>+</mo><mi>h</mi><msup><mi>f</mi><mo>′</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>2</mn></mfrac><msup><mi>f</mi><mo>″</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>3</mn></msup><mn>6</mn></mfrac><msup><mi>f</mi><mo>‴</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>24</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">f(x+h)=f+hf&#39;+\frac{h^2}{2}f&#39;&#39;+\frac{h^3}{6}f&#39;&#39;&#39;+\frac{h^4}{24}f&#39;&#39;&#39;&#39;+\dots</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>f</mi><mo>−</mo><mi>h</mi><msup><mi>f</mi><mo>′</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>2</mn></mfrac><msup><mi>f</mi><mo>″</mo></msup><mo>−</mo><mfrac><msup><mi>h</mi><mn>3</mn></msup><mn>6</mn></mfrac><msup><mi>f</mi><mo>‴</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>24</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">f(x-h)=f-hf&#39;+\frac{h^2}{2}f&#39;&#39;-\frac{h^3}{6}f&#39;&#39;&#39;+\frac{h^4}{24}f&#39;&#39;&#39;&#39;+\dots</annotation></semantics></math></p>
+<p><strong>Step 2.</strong> Add them term by term:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>+</mo><mi>f</mi><mo>=</mo><mn>2</mn><mi>f</mi></mrow><annotation encoding="application/x-tex">f+f=2f</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><msup><mi>f</mi><mo>′</mo></msup><mo>−</mo><mi>h</mi><msup><mi>f</mi><mo>′</mo></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">hf&#39;-hf&#39;=0</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>2</mn></mfrac><msup><mi>f</mi><mo>″</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>2</mn></mfrac><msup><mi>f</mi><mo>″</mo></msup><mo>=</mo><msup><mi>h</mi><mn>2</mn></msup><msup><mi>f</mi><mo>″</mo></msup></mrow><annotation encoding="application/x-tex">\frac{h^2}{2}f&#39;&#39;+\frac{h^2}{2}f&#39;&#39;=h^2f&#39;&#39;</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>3</mn></msup><mn>6</mn></mfrac><msup><mi>f</mi><mo>‴</mo></msup><mo>−</mo><mfrac><msup><mi>h</mi><mn>3</mn></msup><mn>6</mn></mfrac><msup><mi>f</mi><mo>‴</mo></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{h^3}{6}f&#39;&#39;&#39;-\frac{h^3}{6}f&#39;&#39;&#39;=0</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>24</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>24</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>=</mo><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>12</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup></mrow><annotation encoding="application/x-tex">\frac{h^4}{24}f&#39;&#39;&#39;&#39;+\frac{h^4}{24}f&#39;&#39;&#39;&#39;=\frac{h^4}{12}f&#39;&#39;&#39;&#39;</annotation></semantics></math></li>
+<li>the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>5</mn></msup><annotation encoding="application/x-tex">h^5</annotation></semantics></math>
+terms are odd and cancel too, so the next term is of order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>6</mn></msup><annotation encoding="application/x-tex">h^6</annotation></semantics></math>.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>f</mi><mo>+</mo><msup><mi>h</mi><mn>2</mn></msup><msup><mi>f</mi><mo>″</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>12</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>6</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">f(x+h)+f(x-h)=2f+h^2f&#39;&#39;+\frac{h^4}{12}f&#39;&#39;&#39;&#39;+\mathcal O(h^6).</annotation></semantics></math></p>
+<p><strong>Step 3.</strong> Subtract
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>f</mi></mrow><annotation encoding="application/x-tex">2f</annotation></semantics></math>
+from both sides and divide by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>2</mn></msup><annotation encoding="application/x-tex">h^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><msub><mi>D</mi><mn>2</mn></msub><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mo>=</mo><msup><mi>f</mi><mo>″</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>4</mn></msup><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,D_2f(x)=\frac{f(x-h)-2f(x)+f(x+h)}{h^2}=f&#39;&#39;(x)+\frac{h^2}{12}f&#39;&#39;&#39;&#39;(x)+\mathcal O(h^4)\,}</annotation></semantics></math>
+The error is proportional to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>2</mn></msup><annotation encoding="application/x-tex">h^2</annotation></semantics></math>,
+so the formula is second-order accurate.</p>
+<p><strong>Second route (undetermined coefficients).</strong> Look for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mstyle displaystyle="true"><mfrac><mrow><mi>a</mi><mspace width="0.167em"></mspace><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>b</mi><mspace width="0.167em"></mspace><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>c</mi><mspace width="0.167em"></mspace><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac></mstyle><annotation encoding="application/x-tex">\dfrac{a\,f(x-h)+b\,f(x)+c\,f(x+h)}{h^2}</annotation></semantics></math>.
+Expanding each term gives
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mi>c</mi></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mspace width="0.167em"></mspace><mi>f</mi><mo>+</mo><mfrac><mrow><mi>c</mi><mo>−</mo><mi>a</mi></mrow><mi>h</mi></mfrac><mspace width="0.167em"></mspace><msup><mi>f</mi><mo>′</mo></msup><mo>+</mo><mfrac><mrow><mi>a</mi><mo>+</mo><mi>c</mi></mrow><mn>2</mn></mfrac><mspace width="0.167em"></mspace><msup><mi>f</mi><mo>″</mo></msup><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">\frac{a+b+c}{h^2}\,f+\frac{c-a}{h}\,f&#39;+\frac{a+c}{2}\,f&#39;&#39;+\dots</annotation></semantics></math>
+To obtain exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mo>″</mo></msup><annotation encoding="application/x-tex">f&#39;&#39;</annotation></semantics></math>
+we need
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mi>c</mi><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>c</mi><mo>−</mo><mi>a</mi><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mfrac><mrow><mi>a</mi><mo>+</mo><mi>c</mi></mrow><mn>2</mn></mfrac><mo>=</mo><mn>1</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">a+b+c=0,\qquad c-a=0,\qquad \frac{a+c}{2}=1.</annotation></semantics></math>
+The second equation gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a=c</annotation></semantics></math>,
+the third then gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>c</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a=c=1</annotation></semantics></math>,
+and the first gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">b=-2</annotation></semantics></math>.
+Same formula.</p>
+<p><strong>Step 4 (part c): numerical check with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>=</mo><mi>sin</mi></mrow><annotation encoding="application/x-tex">f=\sin</annotation></semantics></math>
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x=1</annotation></semantics></math>.</strong>
+The exact values are
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mo>″</mo></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1</mn><mo>=</mo><mi>−</mi><mn>0.841471</mn><mo>,</mo><mspace width="2.0em"></mspace><msup><mi>f</mi><mo>⁗</mo></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1</mn><mo>=</mo><mn>0.841471</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">f&#39;&#39;(1)=-\sin\,1=-0.841471,\qquad f&#39;&#39;&#39;&#39;(1)=\sin\,1=0.841471,</annotation></semantics></math>
+so the predicted error is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac></mstyle><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1</mn></mrow><annotation encoding="application/x-tex">\dfrac{h^2}{12}\sin\,1</annotation></semantics></math>.</p>
+<p>Worked by hand for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">h=0.1</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>0.9</mn><mo>=</mo><mn>0.7833269</mn></mrow><annotation encoding="application/x-tex">\sin\,0.9=0.7833269</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1</mn><mo>=</mo><mn>0.8414710</mn></mrow><annotation encoding="application/x-tex">\sin\,1=0.8414710</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1.1</mn><mo>=</mo><mn>0.8912074</mn></mrow><annotation encoding="application/x-tex">\sin\,1.1=0.8912074</annotation></semantics></math>.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>2</mn></msub><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mn>0.7833269</mn><mo>−</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>0.8414710</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>0.8912074</mn></mrow><mn>0.01</mn></mfrac><mo>=</mo><mfrac><mrow><mi>−</mi><mn>0.0084077</mn></mrow><mn>0.01</mn></mfrac><mo>=</mo><mi>−</mi><mn>0.840770</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">D_2f(1)=\frac{0.7833269-2(0.8414710)+0.8912074}{0.01}=\frac{-0.0084077}{0.01}=-0.840770,</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">error</mtext><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>0.840770</mn><mo>+</mo><mn>0.841471</mn><mo stretchy="false" form="postfix">|</mo><mo>=</mo><mn>7.0099</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><mo>,</mo><mspace width="2.0em"></mspace><mfrac><mn>0.01</mn><mn>12</mn></mfrac><mo>×</mo><mn>0.841471</mn><mo>=</mo><mn>7.0123</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><mspace width="0.222em"></mspace><mi>✓</mi></mrow><annotation encoding="application/x-tex">\text{error}=\lvert-0.840770+0.841471\rvert=7.0099\times10^{-4},\qquad \frac{0.01}{12}\times0.841471=7.0123\times10^{-4}\ \checkmark</annotation></semantics></math></p>
+<table>
+<thead>
+<tr>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math></th>
+<th>error</th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><mrow><mi>sin</mi><mo>⁡</mo></mrow><mspace width="0.167em"></mspace><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{h^2}{12}\sin\,1</annotation></semantics></math></th>
+<th>ratio to previous</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.1</mn><annotation encoding="application/x-tex">0.1</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.0099</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">7.0099\times10^{-4}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.0123</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">7.0123\times10^{-4}</annotation></semantics></math></td>
+<td>–</td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.05</mn><annotation encoding="application/x-tex">0.05</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.7529</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1.7529\times10^{-4}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.7531</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1.7531\times10^{-4}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4.00</mn><annotation encoding="application/x-tex">4.00</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.025</mn><annotation encoding="application/x-tex">0.025</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4.3826</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">4.3826\times10^{-5}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4.3827</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">4.3827\times10^{-5}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4.00</mn><annotation encoding="application/x-tex">4.00</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.0125</mn><annotation encoding="application/x-tex">0.0125</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.0957</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1.0957\times10^{-5}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.0957</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1.0957\times10^{-5}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4.00</mn><annotation encoding="application/x-tex">4.00</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>Halving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+divides the error by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">4=2^2</annotation></semantics></math>,
+which confirms order 2.</p>
+<p><strong>Sanity checks (Task 3.3).</strong> For <i>f</i> = 1: (1 − 2 + 1)/<i>h</i>² = 0.
+For <i>f</i> = <i>x</i>: ((<i>x</i> − <i>h</i>) − 2<i>x</i> + (<i>x</i> + <i>h</i>))/<i>h</i>² = 0. Both are exact, as they must be:
+a constant and a straight line have zero second derivative, and the error term (<i>h</i>²/12)<i>f</i>⁗ vanishes for any
+polynomial of degree ≤ 3, so any reasonable approximation must reproduce them exactly. The coefficients add up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">1-2+1=0</annotation></semantics></math>,
+because a constant has zero second derivative. For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">f=x^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>h</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>−</mo><mn>2</mn><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>h</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mo>=</mo><mfrac><mrow><mn>2</mn><msup><mi>h</mi><mn>2</mn></msup></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mo>=</mo><mn>2</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">\frac{(x-h)^2-2x^2+(x+h)^2}{h^2}=\frac{2h^2}{h^2}=2,</annotation></semantics></math>
+the exact answer.</p>
+<h2 id="task-3.4-the-discrete-laplacian">Task 3.4: the discrete
+Laplacian</h2>
+<p><strong>Step 1.</strong> Freeze
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">y=y_j</annotation></semantics></math>
+and apply Task 3.2 along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+with spacing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">\Delta x</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>u</mi></mrow><mrow><mi>∂</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mo>≈</mo><mfrac><mrow><msub><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub><mo>−</mo><mn>2</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub></mrow><mrow><mi mathvariant="normal">Δ</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{\partial^2u}{\partial x^2}\approx\frac{u_{i-1,j}-2u_{i,j}+u_{i+1,j}}{\Delta x^2}.</annotation></semantics></math></p>
+<p><strong>Step 2.</strong> Freeze
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">x=x_i</annotation></semantics></math>
+and apply it along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>u</mi></mrow><mrow><mi>∂</mi><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac><mo>≈</mo><mfrac><mrow><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>2</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><mrow><mi mathvariant="normal">Δ</mi><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{\partial^2u}{\partial y^2}\approx\frac{u_{i,j-1}-2u_{i,j}+u_{i,j+1}}{\Delta y^2}.</annotation></semantics></math></p>
+<p><strong>Step 3.</strong> Add them. For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>x</mi><mo>=</mo><mi mathvariant="normal">Δ</mi><mi>y</mi><mo>=</mo><mi>h</mi></mrow><annotation encoding="application/x-tex">\Delta x=\Delta y=h</annotation></semantics></math>
+the two
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">-2u_{i,j}</annotation></semantics></math>
+terms combine to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">-4u_{i,j}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><msub><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>4</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,\nabla_h^2u_{i,j}=\frac{u_{i-1,j}+u_{i+1,j}+u_{i,j-1}+u_{i,j+1}-4u_{i,j}}{h^2}\,}</annotation></semantics></math></p>
+<p><strong>Error.</strong> Each direction has error
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msup><mi mathvariant="normal">Δ</mi><mn>2</mn></msup><mn>12</mn></mfrac><annotation encoding="application/x-tex">\frac{\Delta^2}{12}</annotation></semantics></math>
+times a fourth derivative, so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><mi>u</mi><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>u</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><msup><mi>x</mi><mn>2</mn></msup></mrow><mn>12</mn></mfrac><msub><mi>u</mi><mrow><mi>x</mi><mi>x</mi><mi>x</mi><mi>x</mi></mrow></msub><mo>+</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><msup><mi>y</mi><mn>2</mn></msup></mrow><mn>12</mn></mfrac><msub><mi>u</mi><mrow><mi>y</mi><mi>y</mi><mi>y</mi><mi>y</mi></mrow></msub><mo>+</mo><mi>…</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">\nabla_h^2u-\nabla^2u=\frac{\Delta x^2}{12}u_{xxxx}+\frac{\Delta y^2}{12}u_{yyyy}+\dots,</annotation></semantics></math>
+second order in both spacings.</p>
+<p><strong>Stencil.</strong> The weights, to be divided by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>h</mi><mn>2</mn></msup><annotation encoding="application/x-tex">h^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mi>+</mi><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>+</mi><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mi>+</mi><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mi>+</mi><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{ccc} &amp; +1 &amp; \\ +1 &amp; -4 &amp; +1\\ &amp; +1 &amp; \end{array}</annotation></semantics></math>
+The diagonal neighbours have weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>.
+This is why the parallel code does not need corner ghost values.</p>
+<p><strong>Part (f), the meaning.</strong> Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>u</mi><mo accent="true">‾</mo></mover><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>4</mn></mfrac></mstyle><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\bar u_{i,j}=\tfrac14\left(u_{i-1,j}+u_{i+1,j}+u_{i,j-1}+u_{i,j+1}\right)</annotation></semantics></math>
+be the mean of the four neighbours. The numerator equals
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><msub><mover><mi>u</mi><mo accent="true">‾</mo></mover><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>−</mo><mn>4</mn><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">4\bar u_{i,j}-4u_{i,j}</annotation></semantics></math>,
+so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mn>4</mn><msup><mi>h</mi><mn>2</mn></msup></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>u</mi><mo accent="true">‾</mo></mover><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\nabla_h^2u_{i,j}=\frac{4}{h^2}\left(\bar u_{i,j}-u_{i,j}\right).</annotation></semantics></math>
+The mean-value formula of Section 1.4 says that the average of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+over a circle of radius
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>+</mo><mfrac><msup><mi>ρ</mi><mn>2</mn></msup><mn>4</mn></mfrac><msup><mi>∇</mi><mn>2</mn></msup><mi>u</mi><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>ρ</mi><mn>4</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">u+\frac{\rho^2}{4}\nabla^2u+\mathcal O(\rho^4)</annotation></semantics></math>,
+i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>∇</mi><mn>2</mn></msup><mi>u</mi><mo>≈</mo><mfrac><mn>4</mn><msup><mi>ρ</mi><mn>2</mn></msup></mfrac><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">average</mtext><mo>−</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla^2u\approx\frac{4}{\rho^2}(\text{average}-u)</annotation></semantics></math>.
+Here the four neighbours are four equally spaced points of a circle of
+radius
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>,
+so it is the same statement.</p>
+<h2 id="task-5.2-the-update-rule">Task 5.2: the update rule</h2>
+<p><strong>Step 1 (method of lines).</strong> Replace the space
+derivatives and keep time continuous. At each interior node
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mi>α</mi><mspace width="0.167em"></mspace><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><msub><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">\frac{du_{i,j}}{dt}=\alpha\,\nabla_h^2u_{i,j},</annotation></semantics></math>
+one ODE per node.</p>
+<p><strong>Step 2 (forward Euler).</strong> For an ODE
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>u</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac></mstyle><mo>=</mo><mi>F</mi></mrow><annotation encoding="application/x-tex">\dfrac{du}{dt}=F</annotation></semantics></math>,
+forward Euler says
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>u</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><msup><mi>u</mi><mi>n</mi></msup><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>t</mi><mspace width="0.167em"></mspace><mi>F</mi></mrow><annotation encoding="application/x-tex">u^{n+1}=u^n+\Delta t\,F</annotation></semantics></math>.
+Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo>=</mo><mi>α</mi><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><msup><mi>u</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">F=\alpha\nabla_h^2u^n</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>=</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><mfrac><mrow><mi>α</mi><mspace width="0.167em"></mspace><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>−</mo><mn>4</mn><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">u^{n+1}_{i,j}=u^n_{i,j}+\frac{\alpha\,\Delta t}{h^2}\left(u^n_{i+1,j}+u^n_{i-1,j}+u^n_{i,j+1}+u^n_{i,j-1}-4u^n_{i,j}\right).</annotation></semantics></math></p>
+<p><strong>Step 3.</strong> Name the combination
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mstyle displaystyle="true"><mfrac><mrow><mi>α</mi><mspace width="0.167em"></mspace><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><msup><mi>h</mi><mn>2</mn></msup></mfrac></mstyle></mrow><annotation encoding="application/x-tex">r=\dfrac{\alpha\,\Delta t}{h^2}</annotation></semantics></math>;
+it is the dimensionless
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mi>t</mi><mi>/</mi><msup><mi>L</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\alpha t/L^2</annotation></semantics></math>
+of Task 1.2 with time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">\Delta t</annotation></semantics></math>
+and length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>=</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>−</mo><mn>4</mn><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,u^{n+1}_{i,j}=u^n_{i,j}+r\left(u^n_{i+1,j}+u^n_{i-1,j}+u^n_{i,j+1}+u^n_{i,j-1}-4u^n_{i,j}\right)\,}</annotation></semantics></math>
+In our program this is the function <code>update_block</code> in <code>src/heat.cpp</code>:
+<code>out[i] = mid[i] + r * ((mid[i + 1] + mid[i - 1]) + (up[i] + down[i]) - 4.0 * mid[i]);</code>
+(<code>mid</code> = row <i>j</i>, <code>up</code>/<code>down</code> = rows <i>j</i> ± 1). For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>x</mi><mo>≠</mo><mi mathvariant="normal">Δ</mi><mi>y</mi></mrow><annotation encoding="application/x-tex">\Delta x\neq\Delta y</annotation></semantics></math>
+the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-neighbours
+carry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>x</mi></msub><mo>=</mo><mi>α</mi><mi mathvariant="normal">Δ</mi><mi>t</mi><mi>/</mi><mi mathvariant="normal">Δ</mi><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r_x=\alpha\Delta t/\Delta x^2</annotation></semantics></math>
+and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>-neighbours
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>y</mi></msub><mo>=</mo><mi>α</mi><mi mathvariant="normal">Δ</mi><mi>t</mi><mi>/</mi><mi mathvariant="normal">Δ</mi><msup><mi>y</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">r_y=\alpha\Delta t/\Delta y^2</annotation></semantics></math>.</p>
+<p><strong>(a) General spacings, written out.</strong>
+<i>u</i><sup><i>n</i>+1</sup><sub><i>i</i>,<i>j</i></sub> = <i>u</i><sup><i>n</i></sup><sub><i>i</i>,<i>j</i></sub>
++ <i>r<sub>x</sub></i> (<i>u</i><sup><i>n</i></sup><sub><i>i</i>+1,<i>j</i></sub> − 2<i>u</i><sup><i>n</i></sup><sub><i>i</i>,<i>j</i></sub> + <i>u</i><sup><i>n</i></sup><sub><i>i</i>−1,<i>j</i></sub>)
++ <i>r<sub>y</sub></i> (<i>u</i><sup><i>n</i></sup><sub><i>i</i>,<i>j</i>+1</sub> − 2<i>u</i><sup><i>n</i></sup><sub><i>i</i>,<i>j</i></sub> + <i>u</i><sup><i>n</i></sup><sub><i>i</i>,<i>j</i>−1</sub>),
+with <i>r<sub>x</sub></i> = αΔ<i>t</i>/Δ<i>x</i>² and <i>r<sub>y</sub></i> = αΔ<i>t</i>/Δ<i>y</i>². With Δ<i>x</i> = Δ<i>y</i> = <i>h</i> both equal <i>r</i> and this becomes the boxed formula (part b).</p>
+<p><strong>(c) Space-time stencil.</strong> One value at level
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+needs five values at level
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:
+the centre and its four axis neighbours.</p>
+<p><strong>(d) Cost.</strong> Count the operations as the code writes
+them: 3 additions (sum of the four neighbours), 1 multiplication
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>u</mi></mrow><annotation encoding="application/x-tex">4u</annotation></semantics></math>),
+1 subtraction, 1 multiplication by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+and 1 addition, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">3+1+1+1+1=7</annotation></semantics></math>
+flops, with 5 values read and 1 written. In practice the neighbours in
+the rows above and below are still in cache, so each node costs about 24
+bytes of memory traffic (a read, a write and the write-allocate read, 8
+bytes each):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mn>7</mn><mspace width="0.222em"></mspace><mtext mathvariant="normal">flop</mtext></mrow><mrow><mn>24</mn><mspace width="0.222em"></mspace><mtext mathvariant="normal">byte</mtext></mrow></mfrac><mo>≈</mo><mn>0.3</mn><mspace width="0.222em"></mspace><mtext mathvariant="normal">flop/byte</mtext><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{7\ \text{flop}}{24\ \text{byte}}\approx0.3\ \text{flop/byte}.</annotation></semantics></math>
+That is why the loop is limited by memory bandwidth, not by
+arithmetic.</p>
+<p><strong>Task 5.3 (the same formula regrouped).</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>−</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>+</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">u^{n+1}_{i,j}=(1-4r)\,u^n_{i,j}+r\left(u^n_{i-1,j}+u^n_{i+1,j}+u^n_{i,j-1}+u^n_{i,j+1}\right).</annotation></semantics></math>
+The weights satisfy
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>4</mn><mi>r</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">(1-4r)+4r=1</annotation></semantics></math>,
+so a uniform plate stays uniform.</p>
+<h2 id="task-5.5-accuracy-of-the-scheme">Task 5.5: accuracy of the
+scheme</h2>
+<p><strong>Step 1.</strong> Write the scheme as
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>−</mo><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup></mrow><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow></mfrac><mo>−</mo><mi>α</mi><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><msubsup><mi>u</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow><mi>n</mi></msubsup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{u^{n+1}_{i,j}-u^n_{i,j}}{\Delta t}-\alpha\nabla_h^2u^n_{i,j}=0</annotation></semantics></math>
+and insert the exact solution.</p>
+<p><strong>Step 2 (time part).</strong> From the Taylor expansion in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow></mfrac><mo>=</mo><msub><mi>u</mi><mi>t</mi></msub><mo>+</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><mn>2</mn></mfrac><msub><mi>u</mi><mrow><mi>t</mi><mi>t</mi></mrow></msub><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><msup><mi>t</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{u(t+\Delta t)-u(t)}{\Delta t}=u_t+\frac{\Delta t}{2}u_{tt}+\mathcal O(\Delta t^2).</annotation></semantics></math></p>
+<p><strong>Step 3 (space part, Task 3.4).</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><mi>u</mi><mo>=</mo><msup><mi>∇</mi><mn>2</mn></msup><mi>u</mi><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mrow><mi>x</mi><mi>x</mi><mi>x</mi><mi>x</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>y</mi><mi>y</mi><mi>y</mi><mi>y</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>4</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">\nabla_h^2u=\nabla^2u+\frac{h^2}{12}\left(u_{xxxx}+u_{yyyy}\right)+\mathcal O(h^4).</annotation></semantics></math></p>
+<p><strong>Step 4.</strong> Subtract, and use the PDE
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mi>t</mi></msub><mo>=</mo><mi>α</mi><msup><mi>∇</mi><mn>2</mn></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">u_t=\alpha\nabla^2u</annotation></semantics></math>
+so that the leading terms cancel:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow><mn>2</mn></mfrac><msub><mi>u</mi><mrow><mi>t</mi><mi>t</mi></mrow></msub><mo>−</mo><mfrac><mrow><mi>α</mi><msup><mi>h</mi><mn>2</mn></msup></mrow><mn>12</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mrow><mi>x</mi><mi>x</mi><mi>x</mi><mi>x</mi></mrow></msub><mo>+</mo><msub><mi>u</mi><mrow><mi>y</mi><mi>y</mi><mi>y</mi><mi>y</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">\tau=\frac{\Delta t}{2}u_{tt}-\frac{\alpha h^2}{12}\left(u_{xxxx}+u_{yyyy}\right)+\dots</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><mi>τ</mi><mo>=</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><msup><mi>t</mi><mi>p</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><msup><mi>x</mi><mi>q</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><msup><mi>y</mi><mi>q</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>q</mi><mo>=</mo><mn>2</mn><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,\tau=\mathcal O(\Delta t^{p})+\mathcal O(\Delta x^{q})+\mathcal O(\Delta y^{q}),\qquad p=1,\ q=2\,}</annotation></semantics></math>
+It tends to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+as the steps shrink, so the scheme is consistent.</p>
+<p><strong>A useful extra for test V.</strong> For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mrow><mi>sin</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mrow><mi>sin</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mi>−</mi><mn>2</mn><msup><mi>π</mi><mn>2</mn></msup><mi>t</mi></mrow></msup></mrow><annotation encoding="application/x-tex">u=\sin(\pi x)\sin(\pi y)\,e^{-2\pi^2t}</annotation></semantics></math>
+we have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>t</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>4</mn><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">u_{tt}=4\pi^4u</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>x</mi><mi>x</mi><mi>x</mi><mi>x</mi></mrow></msub><mo>=</mo><msub><mi>u</mi><mrow><mi>y</mi><mi>y</mi><mi>y</mi><mi>y</mi></mrow></msub><mo>=</mo><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">u_{xxxx}=u_{yyyy}=\pi^4u</annotation></semantics></math>.
+With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha=1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi><mo>=</mo><mi>r</mi><msup><mi>h</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\Delta t=rh^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mfrac><mrow><mi>r</mi><msup><mi>h</mi><mn>2</mn></msup></mrow><mn>2</mn></mfrac><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>4</mn><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>2</mn><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>π</mi><mn>4</mn></msup><msup><mi>h</mi><mn>2</mn></msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>r</mi><mo>−</mo><mfrac><mn>1</mn><mn>6</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>u</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\tau=\frac{rh^2}{2}\,(4\pi^4u)-\frac{h^2}{12}\,(2\pi^4u)=\pi^4h^2\left(2r-\frac16\right)u.</annotation></semantics></math>
+This vanishes at <i>r</i> = 1/12: the two leading error terms cancel and the scheme becomes fourth order for this problem.
+<b>Check with our program</b> (<code>python3 scripts/convergence.py 0.0833333333333</code>): p<sub>obs</sub> = 3.54, 4.46, 3.54, 4.46 — about 4 on average,
+much better than 2. It is not exactly 4.000 because with <i>T</i> = 0.05 the number of steps <i>T</i>/(<i>r h</i>²) = 0.6 <i>N</i>² is not a whole number,
+so the program rounds it up and the <i>r</i> actually used is slightly below 1/12 (by a different amount on each grid).</p>
+<h2 id="task-6.3-why-rle-14">Task 6.3: why
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mn>1</mn><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">r\le 1/4</annotation></semantics></math></h2>
+<p><strong>Step 1.</strong> Take the scheme
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>=</mo><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup><mo>+</mo><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>u</mi><mrow><mi>j</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>j</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi><mo>−</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>+</mo><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi><mo>+</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo>−</mo><mn>4</mn><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">u^{n+1}_{j,k}=u^n_{j,k}+r\left(u^n_{j-1,k}+u^n_{j+1,k}+u^n_{j,k-1}+u^n_{j,k+1}-4u^n_{j,k}\right)</annotation></semantics></math>
+and insert the wave
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup><mo>=</mo><msup><mi>G</mi><mi>n</mi></msup><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>θ</mi><mo>+</mo><mi>k</mi><mi>φ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">u^n_{j,k}=G^n e^{\mathrm i(j\theta+k\varphi)}</annotation></semantics></math>.</p>
+<p><i>Indices: as in the notes, here j counts along x and k along y (the letter i is kept for the imaginary unit), so u<sub>j,k</sub> here is
+u<sub>i,j</sub> everywhere else in this document and in our code.</i></p>
+<p><strong>Step 2.</strong> Shifts become multiplications:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>j</mi><mo>±</mo><mn>1</mn><mo>,</mo><mi>k</mi></mrow></msub><mo>=</mo><msup><mi>e</mi><mrow><mi>±</mi><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><msub><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">u_{j\pm1,k}=e^{\pm\mathrm i\theta}u_{j,k}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi><mo>±</mo><mn>1</mn></mrow></msub><mo>=</mo><msup><mi>e</mi><mrow><mi>±</mi><mi mathvariant="normal">i</mi><mi>φ</mi></mrow></msup><msub><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">u_{j,k\pm1}=e^{\pm\mathrm i\varphi}u_{j,k}</annotation></semantics></math>.
+The new level is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msubsup><mo>=</mo><mi>G</mi><mspace width="0.167em"></mspace><msubsup><mi>u</mi><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow><mi>n</mi></msubsup></mrow><annotation encoding="application/x-tex">u^{n+1}_{j,k}=G\,u^n_{j,k}</annotation></semantics></math>.</p>
+<p><strong>Step 3.</strong> Divide everything by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>G</mi><mi>n</mi></msup><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>θ</mi><mo>+</mo><mi>k</mi><mi>φ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">G^ne^{\mathrm i(j\theta+k\varphi)}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mn>1</mn><mo>+</mo><mi>r</mi><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo>−</mo><mn>2</mn><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mi>φ</mi></mrow></msup><mo>−</mo><mn>2</mn><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi mathvariant="normal">i</mi><mi>φ</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">G=1+r\left[\left(e^{\mathrm i\theta}-2+e^{-\mathrm i\theta}\right)+\left(e^{\mathrm i\varphi}-2+e^{-\mathrm i\varphi}\right)\right].</annotation></semantics></math></p>
+<p><strong>Step 4.</strong> Use identity (2.1),
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo>−</mo><mn>2</mn><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo>=</mo><mi>−</mi><mn>4</mn><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mfrac><mi>θ</mi><mn>2</mn></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">e^{\mathrm i\theta}-2+e^{-\mathrm i\theta}=-4\sin^2\frac{\theta}{2},</annotation></semantics></math>
+which follows from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo>+</mo><msup><mi>e</mi><mrow><mi>−</mi><mi mathvariant="normal">i</mi><mi>θ</mi></mrow></msup><mo>=</mo><mn>2</mn><mrow><mi>cos</mi><mo>⁡</mo></mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">e^{\mathrm i\theta}+e^{-\mathrm i\theta}=2\cos\theta</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mrow><mi>cos</mi><mo>⁡</mo></mrow><mi>θ</mi><mo>=</mo><mn>2</mn><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1-\cos\theta=2\sin^2(\theta/2)</annotation></semantics></math>.
+Then
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>,</mo><mi>φ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><mrow><mo stretchy="true" form="prefix">[</mo><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mfrac><mi>θ</mi><mn>2</mn></mfrac><mo>+</mo><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mfrac><mi>φ</mi><mn>2</mn></mfrac><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,G(\theta,\varphi)=1-4r\left[\sin^2\frac{\theta}{2}+\sin^2\frac{\varphi}{2}\right]\,}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+is real.</p>
+<p><strong>Step 5.</strong> Each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><annotation encoding="application/x-tex">\sin^2</annotation></semantics></math>
+lies in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,1]</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>8</mn><mi>r</mi><mo>≤</mo><mi>G</mi><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">1-8r\le G\le1</annotation></semantics></math>.
+The upper bound always holds. The smallest value is at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mi>φ</mi><mo>=</mo><mi>π</mi></mrow><annotation encoding="application/x-tex">\theta=\varphi=\pi</annotation></semantics></math>,
+the checkerboard
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>j</mi><mo>+</mo><mi>k</mi></mrow></msup></mrow><annotation encoding="application/x-tex">(-1)^{j+k}</annotation></semantics></math>,
+where both sines equal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mn>1</mn><mo>−</mo><mn>8</mn><mi>r</mi></mrow><annotation encoding="application/x-tex">G=1-8r</annotation></semantics></math>.</p>
+<p><strong>Step 6.</strong> Stability needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>G</mi><mo stretchy="false" form="postfix">|</mo><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lvert G\rvert\le1</annotation></semantics></math>
+for every wave, so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>8</mn><mi>r</mi><mo>≥</mo><mi>−</mi><mn>1</mn><mspace width="1.0em"></mspace><mo>⇔</mo><mspace width="1.0em"></mspace><menclose notation="box"><mrow><mspace width="0.167em"></mspace><mi>r</mi><mo>≤</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mspace width="0.167em"></mspace></mrow></menclose></mrow><annotation encoding="application/x-tex">1-8r\ge-1\quad\Longleftrightarrow\quad\boxed{\,r\le\frac14\,}</annotation></semantics></math>
+For general spacings the condition is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>x</mi></msub><mo>+</mo><msub><mi>r</mi><mi>y</mi></msub><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">r_x+r_y\le\frac12</annotation></semantics></math>.
+In terms of the time step, this is (part b)
+Δ<i>t</i> ≤ 1 / (2α (1/Δ<i>x</i>² + 1/Δ<i>y</i>²)); with Δ<i>x</i> = Δ<i>y</i> = <i>h</i> (part c): Δ<i>t</i> ≤ <i>h</i>²/(4α), i.e. <i>r</i> ≤ 1/4.
+In our program, <code>src/main.cpp</code> refuses to run when <i>r</i> &gt; 1/4 and explains why (only <code>--force-unstable</code>, used for Task 6.7, bypasses it).</p>
+<p><strong>(d) Other dimensions.</strong> In 1D there is one sine,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><msup><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G=1-4r\sin^2(\theta/2)</annotation></semantics></math>,
+with worst case
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><mo>≥</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">1-4r\ge-1</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">r\le\frac12</annotation></semantics></math>.
+In 3D there are three sines, worst case
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>12</mn><mi>r</mi><mo>≥</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">1-12r\ge-1</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow><annotation encoding="application/x-tex">r\le\frac16</annotation></semantics></math>.</p>
+<p><strong>Link to Task 6.4.</strong> In the regrouped form the centre
+weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi></mrow><annotation encoding="application/x-tex">1-4r</annotation></semantics></math>
+is non-negative exactly when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">r\le\frac14</annotation></semantics></math>,
+so every new value is a weighted average of old ones and cannot leave
+the range of the data. Above
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mn>1</mn><mn>4</mn></mfrac><annotation encoding="application/x-tex">\frac14</annotation></semantics></math>
+it is negative: a hot node overshoots below its neighbours, then back
+above, which is the checkerboard.</p>
+<p><strong>Link to Task 6.7.</strong> At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>1.05</mn><mo>×</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>=</mo><mn>0.2625</mn></mrow><annotation encoding="application/x-tex">r=1.05\times\frac14=0.2625</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mn>1</mn><mo>−</mo><mn>8</mn><mo stretchy="false" form="prefix">(</mo><mn>0.2625</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mn>1.1</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">G=1-8(0.2625)=-1.1.</annotation></semantics></math>
+The sign flips every step and the size grows by about 10% per step:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.1</mn><annotation encoding="application/x-tex">1.1</annotation></semantics></math>
+for the pure checkerboard,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mi>r</mi><msup><mrow><mi>cos</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mfrac><mi>π</mi><mrow><mn>2</mn><mi>N</mi></mrow></mfrac><mo>−</mo><mn>1</mn><mo>=</mo><mn>1.0987</mn></mrow><annotation encoding="application/x-tex">8r\cos^2\frac{\pi}{2N}-1=1.0987</annotation></semantics></math>
+for the fastest-growing wave on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>64</mn></mrow><annotation encoding="application/x-tex">N=64</annotation></semantics></math>
+grid with fixed edges, and
+<b>1.0927 measured with our program</b> (Case 1, <i>N</i> = 64: largest |<i>u</i>| after 300 steps divided by that after 299 steps).</p>
+<p><strong>Task 6.7, what we saw</strong> (<code>./build/heat --case 1 --N 64 --r 0.2625 --steps 300 --force-unstable</code>, picture
+<code>results/unstable.png</code>). For about 100 steps nothing is visible. The first wiggles appear <b>next to the corners</b>
+(around <i>x</i>, <i>y</i> ≈ 0.1, step 80–100), where the hot edges meet and the solution has its sharpest jumps; around step 120 values leave [0, 1]
+(max 1.09); at step 150 they are between −4 and +5, at step 200 ±300, at step 300 ±1.9 × 10⁶. The pattern is a <b>checkerboard</b>: the sign flips
+from one node to the next in both directions and at every step, strongest in four patches around (0.2, 0.2), (0.8, 0.2), (0.2, 0.8), (0.8, 0.8).
+This is exactly the worst mode of Task 6.3 (θ = φ = π, (−1)<sup>j+k</sup>), the only kind of wave with |<i>G</i>| &gt; 1 when <i>r</i> is just above 1/4.</p>
+<h2 id="tasks-7.1-and-7.2-what-convergence-to-expect">Tasks 7.1 and 7.2:
+what convergence to expect</h2>
+<p><strong>Step 1.</strong> The error follows the truncation error,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal O(\Delta t)+\mathcal O(h^2)</annotation></semantics></math>.</p>
+<p><strong>Step 2.</strong> Keep
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+fixed, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi><mo>=</mo><mi>r</mi><msup><mi>h</mi><mn>2</mn></msup><mi>/</mi><mi>α</mi><mo>∝</mo><msup><mi>h</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\Delta t=rh^2/\alpha\propto h^2</annotation></semantics></math>
+and the time error is also
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal O(h^2)</annotation></semantics></math>.
+The total is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal O(h^2)</annotation></semantics></math>:
+doubling
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+divides the error by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4</mn><annotation encoding="application/x-tex">4</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mtext mathvariant="normal">obs</mtext></msub><mo>→</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">p_{\text{obs}}\to2</annotation></semantics></math>.</p>
+<p><strong>Step 3 (how to compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">obs</mtext></msub><annotation encoding="application/x-tex">p_{\text{obs}}</annotation></semantics></math>).</strong>
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mi>C</mi><msup><mi>h</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">E(h)\approx Ch^p</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">E(h)/E(h/2)=2^p</annotation></semantics></math>,
+so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mtext mathvariant="normal">obs</mtext></msub><mo>=</mo><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mfrac><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>h</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">p_{\text{obs}}=\log_2\frac{E(h)}{E(h/2)}.</annotation></semantics></math>
+From our table:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mstyle displaystyle="true"><mfrac><mrow><mn>8.3169</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow><mrow><mn>2.0709</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup></mrow></mfrac></mstyle><mo>=</mo><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mn>4.016</mn><mo>=</mo><mn>2.006</mn><mspace width="0.222em"></mspace><mi>✓</mi></mrow><annotation encoding="application/x-tex">\log_2\dfrac{8.3169\times10^{-4}}{2.0709\times10^{-4}}=\log_2 4.016=2.006\ \checkmark</annotation></semantics></math></p>
+<table>
+<thead><tr><th>N</th><th>h</th><th>steps</th><th>‖e‖<sub>∞</sub></th><th>‖e‖<sub>2,h</sub></th><th>p<sub>obs</sub> (from ‖e‖<sub>2,h</sub>)</th></tr></thead>
+<tbody>
+<tr><td>16</td><td>0.06250</td><td>64</td><td>1.6634 × 10⁻³</td><td>8.3169 × 10⁻⁴</td><td>–</td></tr>
+<tr><td>32</td><td>0.03125</td><td>256</td><td>4.1418 × 10⁻⁴</td><td>2.0709 × 10⁻⁴</td><td>2.006</td></tr>
+<tr><td>64</td><td>0.01562</td><td>1024</td><td>1.0344 × 10⁻⁴</td><td>5.1721 × 10⁻⁵</td><td>2.001</td></tr>
+<tr><td>128</td><td>0.00781</td><td>4096</td><td>2.5854 × 10⁻⁵</td><td>1.2927 × 10⁻⁵</td><td>2.000</td></tr>
+<tr><td>256</td><td>0.00391</td><td>16384</td><td>6.4631 × 10⁻⁶</td><td>3.2316 × 10⁻⁶</td><td>2.000</td></tr>
+</tbody></table>
+<p>Run in our VM with <code>python3 scripts/convergence.py</code> (test V, <i>T</i> = 0.05, <i>r</i> = 0.2); raw numbers in
+<code>results/raw/convergence.csv</code>, log-log plot of ‖e‖<sub>2,h</sub> (and ‖e‖<sub>∞</sub>) against <i>h</i> in <code>results/convergence.png</code>:
+the points lie on a line of slope 2. The ‖e‖<sub>∞</sub> column gives the same orders.</p>
+<p><strong>(c) Agreement with Task 7.1.</strong> Yes: p<sub>obs</sub> → 2.000, the order predicted in Task 7.1 for fixed <i>r</i>.</p>
+<p><strong>Step 4 (choose the run).</strong> With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">T=0.05</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>0.2</mn></mrow><annotation encoding="application/x-tex">r=0.2</annotation></semantics></math>
+the number of steps is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>T</mi><mrow><mi mathvariant="normal">Δ</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>T</mi><msup><mi>N</mi><mn>2</mn></msup></mrow><mi>r</mi></mfrac><mo>=</mo><mfrac><msup><mi>N</mi><mn>2</mn></msup><mn>4</mn></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">\frac{T}{\Delta t}=\frac{TN^2}{r}=\frac{N^2}{4},</annotation></semantics></math>
+a whole number for every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+in the list, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+is exactly the same on every grid.</p>
+<h2 id="task-8.2-strips-against-blocks">Task 8.2: strips against
+blocks</h2>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>s</mi></msub><annotation encoding="application/x-tex">t_s</annotation></semantics></math>
+be the start-up time of a message,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>w</mi></msub><annotation encoding="application/x-tex">t_w</annotation></semantics></math>
+the time per double and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>c</mi></msub><annotation encoding="application/x-tex">t_c</annotation></semantics></math>
+the time of one node update.</p>
+<p><strong>(a) Strips.</strong> Each process owns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>/</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">N/P</annotation></semantics></math>
+full rows and needs the row above and the row below. It sends 2 rows and
+receives 2, each of about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+doubles: 2 messages each way.</p>
+<p><strong>(b) Blocks.</strong> Each process owns a square of side
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>/</mi><msqrt><mi>P</mi></msqrt></mrow><annotation encoding="application/x-tex">N/\sqrt P</annotation></semantics></math>
+with 4 sides of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>/</mi><msqrt><mi>P</mi></msqrt></mrow><annotation encoding="application/x-tex">N/\sqrt P</annotation></semantics></math>
+doubles each: 4 messages each way,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>N</mi><mi>/</mi><msqrt><mi>P</mi></msqrt></mrow><annotation encoding="application/x-tex">4N/\sqrt P</annotation></semantics></math>
+doubles in total.</p>
+<p><strong>(c) Time per step</strong> (one message time per exchange,
+since inside <code>MPI_Sendrecv</code> the send and the receive
+overlap):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">strips</mtext></msub><mo>=</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mi>s</mi></msub><mo>+</mo><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>T</mi><mtext mathvariant="normal">blocks</mtext></msub><mo>=</mo><mn>4</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mi>s</mi></msub><mo>+</mo><mfrac><mi>N</mi><msqrt><mi>P</mi></msqrt></mfrac><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">T_{\text{strips}}=2\left(t_s+N\,t_w\right),\qquad T_{\text{blocks}}=4\left(t_s+\frac{N}{\sqrt P}\,t_w\right).</annotation></semantics></math></p>
+<p><strong>When are blocks faster?</strong> Require
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">blocks</mtext></msub><mo>&lt;</mo><msub><mi>T</mi><mtext mathvariant="normal">strips</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{blocks}}&lt;T_{\text{strips}}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><msub><mi>t</mi><mi>s</mi></msub><mo>+</mo><mfrac><mrow><mn>4</mn><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub></mrow><msqrt><mi>P</mi></msqrt></mfrac><mo>&lt;</mo><mn>2</mn><msub><mi>t</mi><mi>s</mi></msub><mo>+</mo><mn>2</mn><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub><mspace width="1.0em"></mspace><mo>⇔</mo><mspace width="1.0em"></mspace><mn>2</mn><msub><mi>t</mi><mi>s</mi></msub><mo>&lt;</mo><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>−</mo><mfrac><mn>4</mn><msqrt><mi>P</mi></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">4t_s+\frac{4N\,t_w}{\sqrt P}&lt;2t_s+2N\,t_w\quad\Longleftrightarrow\quad 2t_s&lt;N\,t_w\left(2-\frac{4}{\sqrt P}\right).</annotation></semantics></math>
+This can only hold if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>−</mo><mn>4</mn><mi>/</mi><msqrt><mi>P</mi></msqrt><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">2-4/\sqrt P&gt;0</annotation></semantics></math>,
+i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>&gt;</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">P&gt;4</annotation></semantics></math>,
+and then
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mspace width="0.167em"></mspace><mi>N</mi><mo>&gt;</mo><msup><mi>N</mi><mo>*</mo></msup><mo>=</mo><mfrac><msub><mi>t</mi><mi>s</mi></msub><mrow><msub><mi>t</mi><mi>w</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mstyle displaystyle="true"><mfrac><mn>2</mn><msqrt><mi>P</mi></msqrt></mfrac></mstyle><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mspace width="0.167em"></mspace></mrow></menclose><annotation encoding="application/x-tex">\boxed{\,N&gt;N^\ast=\frac{t_s}{t_w\left(1-\dfrac{2}{\sqrt P}\right)}\,}</annotation></semantics></math></p>
+<ul>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">P=4</annotation></semantics></math>
+the data volumes are equal
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mi>/</mi><msqrt><mn>4</mn></msqrt><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">4/\sqrt4=2</annotation></semantics></math>),
+so blocks only add latency and never win.</li>
+<li>Small
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>s</mi></msub><annotation encoding="application/x-tex">t_s</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>N</mi><mo>*</mo></msup><annotation encoding="application/x-tex">N^\ast</annotation></semantics></math>
+is small and blocks win for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>&gt;</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">P&gt;4</annotation></semantics></math>
+(less data).</li>
+<li>Large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>s</mi></msub><annotation encoding="application/x-tex">t_s</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>N</mi><mo>*</mo></msup><annotation encoding="application/x-tex">N^\ast</annotation></semantics></math>
+is huge and strips win (fewer messages).</li>
+</ul>
+<p><strong>With our measured network</strong> (Step 5, ping-pong between the two VMs over Tailscale, <code>results/raw/pingpong_laetitia_georges.csv</code>):
+<i>t<sub>s</sub></i> ≈ 29.0 ms and 6.7 µs per byte (0.15 MB/s), so <i>t<sub>w</sub></i> ≈ 5.4 × 10⁻⁵ s per double. Then
+<i>N</i>* = <i>t<sub>s</sub></i> / (<i>t<sub>w</sub></i>(1 − 2/√<i>P</i>)) gives: <b>P = 4: blocks never win</b>; <b>P = 8: N* ≈ 1850</b>; P = 16: N* ≈ 1080.
+Communication time per step from the formulas in (c):</p>
+<table>
+<thead><tr><th></th><th>N = 512</th><th>N = 2048</th><th>N = 8192</th></tr></thead>
+<tbody>
+<tr><td>strips (any P)</td><td>113 ms</td><td>278 ms</td><td>936 ms</td></tr>
+<tr><td>blocks, P = 4</td><td>171 ms</td><td>336 ms</td><td>994 ms</td></tr>
+<tr><td>blocks, P = 8</td><td>155 ms</td><td>271 ms</td><td>737 ms</td></tr>
+<tr><td>prediction</td><td>strips (P = 4 and 8)</td><td>strips at P = 4, blocks at P = 8</td><td>strips at P = 4, blocks at P = 8</td></tr>
+</tbody></table>
+<p>Our network has a huge latency but also a very low bandwidth, so the data volume matters: once <i>P</i> &gt; 4, blocks send less data and win from
+<i>N</i> ≈ 1850. With 2 VMs × 2 cores we can only run <i>P</i> ≤ 4, where strips should always be (slightly) faster — this is what the performance runs will check.
+These numbers count only the messages between the two VMs; messages between two processes on the same VM are thousands of times cheaper
+(0.014 ms, 2.5 GB/s).</p>
+<p><strong>(d) Communication-to-computation ratio for strips.</strong>
+Computation per step is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>c</mi></msub><mspace width="0.167em"></mspace><msup><mi>N</mi><mn>2</mn></msup><mi>/</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">t_c\,N^2/P</annotation></semantics></math>,
+so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msub><mi>T</mi><mtext mathvariant="normal">comm</mtext></msub><msub><mi>T</mi><mtext mathvariant="normal">comp</mtext></msub></mfrac><mo>=</mo><mfrac><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mi>s</mi></msub><mo>+</mo><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><msub><mi>t</mi><mi>c</mi></msub><mspace width="0.167em"></mspace><msup><mi>N</mi><mn>2</mn></msup><mi>/</mi><mi>P</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>s</mi></msub></mrow><mrow><msub><mi>t</mi><mi>c</mi></msub><mspace width="0.167em"></mspace><msup><mi>N</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mrow><mn>2</mn><mi>P</mi><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>w</mi></msub></mrow><mrow><msub><mi>t</mi><mi>c</mi></msub><mspace width="0.167em"></mspace><mi>N</mi></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{T_{\text{comm}}}{T_{\text{comp}}}=\frac{2\left(t_s+N\,t_w\right)}{t_c\,N^2/P}=\frac{2P\,t_s}{t_c\,N^2}+\frac{2P\,t_w}{t_c\,N}.</annotation></semantics></math>
+With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+fixed this falls like
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>N</mi></mrow><annotation encoding="application/x-tex">1/N</annotation></semantics></math>
+(and the latency term like
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><msup><mi>N</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">1/N^2</annotation></semantics></math>):
+computation grows like the area, communication like the perimeter.
+Parallelism over a slow link pays off only for large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.
+<b>With our numbers</b> (<i>t<sub>s</sub></i> = 29 ms, <i>t<sub>w</sub></i> = 5.4 × 10⁻⁵ s per double, and <i>t<sub>c</sub></i> ≈ 1.75 ns per node update
+measured in Step 7, i.e. 0.57 × 10⁹ updates/s), for <i>P</i> = 4:
+the latency term is small only if <i>N</i> ≫ √(2<i>P t<sub>s</sub></i>/<i>t<sub>c</sub></i>) ≈ 11 500, and the bandwidth term only if
+<i>N</i> ≫ 2<i>P t<sub>w</sub></i>/<i>t<sub>c</sub></i> ≈ 245 000. At our largest grid, <i>N</i> = 8192, the ratio is ≈ 2 + 30 = 32:
+the processes would spend about 32 times longer communicating than computing. <b>Prediction: running across our two VMs is slower than one VM
+for every N we can test</b>; spreading over machines would only pay off with a much faster network (on a real cluster with
+<i>t<sub>s</sub></i> ≈ 1 µs the latency limit drops to <i>N</i> ≫ about 70).</p>
+<h2 id="notes-before-writing-the-report">Notes before writing the
+report</h2>
+<ol type="1">
+<li><strong>Where our numbers come from.</strong> Network: <code>results/raw/pingpong_*.csv</code> fitted by <code>scripts/fit_pingpong.py</code>
+(Step 5): between the VMs <i>t<sub>s</sub></i> ≈ 29.0 ms (median of messages ≤ 1 KB) and <i>t<sub>w</sub></i> ≈ 6.7 µs/byte (0.15 MB/s); on one VM
+0.014 ms and 2554 MB/s (heat-laetitia), 0.004 ms and 5021 MB/s (heat-georges). Compute speed: about 1.75 ns per node update (Step 7, to be
+confirmed by <code>scripts/perf_baseline.sh</code> on both VMs). Convergence: <code>results/raw/convergence.csv</code>.</li>
+<li><strong>Two small simplifications.</strong> The strip message is <i>N</i> + 1 doubles in our code (the two boundary columns are included),
+where the answer to Task 8.2 uses the textbook count “about <i>N</i>”; no conclusion changes. The 24 bytes per node in Task 5.2 assumes the usual
+write-allocate cache behaviour and is an estimate, not a measurement.</li>
+<li><strong>Our code, for reference.</strong> Update formula: <code>update_block</code> in <code>src/heat.cpp</code> (used by serial, strips and blocks);
+stability check and step count: <code>src/main.cpp</code>; exact solution of test V: <code>exact_V</code> in <code>src/heat.cpp</code>.</li>
+</ol>
+<h2 id="how-the-answers-were-checked">How the answers were checked</h2>
+<p>Every formula and number above was verified: the algebra symbolically
+(sympy) where possible, the numbers by recomputing them, and the
+stability formula by applying the actual five-point update to a Fourier
+wave.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>How it was checked</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task 3.2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mn>2</mn></msub><mi>f</mi><mo>=</mo><msup><mi>f</mi><mo>″</mo></msup><mo>+</mo><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><msup><mi>f</mi><mo>⁗</mo></msup><mo>+</mo><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>4</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">D_2f=f&#39;&#39;+\frac{h^2}{12}f&#39;&#39;&#39;&#39;+\mathcal O(h^4)</annotation></semantics></math></td>
+<td>series expansion of the formula in sympy</td>
+<td>Correct; the next term is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>4</mn></msup><mn>360</mn></mfrac><msup><mi>f</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>6</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\frac{h^4}{360}f^{(6)}</annotation></semantics></math>,
+so
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>h</mi><mn>4</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal O(h^4)</annotation></semantics></math>”
+is right</td>
+</tr>
+<tr>
+<td>Task 3.2: coefficients
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>c</mi><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>b</mi><mo>=</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">a=c=1,\ b=-2</annotation></semantics></math></td>
+<td>solved the three equations in sympy</td>
+<td>Correct</td>
+</tr>
+<tr>
+<td>Task 3.2 table</td>
+<td>recomputed all four rows</td>
+<td>Errors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.0099</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><mo>,</mo><mspace width="0.222em"></mspace><mn>1.7529</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><mo>,</mo><mspace width="0.222em"></mspace><mn>4.3826</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><mo>,</mo><mspace width="0.222em"></mspace><mn>1.0957</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">7.0099\times10^{-4},\ 1.7529\times10^{-4},\ 4.3826\times10^{-5},\ 1.0957\times10^{-5}</annotation></semantics></math>;
+ratios to the prediction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>h</mi><mn>2</mn></msup><mn>12</mn></mfrac><mrow><mi>sin</mi><mo>⁡</mo></mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{h^2}{12}\sin1</annotation></semantics></math>
+are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.9997</mn><mo>→</mo><mn>0.99999</mn></mrow><annotation encoding="application/x-tex">0.9997\to0.99999</annotation></semantics></math>;
+ratios between rows
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4.00</mn><annotation encoding="application/x-tex">4.00</annotation></semantics></math>.
+Correct</td>
+</tr>
+<tr>
+<td>Task 3.3
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">f=x^2</annotation></semantics></math></td>
+<td>by hand</td>
+<td>Correct</td>
+</tr>
+<tr>
+<td>Task 3.4 formulas and the link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>∇</mi><mi>h</mi><mn>2</mn></msubsup><mi>u</mi><mo>=</mo><mfrac><mn>4</mn><msup><mi>h</mi><mn>2</mn></msup></mfrac><mo stretchy="false" form="prefix">(</mo><mover><mi>u</mi><mo accent="true">‾</mo></mover><mo>−</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\nabla_h^2u=\frac4{h^2}(\bar u-u)</annotation></semantics></math></td>
+<td>by hand</td>
+<td>Correct</td>
+</tr>
+<tr>
+<td>Task 5.2 operation count</td>
+<td>counted against <code>update_block</code> in <code>src/heat.cpp</code></td>
+<td>3 additions, 1 multiplication, 1 subtraction, 1 multiplication, 1
+addition
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">=7</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mi>/</mi><mn>24</mn><mo>=</mo><mn>0.29</mn></mrow><annotation encoding="application/x-tex">7/24=0.29</annotation></semantics></math>
+flop per byte. Correct</td>
+</tr>
+<tr>
+<td>Task 5.5
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>t</mi><mi>t</mi></mrow></msub><mo>=</mo><mn>4</mn><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">u_{tt}=4\pi^4u</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>u</mi><mrow><mi>x</mi><mi>x</mi><mi>x</mi><mi>x</mi></mrow></msub><mo>=</mo><msub><mi>u</mi><mrow><mi>y</mi><mi>y</mi><mi>y</mi><mi>y</mi></mrow></msub><mo>=</mo><msup><mi>π</mi><mn>4</mn></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">u_{xxxx}=u_{yyyy}=\pi^4u</annotation></semantics></math>
+and the heat equation checked symbolically</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><msup><mi>π</mi><mn>4</mn></msup><msup><mi>h</mi><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>r</mi><mo>−</mo><mfrac><mn>1</mn><mn>6</mn></mfrac><mo stretchy="false" form="postfix">)</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">\tau=\pi^4h^2(2r-\frac16)u</annotation></semantics></math>
+confirmed, zero at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mfrac><mn>1</mn><mn>12</mn></mfrac></mrow><annotation encoding="application/x-tex">r=\frac1{12}</annotation></semantics></math>.
+Correct</td>
+</tr>
+<tr>
+<td>Task 6.3
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>,</mo><mi>φ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G(\theta,\varphi)</annotation></semantics></math></td>
+<td>applied the real five-point update to the wave
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><mi mathvariant="normal">i</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mi>θ</mi><mo>+</mo><mi>k</mi><mi>φ</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">e^{\mathrm i(j\theta+k\varphi)}</annotation></semantics></math>
+on a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>64</mn><mo>×</mo><mn>64</mn></mrow><annotation encoding="application/x-tex">64\times64</annotation></semantics></math>
+periodic grid for three
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo>,</mo><mi>φ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\theta,\varphi)</annotation></semantics></math>
+pairs</td>
+<td>Numerical
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+equals the formula to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>12</mn></mrow></msup><annotation encoding="application/x-tex">10^{-12}</annotation></semantics></math>
+in all three cases, including
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mn>8</mn><mi>r</mi></mrow><annotation encoding="application/x-tex">G(\pi,\pi)=1-8r</annotation></semantics></math>.
+Correct</td>
+</tr>
+<tr>
+<td>Task 6.3 limits</td>
+<td>solved
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>8</mn><mi>r</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">1-8r=-1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>4</mn><mi>r</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">1-4r=-1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>12</mn><mi>r</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">1-12r=-1</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>≤</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>,</mo><mspace width="0.222em"></mspace><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>,</mo><mspace width="0.222em"></mspace><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow><annotation encoding="application/x-tex">r\le\frac14,\ \frac12,\ \frac16</annotation></semantics></math>.
+Correct</td>
+</tr>
+<tr>
+<td>Task 7
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">obs</mtext></msub><annotation encoding="application/x-tex">p_{\text{obs}}</annotation></semantics></math></td>
+<td>recomputed from the table</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2.006</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>2.001</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>2.000</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>2.000</mn></mrow><annotation encoding="application/x-tex">2.006,\ 2.001,\ 2.000,\ 2.000</annotation></semantics></math>;
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>N</mi><mn>2</mn></msup><mi>/</mi><mn>4</mn><mo>=</mo><mn>64</mn><mo>,</mo><mn>256</mn><mo>,</mo><mn>1024</mn><mo>,</mo><mn>4096</mn><mo>,</mo><mn>16384</mn></mrow><annotation encoding="application/x-tex">N^2/4=64,256,1024,4096,16384</annotation></semantics></math>
+steps. Correct</td>
+</tr>
+<tr>
+<td>Task 8.2 crossover <i>N</i>*, with our measured <i>t<sub>s</sub></i>, <i>t<sub>w</sub></i></td>
+<td>computed <i>T</i><sub>blocks</sub> − <i>T</i><sub>strips</sub> for P = 4, 8 and N = 512, 2048, 8192</td>
+<td>P = 4: difference always 2<i>t<sub>s</sub></i> = 58 ms (blocks never win). P = 8: <i>N</i>* = 1847; strips win at 512, blocks at 2048 and 8192.
+P = 16: <i>N</i>* = 1082. Correct</td>
+</tr>
+<tr>
+<td>Task 8.2(d) ratio</td>
+<td>evaluated both terms with <i>t<sub>s</sub></i> = 29 ms, <i>t<sub>w</sub></i> = 5.36 × 10⁻⁵ s/double, <i>t<sub>c</sub></i> = 1.75 ns, P = 4</td>
+<td>√(2<i>P t<sub>s</sub>/t<sub>c</sub></i>) = 11 514; 2<i>P t<sub>w</sub>/t<sub>c</sub></i> = 245 000; ratio at N = 8192 ≈ 1.98 + 29.9 ≈ 32. Correct</td>
+</tr>
+<tr>
+<td>Task 5.5 extra (<i>r</i> = 1/12)</td>
+<td><code>python3 scripts/convergence.py 0.0833333333333</code> with our program</td>
+<td>p<sub>obs</sub> = 3.54, 4.46, 3.54, 4.46 (≈ 4; not exact because the step count is rounded)</td>
+</tr>
+<tr>
+<td>Task 6.7 growth and pattern</td>
+<td>our program, Case 1, <i>N</i> = 64, <i>r</i> = 0.2625, runs of 80 … 300 steps</td>
+<td>growth per step 1.0927 (theory 1.0987 for the fastest wave on this grid); checkerboard, first near the corners, values ±1.9 × 10⁶ after 300 steps</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>This document covers the essential Tasks. The other Tasks of the background notes (1.1, 1.2, 1.3, 2.1, 3.1, 3.5, 4.1, 5.1, 5.4, 6.1, 6.2,
+6.6, 8.1, and the full answers of 3.3, 5.3 and 6.4) are still to be written for the final hand-in. We must be able to explain every derivation
+ourselves: read each step, close the page, and redo the calculation on paper; if a step is unclear, go through it together until both of us can
+explain it without the page.</p>
+</body>
+</html>

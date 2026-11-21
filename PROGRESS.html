@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 14:00</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 14:30</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -964,7 +964,7 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
 <section class="step" id="step-6">
   <div class="step-head">
     <h3>Step 6 — The maths Tasks (owner: Georges-Anthony)</h3>
-    <span class="badge progress">Starting</span>
+    <span class="badge progress">Essential Tasks done · fixes + other Tasks left</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> The background notes make us derive the formula our program uses, its accuracy and its stability limit.
@@ -979,7 +979,46 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
   </ul>
   <h4>What actually happened — session log</h4>
   <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
-    <tr><td>1</td><td>—</td><td>(to fill in as we go)</td><td></td></tr></table>
+    <tr><td>1</td><td>Georges-Anthony → Laetitia: <code>essential_tasks_walkthrough.html</code> (21 Nov), step-by-step solutions of
+        Tasks 3.2, 3.4, 5.2, 5.5, 6.3, 7.1, 7.2, 8.2 (+ parts of 3.3, 5.3, 6.4, 6.7)</td>
+        <td>Claude reviewed it line by line and re-checked the numbers with our own code and measurements (row 2).</td>
+        <td><b>The maths is correct</b> for all 8 essential Tasks. Some references and two numerical examples must be fixed before it goes in the report (row 2).</td></tr>
+    <tr><td>2</td><td>Claude's checks (sandbox, our <code>build/heat</code>)</td>
+        <td>
+        <b>Correct:</b> 3.2 (D₂f, error h²/12·f⁗, the sin table, ratios 4.00), 3.4 (5-point Laplacian, stencil, mean-value link), 5.2 (update rule;
+        7 flops counted the same way as our <code>update_block</code>), 5.5 (p = 1, q = 2; τ = π⁴h²(2r − 1/6)u for test V), 6.3 (G = 1 − 4r[sin²(θ/2)+sin²(φ/2)],
+        r ≤ 1/4; 1D r ≤ 1/2, 3D r ≤ 1/6), 7.1/7.2 (our table and p_obs copied correctly), 8.2 formulas and N* = ts / (tw(1 − 2/√P)).<br>
+        <b>To fix:</b><br>
+        (a) It cites files that are <b>not in our repository</b>: <code>src/stencil.hpp</code>, <code>src/params.hpp</code>, <code>docs/background_tasks.md</code>,
+            <code>scripts/background_tasks.py</code>. Ours: the update is in <code>src/heat.cpp</code> (<code>update_block</code>), the r ≤ 1/4 check in <code>src/main.cpp</code>.<br>
+        (b) "Notes before writing" §1 says the 29 ms is unverified and only same-machine ping-pong exists — <b>out of date</b>: we measured cross-VM
+            ts ≈ 29.0 ms and tw ≈ 6.7 µs/byte (0.15 MB/s), same-VM 0.014 ms / 0.004 ms (Step 5, <code>results/raw/pingpong_*.csv</code>).<br>
+        (c) Task 8.2 example uses <i>assumed</i> ts = 1 ms, tw = 10⁻⁷ s/double and concludes "strips should win". With <b>our measured</b> values
+            (tw = 5.4 × 10⁻⁵ s per double): P = 4 → blocks never win; <b>P = 8 → N* ≈ 1850</b>, so blocks should win for N = 2048 and 8192 (strips for 512);
+            P = 16 → N* ≈ 1080. Per step at P = 8: N = 512 strips 113 ms vs blocks 155 ms; N = 2048: 278 vs 271 ms; N = 8192: 936 vs 737 ms.<br>
+        (d) Task 8.2(d) with our values (ts = 29 ms, t_c ≈ 1.75 ns from Step 7): N ≫ √(2P ts/t_c) ≈ 11 500 (P = 4) — larger than our biggest grid (8192),
+            so across our two VMs we <b>expect a slowdown at every N we test</b>. Good point for the report.<br>
+        (e) Task 5.5 extra says "our run at r = 1/12 … observed order 4.000". Our program at r = 1/12, T = 0.05 gives p_obs = 3.54, 4.46, 3.54, 4.46
+            (about 4 on average, not 4.000): T/(r h²) = 0.6 N² is not a whole number, so the program rounds the steps and r is not exactly 1/12.
+            Reword ("about 4") or rerun with <code>--steps</code> chosen so r is exactly 1/12.<br>
+        (f) Task 6.7: "1.094 measured" — our run (max |u| after 300 steps ÷ after 299 steps, r = 0.2625, N = 64) gives <b>1.0927</b>; theory 1.0987. Use ours.<br>
+        (g) Small: Task 6.3 uses indices j, k while the rest (and our code) use i, j.</td>
+        <td>After the fixes it is ready for C1 (essential Tasks). Still to write for the final hand-in: the non-essential Tasks
+            1.1, 1.2, 1.3, 2.1, 3.1, 3.5, 4.1, 5.1, 5.4, 6.1, 6.2, 6.6, 8.1 (and finish 3.3, 5.3, 6.4, 6.7 as full answers).
+            <b>Course rule:</b> the walkthrough mentions sympy checks and "an earlier draft" — if Georges-Anthony used an AI tool for it, his prompts and
+            answers must be added to <code>llm_log/LOG.md</code> (+ transcript) too.</td></tr>
+    <tr><td>3</td><td>Laetitia: "fix the html file of the tasks with the correct answers where it is wrong, remove what should not be in it and add what is missing".
+        Claude edited it → <code>tasks/essential_tasks_walkthrough.html</code></td>
+        <td><b>Removed:</b> references to files we don't have (stencil.hpp, params.hpp, docs/background_tasks.md, scripts/background_tasks.py), the "29 ms unverified" note,
+            the assumed-numbers example of 8.2, the "1.094" and "order 4.000" claims.<br>
+            <b>Corrected:</b> 8.2 with our measured ts, tw (table of predictions for P = 4, 8 and N = 512, 2048, 8192; N* ≈ 1850 at P = 8);
+            8.2(d) with our numbers (comm ≈ 32 × comp at N = 8192 → slowdown expected); 5.5 r = 1/12 result as our program gives it; 6.7 growth 1.0927.<br>
+            <b>Added:</b> 3.3(a) f = 1 and f = x; 5.2(a) general Δx, Δy formula; pointer to our <code>update_block</code>; 6.3(b) Δt condition and index note (j, k);
+            6.7 answer (where/pattern: first wiggles near the corners around step 80–100, values leave [0,1] at ~120, checkerboard);
+            7.2 full table (steps, ‖e‖∞) + plot + answer (c); new "Notes" (where our numbers come from, our code); 3 new verification rows.</td>
+        <td>Claude ran extra checks for this with our program: r = 1/12 convergence; unstable runs of 80–300 steps to see where the checkerboard starts.
+            The file is ready for C1. Georges-Anthony should read the changes (he must be able to explain them).</td></tr>
+  </table>
 </section>
 
 <!-- ===================== STEP 7 ===================== -->
