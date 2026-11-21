@@ -1,0 +1,15 @@
+vm=heat-laetitia rep=1 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.228621 t_comp=0.228621 t_comm=0.000000
+vm=heat-laetitia rep=2 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.227291 t_comp=0.227291 t_comm=0.000000
+vm=heat-laetitia rep=3 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.224236 t_comp=0.224236 t_comm=0.000000
+vm=heat-laetitia rep=1 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=1.043203 t_comp=1.043203 t_comm=0.000000
+vm=heat-laetitia rep=2 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=0.974185 t_comp=0.974185 t_comm=0.000000
+vm=heat-laetitia rep=3 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=0.960487 t_comp=0.960487 t_comm=0.000000
+vm=heat-laetitia rep=1 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=3.830240 t_comp=3.830240 t_comm=0.000000
+vm=heat-laetitia rep=2 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=4.060135 t_comp=4.060135 t_comm=0.000000
+vm=heat-laetitia rep=3 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=3.684963 t_comp=3.684963 t_comm=0.000000
+vm=heat-laetitia rep=1 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=15.318596 t_comp=15.318596 t_comm=0.000000
+vm=heat-laetitia rep=2 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=15.230439 t_comp=15.230439 t_comm=0.000000
+vm=heat-laetitia rep=3 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=15.389745 t_comp=15.389745 t_comm=0.000000
+vm=heat-laetitia rep=1 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=59.905888 t_comp=59.905888 t_comm=0.000000
+vm=heat-laetitia rep=2 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=61.408138 t_comp=61.408138 t_comm=0.000000
+vm=heat-laetitia rep=3 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=59.764682 t_comp=59.764682 t_comm=0.000000

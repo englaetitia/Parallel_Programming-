@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 13:50</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 14:00</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1191,6 +1191,18 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
             (1) means Open MPI thinks this VM has only 1 core: <code>mpirun -np 2</code> without <code>--oversubscribe</code> is refused
             when there are fewer cores than processes. (3) Memory is fine: 3.3 GB available, enough for N = 8192 (≈ 1.1 GB).
             → Next: check with <code>git log --oneline -3</code>, <code>ls src</code>, <code>nproc</code>.</td></tr>
+    <tr><td>6</td><td>Laetitia (Windows): <code>git add . ; git commit … ; git push</code>, then (VM):<br>
+        <code>clear</code> · <code>cd ~/heat &amp;&amp; git pull</code> · <code>git log --oneline -3</code> · <code>ls src</code> · <code>nproc</code></td>
+        <td><code>Updating 7909de1..c71ced9</code><br><code>error: The following untracked working tree files would be overwritten by merge:
+            results/case2.png results/convergence.png results/raw/convergence.csv results/unstable.png … Aborting</code><br>
+            <code>7909de1 (HEAD -&gt; main) Step 7: serial solver, convergence + heatmap scripts</code><br>
+            <code>ls src</code> → <code>heat.cpp heat.hpp main.cpp serial.cpp</code> · <code>nproc</code> → <code>2</code></td>
+        <td>The push worked (GitHub now has commit c71ced9 with the new code), but the <b>pull refused</b>: the 4 result pictures/CSV were
+            created inside the VM in Step 7 and never committed <i>there</i> — we committed copies from Windows. Git won't overwrite files it doesn't
+            know about, so it stopped everything, and the VM stayed at the Step 7 commit (no strips.cpp/blocks.cpp → old program → "unknown option --debug").
+            Fix: delete the VM copies (identical copies are on GitHub) and pull again. <code>nproc</code> = 2: the VM has 2 vCPUs, matching
+            <code>slots=2</code> in <code>hosts</code>. (Open MPI counted only 1 slot when run without the hostfile — on one VM we just use
+            <code>--oversubscribe</code>.)</td></tr>
   </table>
 
   <h4>Next commands (Laetitia, in the VM heat-laetitia)</h4>
@@ -1278,6 +1290,42 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
     <li><b>Time:</b> serial N = 8192 × 500 steps ≈ 1 minute. Across the 2 VMs with our network (29 ms, 0.15 MB/s), one step of N = 8192 needs to send
         about 2 × 65 KB → roughly 1 s per step → about <b>8 minutes per run</b>. The whole strong-scaling set may take several hours: start it, leave it running.</li>
   </ul>
+</section>
+
+<section class="step" id="plan-c2-c3">
+  <div class="step-head"><h3>Plan: who runs what, in order (written 21 Nov, 14:00)</h3><span class="badge progress">Plan</span></div>
+  <h4>A. Laetitia — on her VM (alone)</h4>
+<pre>bash scripts/check_identical.sh                  # must end with 54 / 54 identical
+bash scripts/perf_baseline.sh                    # Part 4 exp. 1, about 5 minutes
+cat results/raw/baseline_heat-laetitia.txt</pre>
+  <p>Then copy the result to Windows and push (PowerShell, project folder):<br>
+     <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/raw/baseline_heat-laetitia.txt results\raw\</code><br>
+     <code>git add . ; git commit -m "Baseline heat-laetitia" ; git push</code><br>
+     and in the VM, before the next pull: <code>rm results/raw/baseline_heat-laetitia.txt</code>
+     (otherwise the pull is refused like in row 6 above).</p>
+  <h4>B. Georges-Anthony — on his VM (alone)</h4>
+<pre>cd ~/heat
+git status                                        # if it lists untracked files in results/, delete them with rm
+git pull
+ls src                                            # must show blocks.cpp and strips.cpp
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release &amp;&amp; cmake --build build
+./build/heat --case V --N 64 --r 0.2 --T 0.05     # must end with err_l2=5.172124e-05 (same digits as Laetitia)
+bash scripts/check_identical.sh                   # must end with 54 / 54 identical
+nproc ; free -h                                   # cores and memory, for the report
+bash scripts/perf_baseline.sh                     # about 5 minutes
+cat results/raw/baseline_heat-georges.txt</pre>
+  <p>Then on his Windows: <code>multipass transfer heat-georges:/home/ubuntu/heat/results/raw/baseline_heat-georges.txt results\raw\</code>
+     (in his copy of the repo, after <code>git pull</code>), <code>git add . ; git commit -m "Baseline heat-georges" ; git push</code>,
+     then in his VM <code>rm results/raw/baseline_heat-georges.txt</code> before the next pull.</p>
+  <h4>C. Together — both VMs on, Tailscale connected, laptops plugged in. Commands typed on heat-laetitia (first in <code>hosts</code>)</h4>
+<pre>cd ~/heat &amp;&amp; git pull                                   # both VMs: same code
+cmake --build build                                     # on BOTH VMs (Georges too)
+bash scripts/run_mpi.sh -np 4 hostname                  # quick check: 2 x heat-laetitia, 2 x heat-georges
+MPIRUN="bash scripts/run_mpi.sh" bash scripts/check_identical.sh    # C2: identical across two VMs
+nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;            # Part 4: several hours, keeps running if the window closes
+tail -f scaling.log                                     # watch it (Ctrl+C stops watching, NOT the runs)</pre>
+  <p>Note: in the cluster check, only rank 0 (on heat-laetitia) writes the output files, so Georges's VM only needs the built program.</p>
+  <p>When <code>perf_scaling.sh</code> has finished: <code>python3 scripts/analyze_perf.py</code>, copy <code>results/</code> to Windows, push.</p>
 </section>
 
 <h2 class="section-title">Coming next</h2>
