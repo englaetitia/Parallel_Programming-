@@ -63,10 +63,10 @@
 </header>
 
 <div class="summary">
-  <div class="chip"><b>Current step</b>Step 3 — passwordless SSH</div>
-  <div class="chip"><b>Steps done</b>3 of 9 (Steps 0–2)</div>
+  <div class="chip"><b>Current step</b>Step 4 (finishing) + Step 5 — ping-pong</div>
+  <div class="chip"><b>Steps done</b>4 of 9 (Steps 0–3)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 11:35</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 11:50</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -110,6 +110,8 @@
     <tr><td><code>llm_log/</code></td><td>The complete record of every AI conversation (required)</td></tr>
     <tr><td><code>README.md</code></td><td>Explains the project, how to build it and how to run it</td></tr>
     <tr><td><code>PROGRESS.html</code></td><td>This page: our step-by-step journal</td></tr>
+    <tr><td><code>SETUP.md</code></td><td>Clean list of the setup commands that worked (to share)</td></tr>
+    <tr><td><code>hosts</code></td><td>Our real MPI hostfile (added in Step 4)</td></tr>
   </table>
 
   <h4>One important decision we wrote down</h4>
@@ -619,13 +621,11 @@ tailscale ping heat-georges</pre>
   </table>
 </section>
 
-<h2 class="section-title">In progress</h2>
-
 <!-- ===================== STEP 3 ===================== -->
 <section class="step" id="step-3">
   <div class="step-head">
     <h3>Step 3 — Passwordless SSH between the VMs</h3>
-    <span class="badge progress">In progress</span>
+    <span class="badge done">Done</span>
     <span class="date">started 21 Nov 2026, 11:33</span>
   </div>
 
@@ -672,11 +672,11 @@ ssh heat-laetitia hostname     # Georges-Anthony: ssh heat-georges hostname</pre
 
   <h4>Checklist</h4>
   <ul class="checks">
-    <li>Key pair created in heat-laetitia</li>
-    <li>Key pair created in heat-georges</li>
-    <li>Public keys exchanged and added to <code>authorized_keys</code> on both</li>
-    <li><code>ssh heat-georges hostname</code> works from heat-laetitia, no password, no question</li>
-    <li><code>ssh heat-laetitia hostname</code> works from heat-georges, no password, no question</li>
+    <li class="ok">Key pair created in heat-laetitia</li>
+    <li class="ok">Key pair created in heat-georges</li>
+    <li class="ok">Public keys exchanged and added to <code>authorized_keys</code> on both</li>
+    <li class="ok"><code>ssh heat-georges hostname</code> works from heat-laetitia, no password, no question</li>
+    <li class="ok"><code>ssh heat-laetitia hostname</code> works from heat-georges, no password, no question</li>
     <li>Each VM can also <code>ssh</code> to itself</li>
   </ul>
 
@@ -691,6 +691,188 @@ ssh heat-laetitia hostname     # Georges-Anthony: ssh heat-georges hostname</pre
   <h4>What actually happened — session log</h4>
   <table>
     <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Both, in our own VM:<br><code>ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519</code><br><code>cat ~/.ssh/id_ed25519.pub</code></td>
+        <td>A key pair created in each VM. The public key line (<code>ssh-ed25519 AAAA… ubuntu@heat-…</code>) was sent to the other person.</td>
+        <td>Each VM now has its own identity. Only the <code>.pub</code> line was shared, never the private key.</td></tr>
+    <tr><td>2</td><td>Both:<br><code>echo "&lt;other person's .pub line&gt;" &gt;&gt; ~/.ssh/authorized_keys</code><br>
+        <code>cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys</code><br><code>chmod 700 ~/.ssh</code><br><code>chmod 600 ~/.ssh/authorized_keys</code></td>
+        <td>(no output)</td><td>Each VM trusts the other's key and its own.</td></tr>
+    <tr><td>3</td><td>heat-laetitia:<br><code>ssh heat-georges hostname</code></td>
+        <td><code>heat-georges</code></td>
+        <td><b>Works</b>: logged in to Georges-Anthony's VM, ran <code>hostname</code> there, and got the answer back with no password.
+            Georges-Anthony did the same towards heat-laetitia ("both done").</td></tr>
+  </table>
+</section>
+
+<h2 class="section-title">In progress</h2>
+
+<!-- ===================== STEP 4 ===================== -->
+<section class="step" id="step-4">
+  <div class="step-head">
+    <h3>Step 4 — First MPI run on both VMs</h3>
+    <span class="badge progress">In progress</span>
+    <span class="date">started 21 Nov 2026, 11:43</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> Before writing the heat solver, we check that MPI can start processes on <b>both</b> VMs and that they can
+    talk. First with a system command (<code>hostname</code>), then with our own tiny MPI program (<code>hello_mpi</code>).
+  </div>
+
+  <h4>New files in the repository (written in this step)</h4>
+  <table>
+    <tr><th>File</th><th>What it is</th></tr>
+    <tr><td><code>hosts</code></td><td>The real hostfile: <code>heat-laetitia slots=2</code> and <code>heat-georges slots=2</code>. "slots" = how many MPI processes
+        that VM may run (= its vCPUs).</td></tr>
+    <tr><td><code>scripts/run_mpi.sh</code></td><td>A shortcut for <code>mpirun</code> with our hostfile and the options that force MPI to use the Tailscale
+        network card (<code>tailscale0</code>). Without them MPI may try the VM's private 10.x address and hang.</td></tr>
+    <tr><td><code>tools/hello_mpi.cpp</code></td><td>Our first MPI program. Each process prints its rank (its number), the total number of processes and its VM's name.
+        The calls: <code>MPI_Init</code> (start), <code>MPI_Comm_rank</code> (my number), <code>MPI_Comm_size</code> (how many),
+        <code>MPI_Get_processor_name</code> (which machine), <code>MPI_Finalize</code> (stop).</td></tr>
+  </table>
+
+  <h4>1. Get the new files into both VMs</h4>
+<pre># Windows (Laetitia), in the project folder:
+git add . ; git commit -m "Step 4: hostfile, run_mpi.sh, hello_mpi" ; git push
+
+# then in BOTH VMs:
+cd ~/heat &amp;&amp; git pull</pre>
+
+  <h4>2. Run hostname with MPI (from heat-laetitia)</h4>
+<pre>cd ~/heat
+bash scripts/run_mpi.sh -np 4 hostname</pre>
+  <p>Expected: 4 lines, <code>heat-laetitia</code> twice and <code>heat-georges</code> twice (in any order). That means
+     <code>mpirun</code> started 2 processes on each VM through SSH.</p>
+
+  <h4>3. Compile hello_mpi in BOTH VMs (same path)</h4>
+<pre>cd ~/heat
+mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp</pre>
+  <p>Each VM must compile its own copy at the same place (<code>/home/ubuntu/heat/tools/hello_mpi</code>), because
+     <code>mpirun</code> starts the program at that exact path on every machine. <code>mpicxx</code> is g++ plus the MPI library.</p>
+
+  <h4>4. Run hello_mpi on the cluster (from heat-laetitia)</h4>
+<pre>bash scripts/run_mpi.sh -np 4 tools/hello_mpi</pre>
+  <p>Expected (order varies): <code>Hello from rank 0 of 4 on heat-laetitia</code> … <code>rank 3 of 4 on heat-georges</code>.</p>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li>New files pushed and pulled in both VMs</li>
+    <li class="ok"><code>run_mpi.sh -np 4 hostname</code> shows both VM names twice (from heat-laetitia)</li>
+    <li><code>hello_mpi</code> compiled in both VMs</li>
+    <li><code>hello_mpi</code> prints 4 ranks across both VMs</li>
+  </ul>
+
+  <h4>If something goes wrong</h4>
+  <ul>
+    <li><b>Hangs with no output</b>: MPI isn't using tailscale0. Use <code>scripts/run_mpi.sh</code>, not plain <code>mpirun</code>.</li>
+    <li><b>"There are not enough slots"</b>: <code>-np</code> is bigger than the total slots (4).</li>
+    <li><b>"No such file or directory" for hello_mpi on heat-georges</b>: it wasn't compiled there, or the path differs.</li>
+    <li><b>Host key / password question</b>: Step 3 isn't complete for that direction. Run <code>ssh &lt;that VM&gt; hostname</code> once by hand.</li>
+  </ul>
+
+  <h4>What actually happened — session log</h4>
+  <table>
+    <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Windows: <code>git add . ; git commit -m "Step 4: hostfile, run_mpi.sh, hello_mpi" ; git push</code><br>
+        heat-laetitia: <code>cd ~/heat &amp;&amp; git pull</code></td>
+        <td>New files arrived in heat-laetitia.</td><td></td></tr>
+    <tr><td>2</td><td>heat-laetitia (in <code>~/heat</code>):<br><code>bash scripts/run_mpi.sh -np 4 hostname</code></td>
+        <td><code>heat-laetitia</code><br><code>heat-laetitia</code><br><code>heat-georges</code><br><code>heat-georges</code></td>
+        <td><b>Our first run across both VMs works!</b> <code>mpirun</code> started 2 processes on our VM and 2 on Georges-Anthony's
+            (through SSH and Tailscale), and each printed its machine's name.</td></tr>
+    <tr><td>3</td><td>heat-georges (in his home folder <code>~</code>):<br><code>bash scripts/run_mpi.sh -np 4 hostname</code></td>
+        <td><code>bash: scripts/run_mpi.sh: No such file or directory</code></td>
+        <td>He was in <code>~</code>, not in <code>~/heat</code>, and hadn't pulled the new files yet. Fix: <code>cd ~/heat &amp;&amp; git pull</code>.
+            (The prompt shows where you are: <code>~$</code> = home, <code>~/heat$</code> = the project.)</td></tr>
+    <tr><td>4</td><td>heat-georges: <code>cd ~/heat &amp;&amp; git pull</code>, <code>mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp</code><br>
+        heat-laetitia: same <code>mpicxx</code> line, then <code>bash scripts/run_mpi.sh -np 4 tools/hello_mpi</code></td>
+        <td>(output to paste: 4 "Hello from rank … of 4 on …" lines)</td>
+        <td>Only one VM launches <code>mpirun</code>; both must have the program compiled at the same path.</td></tr>
+  </table>
+</section>
+
+
+<!-- ===================== STEP 5 ===================== -->
+<section class="step" id="step-5">
+  <div class="step-head">
+    <h3>Step 5 — Measure the network (ping-pong)</h3>
+    <span class="badge progress">In progress</span>
+    <span class="date">started 21 Nov 2026, 11:50</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> Later we must explain why our parallel program is fast or slow. That depends on two numbers about our
+    network: <b>latency</b> (ts) is the fixed delay of any message, even a tiny one, and <b>bandwidth</b> (1/tw) is how many bytes
+    per second flow once a message is moving. The model is <code>t(m) = ts + m·tw</code> (background notes, Section 8.4). We measure
+    both, inside one VM and between the two VMs. These numbers are needed for checkpoint C1.
+  </div>
+
+  <h4>How the ping-pong works</h4>
+  <ul>
+    <li>Rank 0 sends a message of <code>m</code> bytes to rank 1, and rank 1 sends it straight back. That's one <b>round trip</b>.</li>
+    <li>Repeat 50 times (small messages), 10 (medium) or 3 (big), and average. One-way time = half the round trip.</li>
+    <li>Sizes: 8 B, 16 B, 32 B … up to 16 MB (powers of two, 22 sizes). One untimed "warm-up" exchange first for each size.</li>
+    <li>Small messages show the latency; big messages show the bandwidth.</li>
+  </ul>
+
+  <h4>New files</h4>
+  <table>
+    <tr><th>File</th><th>What it is</th></tr>
+    <tr><td><code>tools/pingpong.cpp</code></td><td>The measurement program. Exactly 2 processes. Prints a CSV table:
+        <code>bytes, reps, avg_round_trip_s, one_way_s, bandwidth_MB_per_s</code>, plus a first line saying which VM each rank ran on.</td></tr>
+    <tr><td><code>scripts/fit_pingpong.py</code></td><td>Reads the CSV files and prints <b>ts</b> (one-way time of the 8-byte message)
+        and <b>bandwidth</b> (from a straight line through the ≥ 1 MB messages), plus a least-squares fit over all points.
+        Saves a log-log plot to <code>results/pingpong.png</code>.</td></tr>
+  </table>
+
+  <h4>1. Get and compile (both VMs)</h4>
+<pre># Windows (Laetitia): push the new files
+git add . ; git commit -m "Step 5: ping-pong program and fit script" ; git push
+
+# BOTH VMs:
+cd ~/heat &amp;&amp; git pull
+mpicxx -O2 -o tools/pingpong tools/pingpong.cpp</pre>
+
+  <h4>2. Run the measurements (from heat-laetitia)</h4>
+<pre>cd ~/heat
+# a) two processes on the SAME VM (heat-laetitia)
+bash scripts/run_mpi.sh -np 2 --host heat-laetitia:2 tools/pingpong | tee results/raw/pingpong_laetitia_same.csv
+
+# b) two processes on the SAME VM (heat-georges)
+bash scripts/run_mpi.sh -np 2 --host heat-georges:2 tools/pingpong | tee results/raw/pingpong_georges_same.csv
+
+# c) one process on EACH VM (across Tailscale)
+bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpong | tee results/raw/pingpong_laetitia_georges.csv</pre>
+  <p><code>--host name:k</code> chooses where the processes go. <code>| tee file</code> shows the lines on screen <b>and</b> saves them.
+     Runs (a) and (b) take seconds. Run (c) takes a few minutes, because each small message waits ~100 ms. Note right before (c):
+     Wi-Fi or cable for each of us, and <code>tailscale ping heat-georges</code> (direct or DERP).</p>
+
+  <h4>3. Fit the model</h4>
+<pre>python3 scripts/fit_pingpong.py results/raw/pingpong_*.csv</pre>
+
+  <h4>Results table (for C1)</h4>
+  <table>
+    <tr><th>Pair</th><th>Connection</th><th>ts (latency)</th><th>Bandwidth</th></tr>
+    <tr><td>heat-laetitia ↔ heat-laetitia (same VM)</td><td>local</td><td>…</td><td>…</td></tr>
+    <tr><td>heat-georges ↔ heat-georges (same VM)</td><td>local</td><td>…</td><td>…</td></tr>
+    <tr><td>heat-laetitia ↔ heat-georges</td><td>direct (65 ms tailscale ping)</td><td>…</td><td>…</td></tr>
+  </table>
+  <p>Note: our <code>run_mpi.sh</code> uses <code>--mca btl tcp,self</code>, so even same-VM messages go through TCP (not shared memory).
+     Same-VM numbers are therefore "TCP inside one machine". We say so in the report.</p>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li>pingpong compiled in both VMs</li>
+    <li>Run (a) same VM heat-laetitia, saved</li>
+    <li>Run (b) same VM heat-georges, saved</li>
+    <li>Run (c) across VMs, saved (network type noted)</li>
+    <li>Fit done, table filled, plot saved</li>
+    <li>Raw CSV files and plot committed to Git</li>
+  </ul>
+
+  <h4>What actually happened — session log</h4>
+  <table>
+    <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
     <tr><td>1</td><td>—</td><td>(to fill in as we go)</td><td></td></tr>
   </table>
 </section>
@@ -698,14 +880,6 @@ ssh heat-laetitia hostname     # Georges-Anthony: ssh heat-georges hostname</pre
 <h2 class="section-title">Coming next</h2>
 
 <div class="upcoming">
-  <section class="step" id="step-4">
-    <div class="step-head"><h3>Step 4 — First MPI run on all VMs</h3><span class="badge next">Not started</span></div>
-    <p>Run <code>hostname</code> and a hello-world MPI program across all machines.</p>
-  </section>
-  <section class="step" id="step-5">
-    <div class="step-head"><h3>Step 5 — Measure the network (ping-pong)</h3><span class="badge next">Not started</span></div>
-    <p>Measure how long a message takes to start arriving (latency) and how much data per second gets through (bandwidth).</p>
-  </section>
   <section class="step" id="step-6">
     <div class="step-head"><h3>Step 6 — The maths Tasks</h3><span class="badge next">Not started</span></div>
     <p>Derive the update formula and the stability limit from the background notes.</p>

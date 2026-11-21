@@ -379,3 +379,33 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 11:43 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "ok both done :ubuntu@heat-laetitia:~$ ssh heat-georges hostname / heat-georges"
+
+**Response (summary):** Step 3 done (passwordless SSH works both ways). Step 4: the assistant wrote `hosts` (heat-laetitia slots=2, heat-georges slots=2), `scripts/run_mpi.sh` (mpirun with --hostfile hosts and the tailscale0 MCA options from the project sheet) and `tools/hello_mpi.cpp` (MPI_Init, Comm_rank, Comm_size, Get_processor_name, printf, Finalize); instructions: push, `git pull` in both VMs, `bash scripts/run_mpi.sh -np 4 hostname`, compile with `mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp` in both VMs, run `bash scripts/run_mpi.sh -np 4 tools/hello_mpi`.
+
+**Files created/modified:** `hosts` (new, whole file), `scripts/run_mpi.sh` (new, whole file), `tools/hello_mpi.cpp` (new, whole file), `PROGRESS.html` (Step 3 done, new Step 4 section), `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 11:46–11:47 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "does this step take time ? bash scripts/run_mpi.sh -np 4 hostname"; then "i fot the names :" + output from heat-laetitia (heat-laetitia ×2, heat-georges ×2) + "but georges is stuck here :" + screenshot (heat-georges in ~: "bash: scripts/run_mpi.sh: No such file or directory")
+
+**Responses (summary):** the run should take a few seconds (diagnostics if it hangs); the run from heat-laetitia works across both VMs; Georges-Anthony was in ~ and hadn't pulled: `cd ~/heat && git pull`; only one VM needs to launch mpirun, but both must compile hello_mpi at the same path. Recorded rows 1–3 of the Step 4 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 11:49–11:50 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "should geirges run this : mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp / bash scripts/run_mpi.sh -np 4 tools/hello_mpi"; "ok next"
+
+**Responses (summary):** Georges-Anthony compiles only, launching from one VM is enough. Step 5: the assistant wrote `tools/pingpong.cpp` (2 ranks, 8 B to 16 MB powers of two, warm-up exchange, 50/10/3 repetitions, CSV output with host names) and `scripts/fit_pingpong.py` (ts = 8-byte one-way time; bandwidth from a linear fit over ≥1 MB messages; least-squares over all points; log-log plot to results/pingpong.png). Tested locally: the fit script on synthetic data (recovers ts=35 ms, 2.5 MB/s), and pingpong.cpp/hello_mpi.cpp syntax-checked with g++ against a stub mpi.h. Run commands: same VM (`--host heat-laetitia:2`, `--host heat-georges:2`) and across VMs (`--host heat-laetitia:1,heat-georges:1`), saved with `tee` to results/raw/.
+
+**Files created/modified:** `tools/pingpong.cpp` (new, whole file), `scripts/fit_pingpong.py` (new, whole file), `PROGRESS.html` (Step 4 row 4, new Step 5 section), `llm_log/LOG.md`.
+
+---
