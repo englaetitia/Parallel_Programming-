@@ -21,6 +21,7 @@ struct Params {
     std::string out;               // output file for the final field ("" = no file)
     std::string decomp = "serial"; // serial, strips or blocks
     bool force_unstable = false;   // ONLY for Task 6.7: allow r > 1/4 on purpose
+    bool debug = false;            // strips only: print every local array (with ghost rows) after each exchange
 };
 
 // Position of node (i, j) in a grid stored row after row (row j = line y = y_j, i varies fastest).
@@ -43,13 +44,29 @@ double exact_V(int i, int j, int N, double t);
 void update_block(const double* uo, double* un, int row_len,
                   int j_begin, int j_end, int i_begin, int i_end, double r);
 
+// Share n items as evenly as possible between 'parts' processes: part k gets 'count' items starting at 'first'
+// (the first n % parts parts get one extra item). Used to share rows (strips) or rows and columns (blocks).
+inline void split(int n, int parts, int k, int& first, int& count)
+{
+    const int base = n / parts, extra = n % parts;
+    count = base + (k < extra ? 1 : 0);
+    first = k * base + (k < extra ? k : extra);
+}
+
 // Result of a run: the final field (full grid, only on rank 0 for parallel runs) and timings in seconds.
 struct Result {
     std::vector<double> u;
     double t_comp = 0.0;
     double t_comm = 0.0;
     double t_total = 0.0;
+    std::string layout = "1x1";   // process grid: Px x Py (strips: 1 x P)
 };
 
 // The serial solver (src/serial.cpp).
 Result run_serial(const Params& p, long steps, double r);
+
+#ifdef USE_MPI
+// Parallel solvers (need MPI). Every process calls them; the full field is returned on rank 0 only.
+Result run_strips(const Params& p, long steps, double r);   // src/strips.cpp: horizontal bands of rows
+Result run_blocks(const Params& p, long steps, double r);   // src/blocks.cpp: 2D grid of rectangles
+#endif

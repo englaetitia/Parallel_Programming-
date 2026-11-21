@@ -63,10 +63,10 @@
 </header>
 
 <div class="summary">
-  <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Step 7 (solver, Laetitia)</div>
+  <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 13:20</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 13:40</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1114,6 +1114,163 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
      and it gives the same digits on two different machines — it is now the <b>reference</b> that the parallel versions must match bit for bit.</p>
 </section>
 
+
+<!-- ===================== STEP 9 ===================== -->
+<section class="step" id="step-9">
+  <div class="step-head">
+    <h3>Step 9 — Strips: the first parallel version (owner: Laetitia) — checkpoint C2</h3>
+    <span class="badge progress">Code ready · waiting for runs</span>
+    <span class="date">21 Nov 2026</span>
+  </div>
+  <div class="why"><b>Why?</b> Project Part 2. Split the plate between several processes so each one computes only a part.
+    The hard part is the edges between parts: each process needs its neighbour's last row to update its own first row.
+    The result must be <b>exactly</b> the same file as the serial version (checked with <code>cmp</code>).</div>
+
+  <h4>The idea in simple words</h4>
+  <ul>
+    <li>The N − 1 interior rows are shared out as evenly as possible: with N = 8 (7 rows) and 3 processes → 3 + 2 + 2 rows
+        (the first <code>(N−1) mod P</code> processes get one extra row). Rank 0 gets the bottom band, rank P−1 the top one.
+        This is the function <code>split()</code> in <code>src/heat.hpp</code>.</li>
+    <li>Each process keeps its rows <b>plus 2 ghost rows</b>: a copy of the row just below its band and of the row just above.
+        Local array = (n + 2) rows × (N + 1) values. Local row k = global row j0 + k − 1.</li>
+    <li><b>Halo exchange</b>, before every step, 2 calls to <code>MPI_Sendrecv</code>:
+        (1) send my top row up, receive my bottom ghost row from below; (2) send my bottom row down, receive my top ghost row from above.
+        Each row is sent straight from the array as one message of N + 1 doubles — no packing.</li>
+    <li>The bottom process has nobody below: its neighbour is <code>MPI_PROC_NULL</code>, so that part of <code>MPI_Sendrecv</code> does nothing,
+        and its ghost row 0 simply stays the real boundary row j = 0. Same at the top. → The same code runs on every rank, no special cases.</li>
+    <li>Then the <b>same</b> <code>update_block</code> function as the serial version updates my own rows → same arithmetic, same order → identical bits.</li>
+    <li>At the end, <code>MPI_Gatherv</code> brings all the bands to rank 0 (Gatherv, not Gather, because the bands can have different sizes);
+        rank 0 adds the boundary rows and writes the file.</li>
+    <li>Timing: exchange time (<code>t_comm</code>) and update time (<code>t_comp</code>) are measured separately; the printed values are the
+        <b>maximum over all processes</b> (<code>MPI_Reduce</code> with <code>MPI_MAX</code>), because everyone waits for the slowest.</li>
+  </ul>
+
+  <h4>Why <code>MPI_Sendrecv</code> and not Send then Recv? (deadlock — the report must explain this)</h4>
+  <p>If every process first does a blocking <code>MPI_Send</code> to its neighbour and only then <code>MPI_Recv</code>: a small message is copied into
+     a buffer and Send returns at once, so it works for small N. A large message cannot be buffered, so Send waits until the other side posts its Recv —
+     but the other side is itself stuck in its own Send. Everybody waits for everybody: <b>deadlock</b>, the program hangs for large N.
+     <code>MPI_Sendrecv</code> gives MPI the send and the receive together, so MPI can do both at the same time and can never get stuck that way.</p>
+
+  <h4>Files</h4>
+  <table>
+    <tr><th>File</th><th>What changed</th></tr>
+    <tr><td><code>src/strips.cpp</code> (new)</td><td><code>run_strips</code>: split, local arrays with ghost rows, 2 × MPI_Sendrecv per step, same kernel, MPI_Gatherv,
+        MPI_Reduce(MAX) of the times; <code>--debug</code> printing.</td></tr>
+    <tr><td><code>src/heat.hpp</code></td><td><code>split()</code>, the <code>layout</code> field, <code>debug</code> option, declarations of run_strips / run_blocks.</td></tr>
+    <tr><td><code>src/main.cpp</code></td><td>Dispatch to strips/blocks; refuses too many processes (strips need P ≤ N − 1); new <code>--debug</code> option;
+        summary line now also has <code>layout=</code> (process grid).</td></tr>
+    <tr><td><code>CMakeLists.txt</code></td><td>Adds <code>src/strips.cpp</code> and <code>src/blocks.cpp</code>.</td></tr>
+    <tr><td><code>scripts/check_identical.sh</code> (new)</td><td>Runs serial and parallel for cases 1, 2, V; N = 64 and 67 (67 − 1 = 66 rows: does not split evenly
+        between 4); strips P = 1–4, blocks P = 1–4 and 6; compares with <code>cmp</code>; prints OK / DIFFERENT and a total.</td></tr>
+  </table>
+
+  <h4>What actually happened — session log</h4>
+  <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Claude: there is no MPI in Claude's sandbox (<code>which mpicxx mpirun</code> → nothing), and it can't install packages.
+        So Claude wrote a small <b>stand-in for MPI</b> (separate processes talking through pipes, only for testing in the sandbox — it is
+        <b>not</b> part of our project) and compiled our code against it.</td>
+        <td>Compiles with no warnings (<code>-Wall -Wextra</code>), with and without MPI.</td>
+        <td>The real test is in our VMs with Open MPI (row 5).</td></tr>
+    <tr><td>2</td><td>Claude: <code>MPIRUN=fakempirun bash scripts/check_identical.sh</code></td>
+        <td><code>OK case=1 N=64 strips P=1 (1x1)</code> … <code>OK case=V N=67 blocks P=6 (3x2)</code><br><b><code>54 / 54 identical to the serial result</code></b></td>
+        <td>Every strips and blocks run gives exactly the same bytes as the serial version.</td></tr>
+    <tr><td>3</td><td>Claude: test of the test — removed one exchange in blocks on purpose and compared</td>
+        <td><code>s.bin b.bin differ: char 529, line 1</code></td>
+        <td>The check really catches a missing exchange (a check that always says OK would be useless).</td></tr>
+    <tr><td>4</td><td>Claude: <code>FAKEMPI_NP=3 ./build/heat --decomp strips --case 2 --N 8 --r 0.24 --steps 1 --debug</code></td>
+        <td>rank 2 owns rows 6..7, rank 1 rows 4..5, rank 0 rows 1..3 (3 + 2 + 2); top ghost of rank 2 = row 8 = all 1.0 (hot edge);
+            bottom ghost of rank 0 = row 0 = all 1.0</td>
+        <td>The uneven split and the ghost rows are right (the "debugging a halo exchange" check of the project sheet).</td></tr>
+    <tr><td>5</td><td>Laetitia, in her VM — <i>to do</i> (see "Next commands")</td><td></td><td></td></tr>
+  </table>
+
+  <h4>Next commands (Laetitia, in the VM heat-laetitia)</h4>
+<pre>cd ~/heat &amp;&amp; git pull
+cmake --build build                                   # rebuild (CMake notices the new files)
+bash scripts/check_identical.sh                       # one VM, 4 processes with --oversubscribe
+mpirun -np 2 ./build/heat --decomp strips --case 2 --N 8 --r 0.24 --steps 2 --debug
+mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.24 --steps 2 --debug</pre>
+  <p><b>Needs Georges-Anthony:</b> checkpoint C2 asks for identical output "across at least two VMs", so the same check must be run on the cluster:
+     <code>MPIRUN="bash scripts/run_mpi.sh" bash scripts/check_identical.sh</code> — his VM must be on, pulled and built.</p>
+</section>
+
+<!-- ===================== STEP 10 ===================== -->
+<section class="step" id="step-10">
+  <div class="step-head">
+    <h3>Step 10 — Blocks: the 2D parallel version (owner: Laetitia) — checkpoint C3</h3>
+    <span class="badge progress">Code ready · waiting for runs</span>
+    <span class="date">21 Nov 2026</span>
+  </div>
+  <div class="why"><b>Why?</b> Project Part 3. Instead of bands, cut the plate into a grid of rectangles. Each process then has 4 neighbours
+    instead of 2, but the edges it must exchange are shorter (about N/√P instead of N), which can pay off for many processes (Task 8.2).</div>
+  <h4>The idea in simple words</h4>
+  <ul>
+    <li><code>MPI_Dims_create(P, 2, dims)</code> chooses a grid Px × Py as square as possible: 4 → 2×2, 6 → 3×2, 2 → 2×1, 3 → 3×1.</li>
+    <li><code>MPI_Cart_create</code> builds that grid of processes (not periodic: the plate does not wrap around);
+        <code>MPI_Cart_shift</code> gives the left/right/down/up neighbours — <code>MPI_PROC_NULL</code> on the plate's edges, automatically.</li>
+    <li>Columns 1..N−1 are split between the Px columns of processes and rows 1..N−1 between the Py rows of processes, with the same
+        <code>split()</code> as strips. Each process has nx × ny nodes plus a frame of ghost nodes 1 node wide.</li>
+    <li>4 exchanges per step. Rows (up/down) are contiguous in memory → sent directly. A column is not contiguous (one value per row, every
+        nx + 2 values), so we describe it once with <code>MPI_Type_vector(ny, 1, nx+2, MPI_DOUBLE)</code> and MPI picks the values itself —
+        no copying into a buffer by hand (required by the project).</li>
+    <li>The <b>corner</b> ghost nodes are never exchanged: the 5-point formula only uses left, right, up and down, never diagonal neighbours.
+        A 9-point stencil (which also uses the diagonals) would need them.</li>
+    <li>At the end: each process packs its nx × ny values, <code>MPI_Gatherv</code> sends them to rank 0, which knows where each block goes
+        (from the process's coordinates, <code>MPI_Cart_coords</code>) and pastes it into the full grid.</li>
+  </ul>
+  <h4>Files</h4>
+  <table><tr><th>File</th><th>Content</th></tr>
+    <tr><td><code>src/blocks.cpp</code> (new)</td><td><code>run_blocks</code>: Dims_create, Cart_create, Cart_shift, split, column datatype, 4 × MPI_Sendrecv per step,
+        same kernel, Gatherv + placement, MPI_Reduce(MAX) of the times.</td></tr></table>
+  <h4>Session log</h4>
+  <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Claude (sandbox, MPI stand-in): blocks part of <code>check_identical.sh</code></td>
+        <td>27 / 27 OK, layouts 1x1, 2x1, 3x1, 2x2, 3x2</td><td>Identical to serial, including uneven splits (N = 67) and a 3×2 grid.</td></tr>
+    <tr><td>2</td><td><code>FAKEMPI_NP=4 ./build/heat --decomp blocks --case V --N 64 --r 0.2 --T 0.05</code></td>
+        <td><code>layout=2x2 … err_inf=1.034425e-04 err_l2=5.172124e-05</code></td><td>Same error digits as the serial run of Step 7.</td></tr>
+    <tr><td>3</td><td>Laetitia / cluster — <i>to do</i> (same check script as Step 9)</td><td></td><td></td></tr>
+  </table>
+</section>
+
+<!-- ===================== STEP 11 ===================== -->
+<section class="step" id="step-11">
+  <div class="step-head">
+    <h3>Step 11 — Performance study (both) — checkpoint C3</h3>
+    <span class="badge progress">Scripts ready</span>
+    <span class="date">21 Nov 2026</span>
+  </div>
+  <div class="why"><b>Why?</b> Project Part 4: measure how fast each version is for different N and P, compare with a model built from our
+    network numbers (ts, tw from Step 5) and our compute speed, and explain the differences. With 29 ms latency over Tailscale, a slowdown is
+    expected for small N — the sheet says explaining it is worth as much as a good speed-up.</div>
+  <h4>The rules from the project sheet (and how the scripts follow them)</h4>
+  <ul>
+    <li>Fixed number of steps (500), r = 0.24 (close to the limit 0.25) → comparable times across N.</li>
+    <li>Every run 3 times, report the <b>median</b> and the spread → done by <code>analyze_perf.py</code>.</li>
+    <li>Never more processes on a VM than it has vCPUs → P ≤ 4 (2 slots per VM in <code>hosts</code>).</li>
+    <li>Two placements: <code>--map-by node</code> (round-robin: rank 0 on VM 1, rank 1 on VM 2, …) and <code>--map-by slot</code> (fill VM 1 first).</li>
+    <li>Plugged in, nothing else running, and note who was on Wi-Fi.</li>
+  </ul>
+  <h4>Scripts</h4>
+  <table><tr><th>Script</th><th>What it does</th><th>Who / where</th></tr>
+    <tr><td><code>scripts/perf_baseline.sh</code></td><td>Experiment 1: serial, N = 512, 1024, 2048, 4096, 8192, 500 steps, 3 repeats →
+        <code>results/raw/baseline_&lt;vm&gt;.txt</code>. Gives the compute speed (ns per node update).</td><td>Each person on their own VM (no network needed)</td></tr>
+    <tr><td><code>scripts/perf_scaling.sh</code></td><td>Experiments 2–3: strong scaling (N = 512, 2048, 8192; strips and blocks; P = 1–4; map-by node and slot)
+        and weak scaling (about 1024² nodes per process: N = 1024, 1448, 2048 for P = 1, 2, 4) → <code>results/raw/scaling.txt</code></td>
+        <td>On the cluster — <b>both VMs on</b></td></tr>
+    <tr><td><code>scripts/analyze_perf.py</code></td><td>Medians, spread, speed-up S = T1/TP, efficiency E = S/P, share of time in the exchange,
+        the model (Task 8.2) → <code>results/perf_summary.csv</code>, <code>speedup_N*.png</code>, <code>efficiency_N*.png</code>, <code>comm_share.png</code>,
+        <code>weak_scaling.png</code></td><td>Anyone, after the runs</td></tr></table>
+  <p>The scripts skip runs already in their file, so they can be stopped (Ctrl+C) and restarted. Claude tested all three in its sandbox with tiny grids
+     (the test results were thrown away — only real runs count).</p>
+  <h4>Things to know before running</h4>
+  <ul>
+    <li><b>Memory:</b> N = 8192 needs 2 × 8193² × 8 bytes ≈ <b>1.1 GB</b>. Check the VM with <code>free -h</code>. If the VM has only 1 GB, give it more
+        (Windows PowerShell): <code>multipass stop heat-laetitia</code>, <code>multipass set local.heat-laetitia.memory=4G</code>, <code>multipass start heat-laetitia</code>.</li>
+    <li><b>Time:</b> serial N = 8192 × 500 steps ≈ 1 minute. Across the 2 VMs with our network (29 ms, 0.15 MB/s), one step of N = 8192 needs to send
+        about 2 × 65 KB → roughly 1 s per step → about <b>8 minutes per run</b>. The whole strong-scaling set may take several hours: start it, leave it running.</li>
+  </ul>
+</section>
+
 <h2 class="section-title">Coming next</h2>
 
 <div class="upcoming">
@@ -1122,10 +1279,9 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
     <p>Show the cluster working, the network table, and the verified serial solver. Ready: cluster + ping-pong (Steps 2–5) and solver (Step 7).
        Waiting for: the essential maths Tasks (Step 6, Georges-Anthony).</p>
   </section>
-  <section class="step" id="step-9">
-    <div class="step-head"><h3>Step 9 — Strips version (owner: Laetitia, can start now)</h3><span class="badge next">Not started</span></div>
-    <p>Cut the plate into horizontal bands, one per process; exchange one ghost row with each neighbour every step (MPI_Sendrecv, MPI_PROC_NULL at the ends);
-       gather the field on rank 0 (MPI_Gatherv); check the file is identical to the serial one (<code>cmp</code>).</p>
+  <section class="step" id="step-12">
+    <div class="step-head"><h3>Step 12 — Report and deliverables</h3><span class="badge next">Not started</span></div>
+    <p>Report with the Tasks, the convergence study, C2/C3 evidence, performance plots + model, answers to the questions of Parts 2–4.</p>
   </section>
 </div>
 

@@ -529,3 +529,14 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files created/modified:** `PROGRESS.html` (row 11, Step 7 Done, Step 8 status, Step 9 added), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 13:07–13:40 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "let's continue , will go abck to georges-task later"; "let's continue with everything that could be done wihtout georges-anthony and stop to the steo where georges should do somthing"
+
+**Response (summary):** the assistant read Parts 2–4 of the project sheet and wrote the strips version (`src/strips.cpp`: split of the N−1 rows with the extra rows on the first ranks, 2 ghost rows, 2 × MPI_Sendrecv per step with MPI_PROC_NULL at the ends, rows of N+1 doubles sent directly, same `update_block` kernel, MPI_Gatherv to rank 0, MPI_Reduce MAX of t_total/t_comp/t_comm, `--debug` printing of local arrays for N ≤ 16) and the blocks version (`src/blocks.cpp`: MPI_Dims_create, non-periodic MPI_Cart_create, MPI_Cart_shift, MPI_Type_vector for columns, 4 × MPI_Sendrecv per step, Gatherv + placement by MPI_Cart_coords). `src/heat.hpp` (split(), layout, debug, declarations), `src/main.cpp` (dispatch, process-count checks, `--debug`, `layout=` in the summary line), `CMakeLists.txt` (new sources). Scripts: `scripts/check_identical.sh` (cmp of strips P=1–4 and blocks P=1–4,6 against serial, cases 1/2/V, N=64 and 67), `scripts/perf_baseline.sh`, `scripts/perf_scaling.sh` (strong + weak, map-by node/slot, 3 repeats, resumable), `scripts/analyze_perf.py` (medians, spread, speed-up, efficiency, comm share, Task 8.2 model with ts=29.0 ms, tw=6.7 µs/byte). README Run/options/Checking sections rewritten.
+Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written only for testing (processes + pipes; not part of the repository). check_identical: 54/54 identical; a deliberately removed exchange was detected (cmp differs at byte 529); blocks test V N=64 gives err_l2 = 5.172124e-05 as serial; --debug with N=8, P=3 shows rows 3+2+2 and correct ghost rows; perf scripts and analysis tested on tiny grids (results discarded). Stopped where Georges-Anthony is needed: C2 requires identical output across two VMs, and the scaling runs need both VMs.
+
+**Files created/modified:** `src/strips.cpp`, `src/blocks.cpp`, `scripts/check_identical.sh`, `scripts/perf_baseline.sh`, `scripts/perf_scaling.sh`, `scripts/analyze_perf.py` (new); `src/heat.hpp`, `src/main.cpp`, `CMakeLists.txt`, `README.md`, `PROGRESS.html` (Steps 9, 10, 11 sections, Step 12 placeholder), `llm_log/LOG.md`.
+
+---

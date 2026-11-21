@@ -12,7 +12,7 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 add_compile_options(-ffp-contract=off -Wall -Wextra)
 
-add_executable(heat src/main.cpp src/heat.cpp src/serial.cpp)
+add_executable(heat src/main.cpp src/heat.cpp src/serial.cpp src/strips.cpp src/blocks.cpp)
 
 find_package(MPI COMPONENTS CXX)
 if(MPI_CXX_FOUND)
