@@ -489,3 +489,33 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files created/modified:** `CMakeLists.txt`, `src/heat.hpp`, `src/heat.cpp`, `src/serial.cpp`, `src/main.cpp`, `scripts/convergence.py`, `scripts/heatmap.py` (all new, whole files); `README.md` (Build, Run, options); `PROGRESS.html` (Step 7 files, edge rules, rows 1–4); `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 13:01–13:10 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "first , are making sure to add evetyhing we did for later review and understanding" followed by the pasted VM output of the CMake build (MPI 3.1 found, built target heat), `python3 scripts/convergence.py` (p_obs = 2.006, 2.001, 2.000, 2.000) and the Case 2 run `./build/heat --case 2 --N 256 --r 0.24 --steps 20000 --out case2.bin` + `python3 scripts/heatmap.py case2.bin 256` (t_total=2.265614, min 0, max 1).
+
+**Response (summary):** confirmed the journal records every step. Added rows 5–8 to Step 7 in PROGRESS.html (push, VM build, the full convergence output, Case 2 run) with explanations: second-order convergence confirmed; results identical bit-for-bit to the assistant's sandbox run; cost ×16 per doubling of N; Case 2 bounded in [0,1]; ≈0.57 billion updates/s. Gave the next commands: Task 6.7 unstable run, copy pictures to Windows with `multipass transfer`, push results.
+
+**Files created/modified:** `PROGRESS.html` (Step 7 rows 5–8, "still to do" list), `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 13:03 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "should georges so these as well , or it is enough if one of us"
+
+**Response (summary):** the result runs (convergence, Case 2, Task 6.7 pictures) are needed only once, so Laetitia's are enough. But Georges-Anthony must `git pull` and build `build/heat` in his VM, because MPI runs need the program at the same path on every machine (Steps 9–10). Suggested he run test V N=64 once and check that err_l2 = 5.172124e-05, the same digits as Laetitia's (cross-machine reproducibility check).
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 13:04–13:15 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "i did the task :" + pasted VM output of the Case 2 heatmap, the Task 6.7 run `./build/heat --case 1 --N 64 --r 0.2625 --steps 300 --force-unstable --out unstable.bin` (saved results/unstable.png, min -1.866e+06, max 1.854e+06), `mv case2.png results/case2.png`, "and did th windows commands".
+
+**Response (summary):** the assistant listed the Windows results folder and viewed case2.png and convergence.png (correct: symmetric Case 2 field; L2 error points on the slope-2 line). unstable.png was missing on Windows, so the transfer must be redone. Explained Task 6.7: G = 1 − 8r = −1.1 for the checkerboard mode, so it grows 10% per step and flips sign; ±1.9e6 after 300 steps; the r ≤ 1/4 limit is sharp. Added rows 9–10 and the picture explanations to PROGRESS.html.
+
+**Files created/modified:** `PROGRESS.html` (Step 7 rows 9–10, "What the pictures show"), `llm_log/LOG.md`.
+
+---

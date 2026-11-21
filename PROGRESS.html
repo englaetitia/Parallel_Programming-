@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Step 7 (solver, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 13:00</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 13:15</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1035,7 +1035,74 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
     <tr><td>4</td><td><code>./build/heat --case 1 --N 64 --r 0.26 --steps 300 --force-unstable --out bad.bin</code><br><code>python3 scripts/heatmap.py bad.bin 64</code></td>
         <td>Values between −7457 and +7414 (instead of 0…1), in a <b>checkerboard</b> pattern</td>
         <td>Task 6.7 preview: just above the limit, the checkerboard mode (θ = φ = π, the worst mode of Task 6.3) grows at every step and explodes.</td></tr>
+    <tr><td>5</td><td>Laetitia (Windows PowerShell, in the project folder):<br><code>git add . ; git commit -m "Step 7: serial solver, convergence + heatmap scripts" ; git push</code></td>
+        <td>Pushed to GitHub.</td><td>The solver code is now on GitHub, so both VMs can get it.</td></tr>
+    <tr><td>6</td><td>Laetitia (in the VM heat-laetitia):<br><code>cd ~/heat &amp;&amp; git pull</code><br><code>cmake -S . -B build -DCMAKE_BUILD_TYPE=Release &amp;&amp; cmake --build build</code></td>
+        <td><code>-- Found MPI: TRUE (found version "3.1") found components: CXX</code><br><code>-- Configuring done (4.0s)</code> · <code>-- Generating done (0.0s)</code><br>
+            <code>-- Build files have been written to: /home/ubuntu/heat/build</code><br>
+            <code>[ 25%] Building CXX object CMakeFiles/heat.dir/src/main.cpp.o</code><br><code>[ 50%] … src/heat.cpp.o</code><br><code>[ 75%] … src/serial.cpp.o</code><br>
+            <code>[100%] Linking CXX executable heat</code><br><code>[100%] Built target heat</code></td>
+        <td><b>CMake found MPI</b> (Open MPI speaks the MPI 3.1 standard), so the program is built <i>with</i> MPI support, ready for strips/blocks later.
+            The 3 source files were compiled separately (<code>.o</code> files) then linked into one program: <code>build/heat</code>. No warnings.</td></tr>
+    <tr><td>7</td><td>Laetitia (VM):<br><code>python3 scripts/convergence.py</code></td>
+        <td><pre style="white-space:pre;font-size:12px">decomp=serial P=1 case=V N=16 steps=64 r=0.2 dt=7.812500e-04 T=0.05 t_total=0.000023 t_comp=0.000023 t_comm=0.000000 err_inf=1.663371e-03 err_l2=8.316853e-04
+decomp=serial P=1 case=V N=32 steps=256 r=0.2 dt=1.953125e-04 T=0.05 t_total=0.000379 … err_inf=4.141824e-04 err_l2=2.070912e-04
+decomp=serial P=1 case=V N=64 steps=1024 r=0.2 dt=4.882813e-05 T=0.05 t_total=0.006629 … err_inf=1.034425e-04 err_l2=5.172124e-05
+decomp=serial P=1 case=V N=128 steps=4096 r=0.2 dt=1.220703e-05 T=0.05 t_total=0.112690 … err_inf=2.585419e-05 err_l2=1.292709e-05
+decomp=serial P=1 case=V N=256 steps=16384 r=0.2 dt=3.051758e-06 T=0.05 t_total=1.804341 … err_inf=6.463145e-06 err_l2=3.231572e-06
+
+    N          h   steps      err_inf       err_2h p_obs(2,h)
+   16    0.06250      64   1.6634e-03   8.3169e-04          —
+   32    0.03125     256   4.1418e-04   2.0709e-04      2.006
+   64    0.01562    1024   1.0344e-04   5.1721e-05      2.001
+  128    0.00781    4096   2.5854e-05   1.2927e-05      2.000
+  256    0.00391   16384   6.4631e-06   3.2316e-06      2.000
+
+saved results/raw/convergence.csv and results/convergence.png</pre></td>
+        <td><b>This is the official Task 7.2 result.</b> Each time N doubles (h halves), the error is divided by 4 → <b>p_obs = 2</b>:
+            the scheme is second order, exactly as Task 7.1 predicts. The errors are <b>identical to the last digit</b> to Claude's sandbox run
+            (rows 1 and 3): same code + <code>-ffp-contract=off</code> → same numbers on different machines.<br>
+            <b>Time:</b> each doubling of N costs ≈ 16× more time (4× more points × 4× more steps, because dt ∝ h²):
+            0.11 s → 1.80 s from N = 128 to 256. This is why the explicit scheme gets expensive and why we parallelise.</td></tr>
+    <tr><td>8</td><td>Laetitia (VM):<br><code>./build/heat --case 2 --N 256 --r 0.24 --steps 20000 --out case2.bin</code><br><code>python3 scripts/heatmap.py case2.bin 256</code></td>
+        <td><code>decomp=serial P=1 case=2 N=256 steps=20000 r=0.24 dt=3.662109e-06 T=0.0732422 t_total=2.265614 t_comp=2.265614 t_comm=0.000000</code><br>
+            <code>saved case2.png  (min 0, max 1)</code></td>
+        <td>Case 2 ran 20 000 steps (simulated time T ≈ 0.073) in 2.27 s. All values stay between 0 and 1 (no blow-up: r = 0.24 ≤ 0.25 is stable,
+            and heat can never be hotter than the hottest edge). <code>case2.bin</code> = 257 × 257 doubles = 528 392 bytes; <code>case2.png</code> is its picture:
+            heat entering from the hot top and bottom edges, cold left/right edges.<br>
+            Speed check: 255² interior points × 20 000 steps ≈ 1.3 billion updates in 2.27 s ≈ <b>0.57 billion updates/s</b> on one core.</td></tr>
+
+    <tr><td>9</td><td>Laetitia (VM) — <b>Task 6.7</b>, r 5% above the limit (0.2625 = 1.05 × 0.25), forced on purpose:<br>
+        <code>./build/heat --case 1 --N 64 --r 0.2625 --steps 300 --force-unstable --out unstable.bin</code><br>
+        <code>python3 scripts/heatmap.py unstable.bin 64 results/unstable.png</code><br><code>mv case2.png results/case2.png</code></td>
+        <td><code>decomp=serial P=1 case=1 N=64 steps=300 r=0.2625 dt=6.408691e-05 T=0.0192261 t_total=0.001966 …</code><br>
+            <code>saved results/unstable.png  (min -1.866e+06, max 1.854e+06)</code></td>
+        <td><b>Task 6.7 answer.</b> Temperatures must stay between 0 and 1, but after only 300 steps they reach about <b>±1.9 million</b>.
+            Why: with r &gt; 1/4 the worst wave (the checkerboard, θ = φ = π) is multiplied at each step by G = 1 − 8r = 1 − 2.1 = <b>−1.1</b>.
+            So it grows by 10% per step <i>and flips sign</i> every step (that's the checkerboard look). Starting from rounding-size noise,
+            1.1<sup>300</sup> ≈ 2.6 × 10<sup>12</sup>, so it quickly drowns the real solution. Just 5% too big is enough to destroy everything:
+            the limit r ≤ 1/4 is sharp. (Compare row 4 with r = 0.26: ±7 400 — G = −1.08, slower growth.)</td></tr>
+    <tr><td>10</td><td>Laetitia (Windows PowerShell, project folder):<br>
+        <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/convergence.png results\</code><br>
+        <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/raw/convergence.csv results\raw\</code><br>
+        <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/case2.png results\</code><br>
+        <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/unstable.png results\</code></td>
+        <td>Claude checked the folder: <code>convergence.png</code>, <code>convergence.csv</code> (300 bytes) and <code>case2.png</code> arrived.
+            <b><code>unstable.png</code> did NOT arrive</b> (not in <code>results\</code>).</td>
+        <td>The 4th transfer probably ran before the file existed or failed silently → redo it (row 11).</td></tr>
   </table>
+  <h4>What the pictures show</h4>
+  <ul>
+    <li><b><code>results/convergence.png</code></b> — log-log plot of error vs h. The blue points (‖e‖₂,h) sit <b>exactly on the dashed slope-2 line</b>:
+        halving h divides the error by 4. The orange ‖e‖∞ line is parallel (same slope 2), just about 2× higher (the max error is bigger than the average).</li>
+    <li><b><code>results/case2.png</code></b> — Case 2 at T ≈ 0.073: bright yellow (u = 1) along the top and bottom edges, black (u = 0) along the left and right edges.
+        Heat has spread inward from the top and bottom; the centre is around 0.3 and still warming. The picture is symmetric top↔bottom and left↔right,
+        as it must be, since the edges are. In the corners, the value jumps from 1 to 0 (the corner belongs to the hot edge).</li>
+  </ul>
+  <h4>Still to do in Step 7</h4>
+  <ul>
+    <li>Redo the transfer of <code>unstable.png</code>, then push everything.</li>
+  </ul>
 </section>
 
 <h2 class="section-title">Coming next</h2>
