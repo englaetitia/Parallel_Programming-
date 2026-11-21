@@ -269,3 +269,113 @@ _(to be exported from the Claude app and added before the first commit — TODO)
 **Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-20 15:45–15:47 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "what does tailscale do, i invited georges and he accpeted and i approved , now georges can see my VM and i can se his?"; "should georges invite me as well , or is it enough for me to invite him"; (pasted output: Tailscale 1.104.7 installed, "Installation complete!", then "^Ccontext canceled")
+
+**Responses (summary):** membership ≠ joined: the VMs see each other only after `sudo tailscale up` on each; only the VMs are visible, not the laptops; one tailnet is enough (Laetitia's), so Georges-Anthony must join `englaetitia.github`; install succeeded; "context canceled" = Ctrl+C stopped `tailscale up`, so rerun it and copy the link with mouse + right-click. Recorded rows 2–4 in the Step 2 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 15:48–15:55 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "so while doing this what should georges do ?"; "should this command take time ? tailscale status / tailscale ip -4"; "does this command take time ? v"; "sudo tailscale up --hostname=heat-laetitia"; (pasted: Windows commands typed inside the VM → ":Path: command not found", "multipass: command not found"); (pasted: `tailscale status` → "Logged out."); "i'm here and it taking time : ubuntu@heat-laetitia:~$ sudo tailscale up --hostname=heat-laetitia"; (pasted second window: `tailscale status` → Logged out; `journalctl -u tailscaled` → repeated "fetch control key: Get https://controlplane.tailscale.com/key?v=148: context deadline exceeded")
+
+**Responses (summary):** instructions for Georges-Anthony (same steps in heat-georges, join englaetitia.github); status/ip are instant, `tailscale up` waits for the browser login; prompt types (PS = Windows, ubuntu@ = VM); the logs show the VM can't reach controlplane.tailscale.com within 5 s; auth-key alternative explained (it also needs that server, keep keys secret); next: curl tests IPv4/IPv6 from VM and Windows. Recorded rows 5–7 in the Step 2 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 15:56 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (attached terminal transcript: getent → 8 IPv6 addresses 2606:b740:49::101..113; "IPv4: 000 in 30.003231s"; "IPv6: 000 in 0.002138s") + Windows: "Windows: 000 in 21.683176s"
+
+**Response (summary):** DNS works, but IPv4 connections to controlplane.tailscale.com time out and there is no IPv6, on the laptop itself too, so the current network blocks Tailscale's coordination server. Fix: switch the laptop to another network (phone hotspot / home Wi-Fi), re-test with curl from Windows (expect 200), then rerun `sudo tailscale up --hostname=heat-laetitia`. Recorded rows 8–9 in the Step 2 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:00 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "now i am using another wifi , my home wifi , tell me again what to do ( i closed all the tabs and apps)"
+
+**Response (summary):** restart sequence on the new network: Windows curl test of controlplane.tailscale.com (expect 200); PATH fix; `multipass list` / `multipass start heat-laetitia` if stopped; `multipass shell heat-laetitia`; `sudo systemctl restart tailscaled`; `sudo tailscale up --hostname=heat-laetitia` + browser login; `tailscale status`, `tailscale ip -4`, `ip addr show tailscale0`; ping tests once Georges-Anthony has joined. Recorded row 10 in the Step 2 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:04–22:05 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "does it take time :" + VM transcript (`sudo systemctl restart tailscaled`, `sudo tailscale up --hostname=heat-laetitia` waiting); then "Windows: 200 in 0.643684s"
+
+**Responses (summary):** the link should appear within ~10 s; home Wi-Fi reaches controlplane.tailscale.com (200), confirming the first network blocked it; if the VM still hangs, test from the VM with curl -4, and if it fails, `multipass restart heat-laetitia` so the VM picks up the new network. Updated row 10 in the Step 2 log.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:07 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "it said 200"
+
+**Response (summary):** the VM reaches controlplane.tailscale.com; rerun `sudo tailscale up --hostname=heat-laetitia`, log in via the link, then `tailscale status`, `tailscale ip -4`, `ip addr show tailscale0`. Recorded row 11.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:09–22:10 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "could you do it and check , because it is still taking time after this command"; then pasted 25 lines of `journalctl -u tailscaled` (TLS handshake timeout to log.tailscale.com; repeated "fetch control key ... context deadline exceeded")
+
+**Responses (summary):** the assistant cannot access the inside of the VM; asked for restart of tailscaled + `tailscale up --reset` and the journal. Diagnosis: curl -4 works but tailscaled times out within its 5 s limit: slow path, IPv6-first resolution, or an MTU problem. Next: detailed curl timing (dns/connect/tls), `getent ahostsv4`, `ip -6 route`, `ip link show eth0`; then temporary fixes: disable IPv6 (`sysctl net.ipv6.conf.all.disable_ipv6=1`), MTU 1400 on eth0, restart tailscaled, `tailscale up --reset`. Recorded row 12.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:12 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (pasted output: curl timing "dns=0.001580s connect=0.095887s tls=0.231894s total=0.336397s code=200"; eth0 mtu 1500; after disabling IPv6, MTU 1400, restarting tailscaled and `tailscale up --reset`: "To authenticate, visit: https://login.tailscale.com/a/[single-use link, omitted]")
+
+**Response (summary):** the server is fast over IPv4, so the cause was most likely IPv6-first connection attempts; the fix worked and the login link appeared; next: open the link, log in, wait for Success, check status/ip, then make the IPv6/MTU change permanent. Recorded rows 13–14 and a troubleshooting tip.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:14 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (pasted output: `ip addr show tailscale0` → mtu 1280, inet 100.75.82.44/32; `echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee /etc/sysctl.d/99-no-ipv6.conf` + `sudo sysctl --system` → net.ipv6.conf.all.disable_ipv6 = 1)
+
+**Response (summary):** heat-laetitia joined the tailnet (100.75.82.44, interface tailscale0, MTU 1280); IPv6-off made permanent; next: Georges-Anthony joins (same IPv6 fix if needed), then `tailscale status`, ping and `tailscale ping` between the two VMs. Recorded rows 15–16.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-20 22:15 – 2026-11-21 11:33 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, in order):** "so did we finish step 2?"; "ok contacting georges to tell him to do it and will be back when done"; "when this works , means that we are both connected : tailscale status / ping -c 3 heat-georges / tailscale ping heat-georges"; "in percentage how much left"; "ok georges i done  , what now"; "ok done both of us"
+
+**Responses (summary):** Step 2 checklist status; a ready-to-send message for Georges-Anthony (install, join, IPv6 fix); what successful status/ping/tailscale-ping outputs look like (direct vs DERP); progress estimate (~60% of Step 2, ~7% of the project); verification commands for both VMs; Step 2 marked done (exact outputs still to paste); Step 3 (passwordless SSH) instructions: ssh-keygen ed25519, exchange public keys manually (Multipass disables passwords), append to authorized_keys with chmod 700/600, test `ssh heat-<other> hostname` and answer "yes" once.
+
+**Files modified:** `PROGRESS.html` (Step 2 rows 17–18, Step 2 done, new Step 3 section), `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 11:35 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** (pasted output: `tailscale status` → geo-pc 100.99.123.91 windows, heat-georges 100.111.48.50 linux; `ping -c 3 heat-georges` → 153/97.5/71.4 ms, 0% loss, avg 107.397 ms; `tailscale ping heat-georges` → "pong from heat-georges (100.111.48.50) via 94.187.15.98:5655 in 65ms")
+
+**Response (summary):** heat-georges joined (100.111.48.50); connection is direct (not DERP), 65 ms; ping average 107 ms, 0% loss; geo-pc (Georges-Anthony's Windows PC) is also in the tailnet and should be removed, since only the VMs are needed; Georges-Anthony's side still to paste; continue with Step 3. Recorded rows 18–21, results table filled.
+
+**Files modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---

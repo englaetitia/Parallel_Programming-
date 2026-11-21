@@ -63,10 +63,10 @@
 </header>
 
 <div class="summary">
-  <div class="chip"><b>Current step</b>Step 2 — Tailscale (together)</div>
-  <div class="chip"><b>Steps done</b>2 of 9 (Steps 0–1)</div>
+  <div class="chip"><b>Current step</b>Step 3 — passwordless SSH</div>
+  <div class="chip"><b>Steps done</b>3 of 9 (Steps 0–2)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>20 Nov 2026, 15:39</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 11:35</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -400,14 +400,12 @@ multipass launch file:///Users/User/Downloads/noble.img --name heat-laetitia --c
   </ul>
 </section>
 
-<h2 class="section-title">In progress</h2>
-
 <!-- ===================== STEP 2 ===================== -->
 <section class="step" id="step-2">
   <div class="step-head">
     <h3>Step 2 — Connect the VMs with Tailscale</h3>
-    <span class="badge progress">In progress</span>
-    <span class="date">started 20 Nov 2026, 15:39</span>
+    <span class="badge done">Done</span>
+    <span class="date">started 21 Nov 2026, 11:33</span>
   </div>
 
   <div class="why">
@@ -460,26 +458,32 @@ tailscale ping heat-georges</pre>
   <h4>Results to record</h4>
   <table>
     <tr><th></th><th>heat-laetitia</th><th>heat-georges</th></tr>
-    <tr><td>Tailscale version</td><td>…</td><td>…</td></tr>
-    <tr><td>Tailscale IP (100.x.y.z)</td><td>…</td><td>…</td></tr>
-    <tr><td>Network (home Wi-Fi / campus / hotspot / cable)</td><td>…</td><td>…</td></tr>
-    <tr><td>ping time to the other VM</td><td>…</td><td>…</td></tr>
-    <tr><td>tailscale ping: direct or DERP?</td><td>…</td><td>…</td></tr>
+    <tr><td>Tailscale version</td><td>1.104.7</td><td>…</td></tr>
+    <tr><td>Tailscale IP (100.x.y.z)</td><td>100.75.82.44</td><td>100.111.48.50</td></tr>
+    <tr><td>Network (home Wi-Fi / campus / hotspot / cable)</td><td>home Wi-Fi (first network blocked Tailscale, rows 8–9)</td><td>…</td></tr>
+    <tr><td>ping time to the other VM</td><td>71–153 ms (avg 107 ms)</td><td>…</td></tr>
+    <tr><td>tailscale ping: direct or DERP?</td><td><b>direct</b> (65 ms)</td><td>…</td></tr>
   </table>
 
   <h4>Checklist</h4>
   <ul class="checks">
     <li class="ok">Tailscale account created (owner: Laetitia, via GitHub; tailnet <code>englaetitia.github</code>)</li>
-    <li>Georges-Anthony invited and accepted</li>
-    <li>Tailscale installed in heat-laetitia</li>
-    <li>Tailscale installed in heat-georges</li>
-    <li>Both VMs appear in <code>tailscale status</code></li>
-    <li>ping works in both directions</li>
-    <li>"direct" or "DERP" recorded for the pair</li>
+    <li class="ok">Georges-Anthony invited and accepted</li>
+    <li class="ok">Tailscale installed in heat-laetitia (1.104.7)</li>
+    <li class="ok">Tailscale installed in heat-georges</li>
+    <li class="ok">Both VMs appear in <code>tailscale status</code></li>
+    <li class="ok">ping works in both directions</li>
+    <li class="ok">"direct" or "DERP" recorded: <b>direct</b> (from heat-laetitia; heat-georges side to paste)</li>
   </ul>
 
   <h4>If something goes wrong</h4>
   <ul>
+    <li><b>No login link, but <code>curl -4</code> works</b>: turn off IPv6 and lower the MTU, then retry:
+        <code>sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1</code>, <code>sudo ip link set dev eth0 mtu 1400</code>,
+        <code>sudo systemctl restart tailscaled</code>, <code>sudo tailscale up --hostname=… --reset</code>.</li>
+    <li><b>No login link, logs say "fetch control key … context deadline exceeded"</b>: the VM can't reach controlplane.tailscale.com.
+        Test with curl (IPv4 vs IPv6), or switch network (phone hotspot).</li>
+    <li><b>"context canceled"</b>: you pressed Ctrl+C, which stops a command in Linux. Copy with mouse selection + right-click instead.</li>
     <li><b>Install script fails or hangs</b>: slow internet. Run the same <code>curl … | sh</code> line again.</li>
     <li><b>Only one VM in <code>tailscale status</code></b>: the other person signed in with an account that isn't in our tailnet. Use the invited account.</li>
     <li><b>ping by name fails but ping by 100.x IP works</b>: MagicDNS is off. Admin console → DNS → enable MagicDNS.</li>
@@ -502,16 +506,198 @@ tailscale ping heat-georges</pre>
         <td>Account created. Our tailnet is called <code>englaetitia.github</code>. It's empty because no device has joined yet.
             We don't click "Add first device" (that wizard installs Tailscale on Windows). The VMs join with
             <code>sudo tailscale up</code> instead. Next: invite Georges-Anthony (☰ menu → Users → Invite users).</td></tr>
+    <tr><td>2</td><td>Laetitia: ☰ → Users → Invite users → Georges-Anthony's email</td>
+        <td>Georges-Anthony accepted; Laetitia approved him</td>
+        <td>He is now a <b>member</b> of our tailnet. Only one tailnet is needed (ours). He must <b>not</b> create his own or invite us,
+            or we'd have two separate networks. The VMs still have to <b>join</b> with <code>sudo tailscale up</code>.</td></tr>
+    <tr><td>3</td><td>heat-laetitia:<br><code>curl -fsSL https://tailscale.com/install.sh | sh</code></td>
+        <td><code>Get:1 https://pkgs.tailscale.com/stable/ubuntu noble/main amd64 tailscale amd64 1.104.7 [40.8 MB]</code><br>
+            <code>Fetched 40.8 MB in 1min 34s (435 kB/s)</code> · <code>Setting up tailscale (1.104.7)</code> ·
+            <i>Installation complete! Log in to start using Tailscale by running: sudo tailscale up</i></td>
+        <td>Tailscale <b>1.104.7</b> installed in our VM. Its background service (<code>tailscaled</code>) starts automatically at boot.
+            The "Service restarts being deferred" lines are normal, nothing to do.</td></tr>
+    <tr><td>4</td><td>heat-laetitia: <code>sudo tailscale up …</code></td>
+        <td><code>^C</code> · <i>context canceled</i></td>
+        <td><b>Ctrl+C</b> was pressed while it was waiting for the login. In a Linux terminal, Ctrl+C <b>stops</b> the running
+            command, it does not copy! To copy the link: select it with the mouse, then right-click (or Ctrl+Shift+C). Fix: run the command again.</td></tr>
+    <tr><td>5</td><td>heat-laetitia: <code>tailscale status</code></td><td><code>Logged out.</code></td>
+        <td>Confirms the VM never finished joining.</td></tr>
+    <tr><td>6</td><td>heat-laetitia: <code>sudo tailscale up --hostname=heat-laetitia</code></td>
+        <td>No login link appeared, just waiting (15:54)</td>
+        <td>Normally a link appears within seconds. Something blocks it, so we look at Tailscale's own logs.</td></tr>
+    <tr><td>7</td><td>Second window into the VM (<code>multipass shell heat-laetitia</code>):<br><code>tailscale status</code><br>
+        <code>sudo journalctl -u tailscaled -n 20 --no-pager</code></td>
+        <td><code>Logged out.</code><br>Repeated every ~6 s:<br>
+        <code>control: doLogin(regen=true, hasUrl=false)</code><br>
+        <code>Received error: fetch control key: Get "https://controlplane.tailscale.com/key?v=148": context deadline exceeded</code></td>
+        <td>The VM <b>cannot reach Tailscale's coordination server</b> (<code>controlplane.tailscale.com</code>) within its 5-second limit,
+            so it never gets a login link. The VM's internet otherwise works (it downloaded Tailscale from pkgs.tailscale.com),
+            so either this server is slow or blocked on our network, or there's an IPv6 problem. An auth key would not help, because
+            it needs the same server. Next: test that server directly with <code>curl</code> from the VM and from Windows.</td></tr>
+    <tr><td>8</td><td>heat-laetitia:<br><code>getent hosts controlplane.tailscale.com</code><br>
+        <code>curl -4 -s -o /dev/null -w "IPv4: %{http_code} in %{time_total}s\n" --max-time 30 "https://controlplane.tailscale.com/key?v=148"</code><br>
+        <code>curl -6 -s -o /dev/null -w "IPv6: %{http_code} in %{time_total}s\n" --max-time 30 "https://controlplane.tailscale.com/key?v=148"</code></td>
+        <td>8 addresses <code>2606:b740:49::101 … ::113</code><br><code>IPv4: 000 in 30.003231s</code><br><code>IPv6: 000 in 0.002138s</code></td>
+        <td>The name resolves (DNS works). <b>IPv4</b>: no answer at all for 30 s, so the connection is silently dropped.
+            <b>IPv6</b>: fails instantly because our network has no IPv6. So the VM can't reach the server either way.</td></tr>
+    <tr><td>9</td><td>Windows PowerShell (the laptop itself):<br>
+        <code>curl.exe -s -o NUL -w "Windows: %{http_code} in %{time_total}s`n" --max-time 30 "https://controlplane.tailscale.com/key?v=148"</code></td>
+        <td><code>Windows: 000 in 21.683176s</code></td>
+        <td><b>Conclusion: the laptop's own network blocks <code>controlplane.tailscale.com</code></b>, not the VM or Multipass.
+            (The Tailscale <i>website</i>, login.tailscale.com, still works in the browser, so the block targets the coordination server
+            specifically.) Fix: connect the laptop to <b>another network</b> (phone hotspot or home Wi-Fi). The VM automatically uses
+            whatever network the laptop is on. Report note: some networks block VPN overlays like Tailscale.</td></tr>
+    <tr><td>10</td><td>(22:00) Laetitia switched the laptop to <b>home Wi-Fi</b> and reopened everything. VM:<br>
+        <code>sudo systemctl restart tailscaled</code><br><code>sudo tailscale up --hostname=heat-laetitia</code><br>
+        Windows: <code>curl.exe -s -o NUL -w "Windows: %{http_code} in %{time_total}s`n" --max-time 30 "https://controlplane.tailscale.com/key?v=148"</code></td>
+        <td><code>Windows: 200 in 0.643684s</code></td>
+        <td>Home Wi-Fi <b>reaches</b> Tailscale's server (200 OK in 0.6 s, against a 21 s timeout on the first network), which confirms
+            the first network was blocking it. Next: the login link should appear in the VM. If the VM still can't reach the server,
+            restart the VM so it picks up the new network (<code>multipass restart heat-laetitia</code>).</td></tr>
+    <tr><td>11</td><td>heat-laetitia (after Ctrl+C on the waiting <code>tailscale up</code>):<br>
+        <code>curl -4 -s -o /dev/null -w "VM: %{http_code} in %{time_total}s\n" --max-time 30 "https://controlplane.tailscale.com/key?v=148"</code></td>
+        <td><code>200</code></td>
+        <td>The VM itself now reaches Tailscale's server too. No VM restart needed. Next: <code>sudo tailscale up --hostname=heat-laetitia</code> again.</td></tr>
+    <tr><td>12</td><td>heat-laetitia: Ctrl+C, then<br><code>sudo systemctl restart tailscaled</code><br><code>sleep 5</code><br>
+        <code>sudo tailscale up --hostname=heat-laetitia --reset</code><br>Second window:<br><code>sudo journalctl -u tailscaled -n 25 --no-pager</code></td>
+        <td><code>logtail: upload … failed: … net/http: TLS handshake timeout</code><br>
+            <code>Received error: fetch control key: Get "https://controlplane.tailscale.com/key?v=148": context deadline exceeded</code> (every ~5 s)</td>
+        <td>Strange: <code>curl -4</code> from the VM gets 200, but Tailscale itself still times out after 5 s, with a "TLS handshake timeout"
+            on another Tailscale server. Likely causes: (a) the connection from the VM is too slow to finish within Tailscale's 5-second
+            limit, (b) Tailscale tries IPv6 first (DNS only returned IPv6 addresses in row 8) and the VM has no IPv6, or (c) a packet-size
+            (MTU) problem that makes encrypted handshakes stall. Next: measure the timing in detail, then try turning off IPv6 and lowering
+            the MTU (temporary changes, undone by a VM restart).</td></tr>
+    <tr><td>13</td><td>heat-laetitia:<br><code>curl -4 -s -o /dev/null -w "dns=%{time_namelookup}s connect=%{time_connect}s tls=%{time_appconnect}s total=%{time_total}s code=%{http_code}\n" "https://controlplane.tailscale.com/key?v=148"</code><br>
+        <code>ip link show eth0 | grep mtu</code></td>
+        <td><code>dns=0.001580s connect=0.095887s tls=0.231894s total=0.336397s code=200</code><br><code>eth0: … mtu 1500 …</code></td>
+        <td>From the VM, over IPv4, the server answers in 0.34 s: DNS 0.002 s, connection 0.096 s, secure handshake 0.23 s. That's well within
+            Tailscale's 5 s limit, so speed was <b>not</b> the problem. The VM's network card uses the standard packet size, MTU 1500.</td></tr>
+    <tr><td>14</td><td>heat-laetitia:<br><code>sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1</code><br>
+        <code>sudo ip link set dev eth0 mtu 1400</code><br><code>sudo systemctl restart tailscaled</code><br><code>sleep 5</code><br>
+        <code>sudo tailscale up --hostname=heat-laetitia --reset</code></td>
+        <td><code>net.ipv6.conf.all.disable_ipv6 = 1</code><br><i>To authenticate, visit: https://login.tailscale.com/a/…</i> (link appeared)</td>
+        <td><b>Fixed!</b> After turning off IPv6 (and making packets slightly smaller), Tailscale finally reached its server and showed the
+            login link. Most likely cause: Tailscale tried the IPv6 addresses (the only ones DNS showed in row 8), which the VM can't use.
+            Both changes are temporary (lost on VM restart). We make them permanent once the login works.
+            (The login link is single-use, so we don't keep it.)</td></tr>
+    <tr><td>15</td><td>Opened the link in the browser → GitHub (englaetitia) → Connect. Then in the VM:<br>
+        <code>tailscale status</code><br><code>tailscale ip -4</code><br><code>ip addr show tailscale0</code></td>
+        <td><code>tailscale0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1280 …</code><br>
+            <code>inet 100.75.82.44/32 scope global tailscale0</code></td>
+        <td><b>heat-laetitia is on our tailnet</b> with Tailscale address <b>100.75.82.44</b>. The network card MPI will use is called
+            <code>tailscale0</code> (exactly the name in the project sheet). Its MTU is 1280: Tailscale uses smaller packets
+            because it wraps each one in encryption.</td></tr>
+    <tr><td>16</td><td>Make "IPv6 off" permanent:<br>
+        <code>echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee /etc/sysctl.d/99-no-ipv6.conf</code><br><code>sudo sysctl --system</code></td>
+        <td><code>* Applying /etc/sysctl.d/99-no-ipv6.conf ...</code> · <code>net.ipv6.conf.all.disable_ipv6 = 1</code></td>
+        <td>The setting is saved in a file and reapplied at every VM start. (The MTU 1400 change on eth0 is still temporary: we keep it only if
+            problems come back after a restart.)</td></tr>
+    <tr><td>17</td><td>Georges-Anthony (21 Nov, morning), in heat-georges: install Tailscale, <code>sudo tailscale up --hostname=heat-georges</code>,
+        login with his invited account into <code>englaetitia.github</code></td>
+        <td>"done" (heat-georges joined)</td>
+        <td>Both VMs are now on the tailnet.</td></tr>
+    <tr><td>18</td><td>heat-laetitia (21 Nov, 11:35):<br><code>tailscale status</code></td>
+        <td><code>100.99.123.91  geo-pc  georges2.2004@  windows  -</code><br>
+            <code>100.111.48.50  heat-georges  georges2.2004@  linux  idle, tx 1116 rx 988</code><br>(plus our own line, heat-laetitia 100.75.82.44)</td>
+        <td><b>heat-georges is on the tailnet: 100.111.48.50.</b> Also listed: <code>geo-pc</code>, Georges-Anthony's <b>Windows laptop</b>
+            (he also installed Tailscale on Windows). It's not needed for MPI and won't be in the hostfile. We'll remove it
+            (admin console → Machines → geo-pc → Remove) so only the VMs are in the tailnet, as the project rules ask.
+            Our tailnet's DNS domain is <code>tail26af2f.ts.net</code>.</td></tr>
+    <tr><td>19</td><td>heat-laetitia:<br><code>ping -c 3 heat-georges</code></td>
+        <td><code>PING heat-georges.tail26af2f.ts.net (100.111.48.50)</code><br>
+            times 153 ms, 97.5 ms, 71.4 ms<br><code>3 packets transmitted, 3 received, 0% packet loss</code><br>
+            <code>rtt min/avg/max/mdev = 71.422/107.397/153.229/34.117 ms</code></td>
+        <td>The name works (MagicDNS) and every packet came back. A round trip takes <b>71–153 ms, average 107 ms</b>. The first ping is
+            slowest because the connection is still being set up. For comparison, a supercomputer link takes about 0.001 ms, so our
+            network is ~100,000× slower. That's what will make small grids slower in parallel.</td></tr>
+    <tr><td>20</td><td>heat-laetitia:<br><code>tailscale ping heat-georges</code></td>
+        <td><code>pong from heat-georges (100.111.48.50) via 94.187.15.98:5655 in 65ms</code></td>
+        <td><b>Direct connection</b> ("via &lt;public IP:port&gt;", not "via DERP"): our VMs talk straight to each other through
+            Georges-Anthony's home router (public IP 94.187.15.98), with no relay. 65 ms round trip.</td></tr>
+    <tr><td>21</td><td>heat-georges: <code>ping -c 3 heat-laetitia</code>, <code>tailscale ping heat-laetitia</code></td>
+        <td>(Georges-Anthony's outputs to paste)</td><td></td></tr>
+  </table>
+</section>
+
+<h2 class="section-title">In progress</h2>
+
+<!-- ===================== STEP 3 ===================== -->
+<section class="step" id="step-3">
+  <div class="step-head">
+    <h3>Step 3 — Passwordless SSH between the VMs</h3>
+    <span class="badge progress">In progress</span>
+    <span class="date">started 21 Nov 2026, 11:33</span>
+  </div>
+
+  <div class="why">
+    <b>Why this step?</b> When we run <code>mpirun</code> on one VM, it must start our program on the <b>other</b> VM too. It does
+    this by logging in to the other VM with <b>SSH</b> (a secure remote terminal). It can't type a password, so each VM must be
+    able to log in to the other <b>without a password</b>. We do this with an <b>SSH key pair</b>.
+  </div>
+
+  <h4>The idea, in simple words</h4>
+  <ul>
+    <li>Each VM creates a <b>key pair</b>: a <b>private key</b> (stays secret, never shared) and a <b>public key</b> (safe to share).</li>
+    <li>We give our <b>public</b> key to the other VM, which adds it to its list of trusted keys (<code>~/.ssh/authorized_keys</code>).</li>
+    <li>From then on, when our VM connects, the other VM checks the key and lets us in without a password.</li>
+    <li>Multipass VMs don't allow password logins, so the usual <code>ssh-copy-id</code> doesn't work. We copy the public key by hand
+        (via WhatsApp or another chat).</li>
+  </ul>
+
+  <h4>1. Create a key pair (each of us, in our own VM)</h4>
+<pre>ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub</pre>
+  <p>The second command prints <b>one line</b> starting with <code>ssh-ed25519 AAAA…</code> and ending with
+     <code>ubuntu@heat-&lt;name&gt;</code>. That's the public key. Copy the whole line (mouse + right-click) and send it to the
+     other person. <b>Never share</b> <code>~/.ssh/id_ed25519</code> (without <code>.pub</code>): that's the private key.</p>
+
+  <h4>2. Trust the other person's key, and our own (each of us)</h4>
+<pre># paste the OTHER person's line between the quotes
+echo "ssh-ed25519 AAAA...their-key... ubuntu@heat-georges" &gt;&gt; ~/.ssh/authorized_keys
+
+# also trust our own key (mpirun may log in to our own VM too)
+cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys
+
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</pre>
+  <p><code>&gt;&gt;</code> <b>adds</b> a line at the end of the file (a single <code>&gt;</code> would erase the file, including the key Multipass
+     put there). The <code>chmod</code> lines make the files private, because SSH refuses keys in files others could change.</p>
+
+  <h4>3. Test (each of us, towards the other and towards ourselves)</h4>
+<pre>ssh heat-georges hostname      # Georges-Anthony: ssh heat-laetitia hostname
+ssh heat-laetitia hostname     # Georges-Anthony: ssh heat-georges hostname</pre>
+  <p>The <b>first time</b>, SSH asks <i>"Are you sure you want to continue connecting (yes/no)?"</i>. Type <b>yes</b> and press Enter.
+     Then it should print the other VM's name (<code>heat-georges</code>) <b>without asking for any password</b>. Run it a second time:
+     no question at all this time. That's the goal, because a pending question would make <code>mpirun</code> hang.</p>
+
+  <h4>Checklist</h4>
+  <ul class="checks">
+    <li>Key pair created in heat-laetitia</li>
+    <li>Key pair created in heat-georges</li>
+    <li>Public keys exchanged and added to <code>authorized_keys</code> on both</li>
+    <li><code>ssh heat-georges hostname</code> works from heat-laetitia, no password, no question</li>
+    <li><code>ssh heat-laetitia hostname</code> works from heat-georges, no password, no question</li>
+    <li>Each VM can also <code>ssh</code> to itself</li>
+  </ul>
+
+  <h4>If something goes wrong</h4>
+  <ul>
+    <li><b>"Permission denied (publickey)"</b>: the other VM doesn't have your public key yet, or the line was pasted incompletely
+        (it must be one single line). Check with <code>cat ~/.ssh/authorized_keys</code> on the other VM.</li>
+    <li><b>"Could not resolve hostname"</b>: Tailscale is down on one VM. Check with <code>tailscale status</code>.</li>
+    <li><b>Asks for a password</b>: same as "Permission denied": the key isn't trusted yet.</li>
+  </ul>
+
+  <h4>What actually happened — session log</h4>
+  <table>
+    <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>—</td><td>(to fill in as we go)</td><td></td></tr>
   </table>
 </section>
 
 <h2 class="section-title">Coming next</h2>
 
 <div class="upcoming">
-  <section class="step" id="step-3">
-    <div class="step-head"><h3>Step 3 — Passwordless SSH</h3><span class="badge next">Not started</span></div>
-    <p>Let each VM log into the other without a password, because MPI starts programs remotely through SSH.</p>
-  </section>
   <section class="step" id="step-4">
     <div class="step-head"><h3>Step 4 — First MPI run on all VMs</h3><span class="badge next">Not started</span></div>
     <p>Run <code>hostname</code> and a hello-world MPI program across all machines.</p>

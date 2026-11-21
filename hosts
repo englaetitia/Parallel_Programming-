@@ -1,0 +1,3 @@
+# MPI hostfile for our cluster: one line per VM, slots = number of vCPUs of that VM
+heat-laetitia  slots=2
+heat-georges   slots=2
