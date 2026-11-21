@@ -63,10 +63,10 @@
 </header>
 
 <div class="summary">
-  <div class="chip"><b>Current step</b>Step 4 (finishing) + Step 5 — ping-pong</div>
-  <div class="chip"><b>Steps done</b>4 of 9 (Steps 0–3)</div>
+  <div class="chip"><b>Current step</b>Step 5 — ping-pong</div>
+  <div class="chip"><b>Steps done</b>5 of 9 (Steps 0–4)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 11:50</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 11:55</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -704,13 +704,11 @@ ssh heat-laetitia hostname     # Georges-Anthony: ssh heat-georges hostname</pre
   </table>
 </section>
 
-<h2 class="section-title">In progress</h2>
-
 <!-- ===================== STEP 4 ===================== -->
 <section class="step" id="step-4">
   <div class="step-head">
     <h3>Step 4 — First MPI run on both VMs</h3>
-    <span class="badge progress">In progress</span>
+    <span class="badge done">Done</span>
     <span class="date">started 21 Nov 2026, 11:43</span>
   </div>
 
@@ -756,10 +754,10 @@ mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp</pre>
 
   <h4>Checklist</h4>
   <ul class="checks">
-    <li>New files pushed and pulled in both VMs</li>
+    <li class="ok">New files pushed and pulled in both VMs</li>
     <li class="ok"><code>run_mpi.sh -np 4 hostname</code> shows both VM names twice (from heat-laetitia)</li>
-    <li><code>hello_mpi</code> compiled in both VMs</li>
-    <li><code>hello_mpi</code> prints 4 ranks across both VMs</li>
+    <li class="ok"><code>hello_mpi</code> compiled in both VMs</li>
+    <li class="ok"><code>hello_mpi</code> prints 4 ranks across both VMs</li>
   </ul>
 
   <h4>If something goes wrong</h4>
@@ -786,11 +784,16 @@ mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp</pre>
             (The prompt shows where you are: <code>~$</code> = home, <code>~/heat$</code> = the project.)</td></tr>
     <tr><td>4</td><td>heat-georges: <code>cd ~/heat &amp;&amp; git pull</code>, <code>mpicxx -O2 -o tools/hello_mpi tools/hello_mpi.cpp</code><br>
         heat-laetitia: same <code>mpicxx</code> line, then <code>bash scripts/run_mpi.sh -np 4 tools/hello_mpi</code></td>
-        <td>(output to paste: 4 "Hello from rank … of 4 on …" lines)</td>
-        <td>Only one VM launches <code>mpirun</code>; both must have the program compiled at the same path.</td></tr>
+        <td><code>Hello from rank 0 of 4 on heat-laetitia</code><br><code>Hello from rank 1 of 4 on heat-laetitia</code><br>
+            <code>Hello from rank 3 of 4 on heat-georges</code><br><code>Hello from rank 2 of 4 on heat-georges</code></td>
+        <td><b>Our own MPI program runs on the cluster.</b> 4 processes: ranks 0–1 on heat-laetitia, 2–3 on heat-georges (the hostfile fills
+            the first VM's 2 slots, then the next VM). The lines arrive in no fixed order (3 before 2), because the processes run at the
+            same time. Only one VM launched <code>mpirun</code>; both had the program compiled at the same path.</td></tr>
   </table>
 </section>
 
+
+<h2 class="section-title">In progress</h2>
 
 <!-- ===================== STEP 5 ===================== -->
 <section class="step" id="step-5">
@@ -863,7 +866,7 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
   <h4>Checklist</h4>
   <ul class="checks">
     <li>pingpong compiled in both VMs</li>
-    <li>Run (a) same VM heat-laetitia, saved</li>
+    <li class="ok">Run (a) same VM heat-laetitia, saved</li>
     <li>Run (b) same VM heat-georges, saved</li>
     <li>Run (c) across VMs, saved (network type noted)</li>
     <li>Fit done, table filled, plot saved</li>
@@ -873,7 +876,24 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
   <h4>What actually happened — session log</h4>
   <table>
     <tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
-    <tr><td>1</td><td>—</td><td>(to fill in as we go)</td><td></td></tr>
+    <tr><td>1</td><td>Windows: <code>git add . ; git commit -m "Step 5: ping-pong program and fit script" ; git push</code></td>
+        <td>Pushed (11:54)</td><td>pingpong.cpp and fit_pingpong.py are on GitHub. Next: pull and compile in both VMs, then the 3 runs.</td></tr>
+    <tr><td>2</td><td>heat-laetitia: <code>git pull</code>, <code>mpicxx -O2 -o tools/pingpong tools/pingpong.cpp</code>, then run (a):<br>
+        <code>bash scripts/run_mpi.sh -np 2 --host heat-laetitia:2 tools/pingpong | tee results/raw/pingpong_laetitia_same.csv</code></td>
+        <td>Last lines:<br><code>524288,10,…,2.694208500e-04,1945.982</code><br><code>1048576,10,…,4.252844000e-04,2465.588</code><br>
+            <code>2097152,3,…,7.437770000e-04,2819.598</code><br><code>4194304,3,…,1.490093833e-03,2814.792</code><br>
+            <code>8388608,3,…,3.225496000e-03,2600.719</code><br><code>16777216,3,…,6.519937667e-03,2573.217</code></td>
+        <td><b>Run (a) works.</b> Inside one VM, 16 MB goes one way in 6.5 ms, about <b>2.6–2.8 GB/s</b> (thousands of MB/s), because the
+            data never leaves the laptop. The small-message latency will come from the fit.</td></tr>
+    <tr><td>3</td><td>Runs (b) <code>--host heat-georges:2</code> and (c) <code>--host heat-laetitia:1,heat-georges:1</code></td>
+        <td><code>mpirun was unable to launch the specified application as it could not access or execute an executable:
+            Executable: tools/pingpong  Node: heat-georges</code> (for rank 0 and rank 1)</td>
+        <td>Georges-Anthony hadn't pulled and compiled <code>pingpong</code> yet, so the program didn't exist on heat-georges. Every program must
+            be compiled in <b>every</b> VM. Fix: he runs <code>git pull</code> and <code>mpicxx …</code>, then we redo (b) and (c).</td></tr>
+    <tr><td>4</td><td><code>python3 scripts/fit_pingpong.py results/raw/pingpong_*.csv</code></td>
+        <td><code>ValueError: not enough values to unpack (expected 5, got 1)</code></td>
+        <td>The files of the failed runs (b) and (c) contained mpirun's error text instead of numbers, and the script crashed on it. We fixed the
+            script so it skips non-number lines and says when a file has no measurements.</td></tr>
   </table>
 </section>
 

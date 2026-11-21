@@ -30,8 +30,16 @@ def load(path):
                 continue
             if line.startswith("bytes"):
                 continue
-            b, reps, rtt, one, bw = line.split(",")
-            rows.append((float(b), float(one)))
+            parts = line.split(",")
+            if len(parts) != 5:          # not a data line (e.g. an mpirun error message): skip it
+                continue
+            try:
+                b, one = float(parts[0]), float(parts[3])
+            except ValueError:
+                continue
+            rows.append((b, one))
+    if not rows:
+        return hosts, None, None
     a = np.array(rows)
     return hosts, a[:, 0], a[:, 1]
 
@@ -44,6 +52,9 @@ def main(files):
     plt.figure(figsize=(7, 5))
     for path in files:
         hosts, m, t = load(path)
+        if m is None or len(m) < 2:
+            print(f"{os.path.basename(path):40s} (no measurements in this file: did the run fail? skipped)")
+            continue
         ts_small = t[0]
         big = m >= 1024 * 1024
         if big.sum() >= 2:
