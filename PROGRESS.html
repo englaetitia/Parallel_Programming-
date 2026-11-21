@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Step 7 (solver, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 13:15</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 13:20</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -986,7 +986,7 @@ bash scripts/run_mpi.sh -np 2 --host heat-laetitia:1,heat-georges:1 tools/pingpo
 <section class="step" id="step-7">
   <div class="step-head">
     <h3>Step 7 — Serial solver (owner: Laetitia)</h3>
-    <span class="badge progress">In progress</span>
+    <span class="badge done">Done</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> The one-computer version of the simulation. It must be proven correct (convergence study) because every
@@ -1099,10 +1099,19 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
         Heat has spread inward from the top and bottom; the centre is around 0.3 and still warming. The picture is symmetric top↔bottom and left↔right,
         as it must be, since the edges are. In the corners, the value jumps from 1 to 0 (the corner belongs to the hot edge).</li>
   </ul>
-  <h4>Still to do in Step 7</h4>
-  <ul>
-    <li>Redo the transfer of <code>unstable.png</code>, then push everything.</li>
-  </ul>
+  <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>11</td><td>Laetitia (Windows PowerShell):<br><code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/unstable.png results\</code><br><code>dir results</code><br>
+        <code>git add . ; git commit -m "Step 7: convergence results, case 2 and unstable heatmaps" ; git push</code></td>
+        <td><code>create mode 100644 results/unstable.png</code> (with the other result files); push done.
+            Claude opened <code>results/unstable.png</code> (46 KB): a <b>checkerboard</b> with values up to ±1.9 × 10<sup>6</sup>, strongest in four patches
+            around (0.2, 0.2), (0.8, 0.2), (0.2, 0.8), (0.8, 0.8).</td>
+        <td>All Step 7 results are on GitHub: <code>results/convergence.png</code>, <code>results/raw/convergence.csv</code>,
+            <code>results/case2.png</code>, <code>results/unstable.png</code>. The picture shows exactly the mode predicted in Task 6.3 (sign flips from one node
+            to the next). <b>Step 7 is finished.</b></td></tr>
+  </table>
+  <h4>Step 7 in one sentence</h4>
+  <p>We have a correct serial solver: it converges at order 2 (p_obs = 2.000), it refuses unstable r, it shows the blow-up when forced,
+     and it gives the same digits on two different machines — it is now the <b>reference</b> that the parallel versions must match bit for bit.</p>
 </section>
 
 <h2 class="section-title">Coming next</h2>
@@ -1110,7 +1119,13 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
 <div class="upcoming">
   <section class="step" id="step-8">
     <div class="step-head"><h3>Step 8 — Checkpoint C1</h3><span class="badge next">Not started</span></div>
-    <p>Show the cluster working, the network table, and the verified serial solver.</p>
+    <p>Show the cluster working, the network table, and the verified serial solver. Ready: cluster + ping-pong (Steps 2–5) and solver (Step 7).
+       Waiting for: the essential maths Tasks (Step 6, Georges-Anthony).</p>
+  </section>
+  <section class="step" id="step-9">
+    <div class="step-head"><h3>Step 9 — Strips version (owner: Laetitia, can start now)</h3><span class="badge next">Not started</span></div>
+    <p>Cut the plate into horizontal bands, one per process; exchange one ghost row with each neighbour every step (MPI_Sendrecv, MPI_PROC_NULL at the ends);
+       gather the field on rank 0 (MPI_Gatherv); check the file is identical to the serial one (<code>cmp</code>).</p>
   </section>
 </div>
 
