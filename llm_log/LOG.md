@@ -630,3 +630,73 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `tasks/essential_tasks_walkthrough.html` (new in the repo), `PROGRESS.html` (Step 6 row 3), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 17:08 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "georges git this error" + screenshot: in `ubuntu@heat-georges:~/heat$` he typed `$env:Path += ";C:\Program Files\Multipass\bin"`, `multipass start heat-georges`, `multipass shell heat-georges` → ":Path: command not found", "multipass: command not found" (twice).
+
+**Response (summary):** no harm done. Those are Windows PowerShell commands (step 1, to open the VM); he typed them inside the VM, which he had already opened (the prompt shows heat-georges, folder ~/heat). Linux doesn't know them. He can skip step 1 and continue from step 2 in the same window.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:13 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "there was a step where he sends me the output this is it" + screenshot of heat-georges: `nproc` → 2; `free -h` → total 3.8Gi, used 459Mi, free 2.3Gi, available 3.4Gi, swap 0B; `lscpu | grep "Model name"` → 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz.
+
+**Response (summary):** recorded as the step 7 report-facts output in PROGRESS.html (plan section B): 2 vCPUs, 3.8 GB, i7-1165G7; enough memory for N = 8192; same VM size as heat-laetitia. Reminded that the outputs that matter most are steps 5 (err_l2=5.172124e-05) and 6 (54 / 54 identical), and asked for them.
+
+**Files created/modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:15 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "ok georges finished his part , tell me now what we do"
+
+**Response (summary):** before part C, Laetitia must finish part A on heat-laetitia (pull with the 4 result files removed, rebuild, check_identical 54/54, --debug runs, baseline); her outputs have not been seen yet. Then part C in order: both VMs on the same commit and rebuilt, run_mpi.sh hostname check, cross-VM check_identical (checkpoint C2), perf_scaling.sh with nohup (several hours, both VMs must stay on), then analyze_perf.py and push. Who types what is stated for each step.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:16 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "i already did my alone part and gave it to you , just tell me both of us tasks together now"
+
+**Response (summary):** only the joint steps, in order: (1) both VMs: git status/pull, cmake --build build, git log --oneline -1 (same commit on both); (2) on heat-laetitia: run_mpi.sh -np 4 hostname; cross-VM check_identical (C2, 54/54); (3) nohup perf_scaling.sh, watch with tail -f, both VMs on for several hours; (4) analyze_perf.py, transfer results to Windows, push. Asked to paste the hostname and cross-VM check outputs.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:19 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "the last step of georges alone gave:" + screenshot of Georges-Anthony's PowerShell in `C:\WINDOWS\system32`: `git pull`, `git commit`, `git push`, `git add …`, `git pull` → "fatal: not a git repository (or any of the parent directories): .git"; `multipass transfer heat-georges:/home/ubuntu/heat/results/raw/baseline_heat-georges.txt results\raw\` → "[error] [sftp] local target does not exist".
+
+**Response (summary):** PowerShell was in C:\WINDOWS\system32, which is not a copy of the project, so git refused and results\raw did not exist there. Nothing was lost (the file is still in his VM). Simplest path: copy the file to his Desktop (`multipass transfer … $HOME\Desktop\`), send it to Laetitia, who puts it in results\raw\ and pushes; he must not delete the VM copy before that.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:22 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "on georges laptop" + screenshot: `multipass transfer heat-georges:/home/ubuntu/heat/results/raw/baseline_heat-georges.txt $HOME\Desktop\` → "[error] [sftp] local target does not exist".
+
+**Response (summary):** his Desktop is probably inside OneDrive (C:\Users\<name>\OneDrive\Desktop), so $HOME\Desktop does not exist. Fix: create a plain folder (`mkdir C:\heat`) and transfer there, check with `dir C:\heat`. Backup: `cat results/raw/baseline_heat-georges.txt` in the VM and send the 15 lines as text.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:24 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "@baseline_heat-georges.txt georges sent this , tell me what should each of us do now" (attached: Georges-Anthony's baseline, 15 lines).
+
+**Response (summary):** the file is complete (5 sizes × 3 repeats). Medians 0.125 / 0.657 / 2.84 / 12.69 / 49.4 s for N = 512 … 8192; 0.95 → about 1.5 ns per node update (memory-bound for large N); spread 4–14 %. The assistant saved it unchanged to `results/raw/baseline_heat-georges.txt` in Laetitia's project folder and recorded rows 8–9 in PROGRESS.html. Next: Laetitia pushes; Georges-Anthony deletes the VM copy and pulls; then the joint steps (same commit, hostname check, cross-VM check_identical, perf_scaling.sh).
+
+**Files created/modified:** `results/raw/baseline_heat-georges.txt` (Georges-Anthony's data, copied unchanged), `PROGRESS.html`, `llm_log/LOG.md`.
+
+---

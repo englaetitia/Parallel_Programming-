@@ -1,0 +1,15 @@
+vm=heat-georges rep=1 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.124651 t_comp=0.124651 t_comm=0.000000
+vm=heat-georges rep=2 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.121497 t_comp=0.121497 t_comm=0.000000
+vm=heat-georges rep=3 decomp=serial P=1 layout=1x1 case=2 N=512 steps=500 r=0.24 dt=9.155273e-07 T=0.000457764 t_total=0.126284 t_comp=0.126284 t_comm=0.000000
+vm=heat-georges rep=1 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=0.643045 t_comp=0.643045 t_comm=0.000000
+vm=heat-georges rep=2 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=0.732550 t_comp=0.732550 t_comm=0.000000
+vm=heat-georges rep=3 decomp=serial P=1 layout=1x1 case=2 N=1024 steps=500 r=0.24 dt=2.288818e-07 T=0.000114441 t_total=0.656668 t_comp=0.656668 t_comm=0.000000
+vm=heat-georges rep=1 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=2.835865 t_comp=2.835865 t_comm=0.000000
+vm=heat-georges rep=2 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=2.840016 t_comp=2.840016 t_comm=0.000000
+vm=heat-georges rep=3 decomp=serial P=1 layout=1x1 case=2 N=2048 steps=500 r=0.24 dt=5.722046e-08 T=2.86102e-05 t_total=3.141194 t_comp=3.141194 t_comm=0.000000
+vm=heat-georges rep=1 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=11.655192 t_comp=11.655192 t_comm=0.000000
+vm=heat-georges rep=2 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=12.970086 t_comp=12.970086 t_comm=0.000000
+vm=heat-georges rep=3 decomp=serial P=1 layout=1x1 case=2 N=4096 steps=500 r=0.24 dt=1.430511e-08 T=7.15256e-06 t_total=12.690759 t_comp=12.690759 t_comm=0.000000
+vm=heat-georges rep=1 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=49.415534 t_comp=49.415534 t_comm=0.000000
+vm=heat-georges rep=2 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=50.904382 t_comp=50.904382 t_comm=0.000000
+vm=heat-georges rep=3 decomp=serial P=1 layout=1x1 case=2 N=8192 steps=500 r=0.24 dt=3.576279e-09 T=1.78814e-06 t_total=46.597558 t_comp=46.597558 t_comm=0.000000

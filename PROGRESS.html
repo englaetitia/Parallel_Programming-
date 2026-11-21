@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 14:30</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 17:30</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1356,6 +1356,27 @@ cat results/raw/baseline_heat-georges.txt</pre>
   <p>Then on his Windows: <code>multipass transfer heat-georges:/home/ubuntu/heat/results/raw/baseline_heat-georges.txt results\raw\</code>
      (in his copy of the repo, after <code>git pull</code>), <code>git add . ; git commit -m "Baseline heat-georges" ; git push</code>,
      then in his VM <code>rm results/raw/baseline_heat-georges.txt</code> before the next pull.</p>
+  <h4>B — what Georges-Anthony reported</h4>
+  <table><tr><th>Step</th><th>Command (VM heat-georges)</th><th>Output</th><th>Meaning</th></tr>
+    <tr><td>1 (mistake)</td><td><code>$env:Path += ";C:\Program Files\Multipass\bin"</code>, <code>multipass start heat-georges</code>, <code>multipass shell heat-georges</code>
+        typed <i>inside</i> the VM</td><td><code>:Path: command not found</code>, <code>multipass: command not found</code> (×2)</td>
+        <td>Harmless: Windows commands typed in Linux. He was already in the VM (prompt <code>ubuntu@heat-georges:~/heat$</code>), so step 1 was not needed.</td></tr>
+    <tr><td>7</td><td><code>nproc</code> · <code>free -h</code> · <code>lscpu | grep "Model name"</code></td>
+        <td><code>2</code> · <code>Mem: total 3.8Gi, used 459Mi, free 2.3Gi, available 3.4Gi; Swap 0B</code> ·
+            <code>11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz</code></td>
+        <td>heat-georges: 2 vCPUs, 3.8 GB RAM (3.4 GB available — enough for N = 8192), laptop CPU Intel Core i7-1165G7 (4 cores / 8 threads, 2.8 GHz base).
+            Same VM size as heat-laetitia (2 vCPUs, 3.8 GB) → fair comparison. Goes in the report's "hardware" table.</td></tr>
+    <tr><td>8</td><td><code>bash scripts/perf_baseline.sh</code></td>
+        <td>15 lines in <code>results/raw/baseline_heat-georges.txt</code>. Medians: N = 512: 0.125 s · 1024: 0.657 s · 2048: 2.84 s · 4096: 12.69 s · 8192: 49.4 s
+            (500 steps each). Spread between the 3 repeats: 3.8 %, 13.6 %, 10.8 %, 10.4 %, 8.7 %.</td>
+        <td>Time per node update: 0.95 ns (N = 512, the grid fits in the cache) rising to about 1.5 ns for N ≥ 4096 (grid much larger than the cache:
+            the loop waits for memory — Task 5.2(d), "memory-bound"). Consistent with our Step 7 estimate (1.75 ns on heat-laetitia).</td></tr>
+    <tr><td>9</td><td>Getting the file to GitHub: in <code>C:\WINDOWS\system32</code>: <code>git pull</code>, <code>git commit …</code>, <code>git add …</code>,
+        <code>multipass transfer … results\raw\</code>; then <code>multipass transfer … $HOME\Desktop\</code></td>
+        <td><code>fatal: not a git repository</code> (×4) · <code>[error] [sftp] local target does not exist</code> (×2)</td>
+        <td>That PowerShell folder is not a copy of the project, and his Desktop is not at <code>$HOME\Desktop</code> (probably inside OneDrive).
+            Solved by sending the file to Laetitia; Claude put it in <code>results\raw\</code> of her project folder.</td></tr>
+  </table>
   <h4>C. Together — both VMs on, Tailscale connected, laptops plugged in. Commands typed on heat-laetitia (first in <code>hosts</code>)</h4>
 <pre>cd ~/heat &amp;&amp; git pull                                   # both VMs: same code
 cmake --build build                                     # on BOTH VMs (Georges too)
