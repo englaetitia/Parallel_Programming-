@@ -750,3 +750,33 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `scripts/check_identical.sh`, `PROGRESS.html`, `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 17:42 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim):** "ok after this : [the P=6 loop] what should georges do ?"
+
+**Response (summary):** during the P=6 test and the long performance runs Georges-Anthony types almost nothing: `git pull` in his VM (same commit), then keep the VM open, the laptop plugged in and awake, Tailscale on, and nothing heavy running on the laptop or in the VM, because his CPU takes part in the timings. Meanwhile he can read the corrected tasks/essential_tasks_walkthrough.html (he must be able to explain it) and start the remaining Tasks (1.1, 1.2, 1.3, 2.1, 3.1, 3.5, 4.1, 5.1, 5.4, 6.1, 6.2, 6.6, 8.1), on paper or on another device, not with heavy programs on that laptop. If he uses an AI tool, he must log it.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:44 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "ok i told geroges there is nothing left to do for him excpet keeping the vm online , so from now till the end no work for him ?"; "and where are we at? how manny steps left? percentage?"
+
+**Responses (summary):** no: after the performance runs Georges-Anthony still has the remaining Tasks (can start now on paper), part of the report (maths/Tasks/model), the demo (a third machine is still needed) and being able to explain everything. Status: Steps 0–5 and 7 done; essential Tasks done and corrected (C1 ready); strips and blocks verified across the two VMs for P ≤ 4 (48 runs identical), P=6 test running; performance scripts ready, both baselines done, cluster runs not started. Left: finish C2 (P=6), performance runs + analysis (Step 11), remaining Tasks, report (Step 12), demo with 3 machines (Step 13); GPU optional. About 65 % done; 4 main steps left.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:45 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim, shortened):** pasted heat-laetitia output: pull 80cb858..35c8e8b, build, `35c8e8b … Baseline heat-laetitia, journal`, run_mpi.sh hostname (2 + 2), and the start of the cross-VM check (case=1 N=64 strips P=1–3 OK).
+
+**Response (summary):** this is the earlier output (17:27), already recorded. The P=6 test output is still missing. The VM is on 35c8e8b, i.e. without the check_identical fix: push the fix from Windows, `git pull` on both VMs (the new commit must show), then run the six P=6 tests and paste the six result lines.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
