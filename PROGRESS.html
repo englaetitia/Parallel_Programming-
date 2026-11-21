@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 17:30</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 17:35</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1356,6 +1356,17 @@ cat results/raw/baseline_heat-georges.txt</pre>
   <p>Then on his Windows: <code>multipass transfer heat-georges:/home/ubuntu/heat/results/raw/baseline_heat-georges.txt results\raw\</code>
      (in his copy of the repo, after <code>git pull</code>), <code>git add . ; git commit -m "Baseline heat-georges" ; git push</code>,
      then in his VM <code>rm results/raw/baseline_heat-georges.txt</code> before the next pull.</p>
+  <h4>A — Laetitia's baseline</h4>
+  <table><tr><th>Command</th><th>Output</th><th>Meaning</th></tr>
+    <tr><td>VM: <code>bash scripts/perf_baseline.sh</code><br>Windows: <code>git add . ; git commit -m "Baseline heat-georges, journal" ; git push</code> →
+        <code>80cb858..1bf4d59 main -&gt; main</code><br>
+        <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/raw/baseline_heat-laetitia.txt results\raw\</code></td>
+        <td><code>[error] [sftp] cannot set permissions for local file results\raw\baseline_heat-laetitia.txt</code> — but Claude checked: the file <b>is</b> there,
+            complete (15 lines, 2439 bytes). Medians: N = 512: 0.227 s · 1024: 0.974 s · 2048: 3.83 s · 4096: 15.3 s · 8192: 59.9 s; spread 1.9 %, 8.5 %, 9.8 %, 1.0 %, 2.7 %.</td>
+        <td>The warning is only about copying Linux file permissions onto a OneDrive folder; the content was copied. heat-laetitia: about <b>1.8 ns per node update</b>,
+            nearly the same for every N. heat-georges is faster (0.95 → 1.5 ns) — different laptop CPUs. Matters for the parallel runs: a process on the slower
+            VM finishes its part later, and everyone waits for the slowest.</td></tr>
+  </table>
   <h4>B — what Georges-Anthony reported</h4>
   <table><tr><th>Step</th><th>Command (VM heat-georges)</th><th>Output</th><th>Meaning</th></tr>
     <tr><td>1 (mistake)</td><td><code>$env:Path += ";C:\Program Files\Multipass\bin"</code>, <code>multipass start heat-georges</code>, <code>multipass shell heat-georges</code>
