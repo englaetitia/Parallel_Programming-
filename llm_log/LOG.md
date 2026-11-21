@@ -710,3 +710,43 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `PROGRESS.html`, `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 17:27 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim, shortened):** "same git logs :" + heat-laetitia output: pull (PROGRESS.html, LOG.md, baseline_heat-georges.txt), `[100%] Built target heat`, `35c8e8b (HEAD -> main, origin/main, origin/HEAD) Baseline heat-laetitia, journal`; `run_mpi.sh -np 4 hostname` → heat-laetitia ×2, heat-georges ×2; cross-VM check_identical started: `OK case=1 N=64 strips P=1 (1x1)`, `OK case=1 N=64 strips P=2 (1x2)`.
+
+**Response (summary):** both VMs on commit 35c8e8b; MPI places 2 ranks per VM. Warned that the 6 blocks P=6 tests need more than the 4 slots of the hostfile and will report DIFFERENT (no output) — not a real difference; rerun with `MPIRUN="bash scripts/run_mpi.sh --oversubscribe"` (correctness only; the performance runs keep P ≤ 4). Recorded in PROGRESS.html (part C).
+
+**Files created/modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:30 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim, shortened):** cross-VM check output: OK for case=1 N=64 strips P=2,3,4 and blocks P=1 (1x1), 2 (2x1), 3 (3x1), 4 (2x2); then Open MPI "There are not enough slots available in the system to satisfy the 6 slots that were requested by the application: ./build/heat …".
+
+**Response (summary):** the expected P=6 limit (4 slots in the hostfile). All runs so far are identical across the two VMs. Advised to stop with Ctrl+C and rerun the whole check with `MPIRUN="bash scripts/run_mpi.sh --oversubscribe"` so the evidence for C2 is one clean 54/54 output.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:30–17:31 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim):** "can i keep it running instead?"; "how much time should it take to finish"
+
+**Responses (summary):** yes. Expect 48/54 with only the P=6 lines DIFFERENT, then run the six blocks P=6 tests separately with `--oversubscribe` (loop with cmp given). Time estimate: the first group (case 1, N=64) took about 3 minutes, and there are 6 groups (3 cases × 2 sizes), so about 15–20 minutes in total. Runs that cross the network (P=3, 4) are the slow ones, because each of the 200 steps waits about 30 ms per message.
+
+**Files created/modified:** `llm_log/LOG.md`.
+
+---
+
+## 2026-11-21 17:40–17:50 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompts (verbatim, shortened):** "the final ouput lines;" (empty); then the end of the cross-VM check: case=V N=67 strips P=1–4 and blocks P=1–4 OK, Open MPI "not enough slots … 6 slots", `OK case=V N=64 blocks P=6 ()`, `OK case=V N=67 blocks P=6 ()`, `54 / 54 identical to the serial result`.
+
+**Response (summary):** the 48 runs that really ran across the two VMs are identical to serial, but the P=6 "OK" lines are false: those runs never started (empty layout) and the script compared against stale P=6 files from the earlier one-VM check in build/check/. Fixed `scripts/check_identical.sh`: delete the output file before each run; a run that fails to start or crashes is reported as FAILED and counted. Tested in the sandbox with a fake mpirun refusing P=6 → six FAILED lines, 48/54. Recorded rows 4–5 of part C in PROGRESS.html. Next: push, pull on both VMs, run the six P=6 tests on the cluster with --oversubscribe.
+
+**Files created/modified:** `scripts/check_identical.sh`, `PROGRESS.html`, `llm_log/LOG.md`.
+
+---

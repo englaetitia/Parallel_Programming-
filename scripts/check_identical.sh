@@ -5,9 +5,12 @@
 # and P = 1, 2, 3, 4 (and 6 for blocks: a 3x2 grid), it runs the serial version and the parallel one,
 # then compares the two output files byte by byte with 'cmp'. One line per test: OK or DIFFERENT.
 #
+# A run that fails to start (e.g. more processes than slots) is reported as FAILED, never compared with an old file.
+#
 # Usage (from the repository root, after building):
 #   bash scripts/check_identical.sh                      # on ONE VM (default: mpirun --oversubscribe)
-#   MPIRUN="bash scripts/run_mpi.sh" bash scripts/check_identical.sh    # on the cluster (both VMs)
+#   MPIRUN="bash scripts/run_mpi.sh --oversubscribe" bash scripts/check_identical.sh   # cluster (both VMs);
+#        --oversubscribe because the P = 6 tests need more than the 4 slots of 'hosts' (correctness only)
 cd "$(dirname "$0")/.." || exit 1
 MPIRUN=${MPIRUN:-"mpirun --oversubscribe"}
 OUT=build/check
@@ -21,9 +24,14 @@ for kase in 1 2 V; do
       for P in 1 2 3 4 6; do
         [ "$decomp" = strips ] && [ $P -eq 6 ] && continue
         f="$OUT/${decomp}_${kase}_${N}_P${P}.bin"
-        line=$($MPIRUN -np $P ./build/heat --decomp $decomp --case $kase --N $N --r 0.24 --steps $STEPS --out "$f")
-        layout=$(echo "$line" | tr ' ' '\n' | grep '^layout=' | cut -d= -f2)
+        rm -f "$f"                    # never compare with an old file from an earlier run
         total=$((total + 1))
+        if ! line=$($MPIRUN -np $P ./build/heat --decomp $decomp --case $kase --N $N --r 0.24 --steps $STEPS --out "$f"); then
+          printf 'FAILED     case=%s N=%-3s %-6s P=%s (the run did not start or crashed)\n' $kase $N $decomp $P
+          fails=$((fails + 1))
+          continue
+        fi
+        layout=$(echo "$line" | tr ' ' '\n' | grep '^layout=' | cut -d= -f2)
         if cmp -s "$OUT/serial_${kase}_${N}.bin" "$f"; then
           printf 'OK         case=%s N=%-3s %-6s P=%s (%s)\n' $kase $N $decomp $P "$layout"
         else

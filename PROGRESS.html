@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 17:35</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 17:50</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1395,6 +1395,30 @@ bash scripts/run_mpi.sh -np 4 hostname                  # quick check: 2 x heat-
 MPIRUN="bash scripts/run_mpi.sh" bash scripts/check_identical.sh    # C2: identical across two VMs
 nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;            # Part 4: several hours, keeps running if the window closes
 tail -f scaling.log                                     # watch it (Ctrl+C stops watching, NOT the runs)</pre>
+  <h4>C — what happened</h4>
+  <table><tr><th>#</th><th>Command</th><th>Output</th><th>Meaning</th></tr>
+    <tr><td>1</td><td>Both VMs: <code>cd ~/heat &amp;&amp; rm -f results/raw/baseline_*.txt &amp;&amp; git pull &amp;&amp; cmake --build build &amp;&amp; git log --oneline -1</code></td>
+        <td>heat-laetitia: <code>Fast-forward … results/raw/baseline_heat-georges.txt | 15 +++ … [100%] Built target heat</code><br>
+            <code>35c8e8b (HEAD -&gt; main, origin/main, origin/HEAD) Baseline heat-laetitia, journal</code> — same line on heat-georges</td>
+        <td>Both VMs run exactly the same code (commit 35c8e8b).</td></tr>
+    <tr><td>2</td><td>heat-laetitia: <code>bash scripts/run_mpi.sh -np 4 hostname</code></td>
+        <td><code>heat-laetitia</code> ×2, <code>heat-georges</code> ×2</td><td>MPI starts 2 processes on each VM through Tailscale, as the hostfile says.</td></tr>
+    <tr><td>3</td><td>heat-laetitia: <code>MPIRUN="bash scripts/run_mpi.sh" bash scripts/check_identical.sh</code></td>
+        <td><code>OK case=1 N=64 strips P=1 (1x1)</code>, <code>OK case=1 N=64 strips P=2 (1x2)</code>, … (running)</td>
+        <td>Note: the hostfile gives 4 slots in total, so the 6 <b>blocks P = 6</b> tests can't start without <code>--oversubscribe</code> and will show as DIFFERENT
+            (no output file) — not a real difference. They are redone with <code>MPIRUN="bash scripts/run_mpi.sh --oversubscribe"</code>.</td></tr>
+    <tr><td>4</td><td>(same run, about 13 minutes, 17:27 → 17:40)</td>
+        <td>48 lines <code>OK</code> with a layout (strips P = 1–4; blocks P = 1 (1x1), 2 (2x1), 3 (3x1), 4 (2x2); cases 1, 2, V; N = 64, 67).
+            The 6 <code>blocks P=6</code> runs: Open MPI <i>"There are not enough slots available in the system to satisfy the 6 slots…"</i>, followed by
+            <code>OK case=… blocks P=6 ()</code> — with an <b>empty layout</b>. Last line <code>54 / 54 identical to the serial result</code>.</td>
+        <td><b>48 / 48 runs that really ran across the two VMs are identical to the serial result.</b> But the "54 / 54" was <b>wrong</b>: the P = 6 runs never started,
+            and the script compared the serial file with an <i>old</i> P = 6 file left in <code>build/check/</code> by Laetitia's earlier one-VM check.
+            (The empty <code>()</code> gave it away: no summary line was printed.) A bug in our check script, found by reading the output carefully.</td></tr>
+    <tr><td>5</td><td>Claude fixed <code>scripts/check_identical.sh</code></td>
+        <td>Now: the old output file is deleted before each run, and a run that does not start or crashes is reported as <code>FAILED</code> and counted as a failure.
+            Tested in the sandbox with a fake mpirun that refuses P = 6: six <code>FAILED</code> lines, <code>48 / 54 identical</code>.</td>
+        <td>A check must fail when something goes wrong — otherwise it proves nothing. Next: rerun the six P = 6 tests on the cluster with <code>--oversubscribe</code>.</td></tr>
+  </table>
   <p>Note: in the cluster check, only rank 0 (on heat-laetitia) writes the output files, so Georges's VM only needs the built program.</p>
   <p>When <code>perf_scaling.sh</code> has finished: <code>python3 scripts/analyze_perf.py</code>, copy <code>results/</code> to Windows, push.</p>
 </section>
