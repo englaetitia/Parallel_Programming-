@@ -540,3 +540,13 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `src/strips.cpp`, `src/blocks.cpp`, `scripts/check_identical.sh`, `scripts/perf_baseline.sh`, `scripts/perf_scaling.sh`, `scripts/analyze_perf.py` (new); `src/heat.hpp`, `src/main.cpp`, `CMakeLists.txt`, `README.md`, `PROGRESS.html` (Steps 9, 10, 11 sections, Step 12 placeholder), `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-21 13:18 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Prompt (verbatim, shortened):** pasted VM output: the end of Open MPI's "not enough slots" message (suggesting --oversubscribe), `error: unknown option --debug` with the old usage line, mpirun "process returned a non-zero exit code", and `free -h` (total 3.8Gi, available 3.3Gi, no swap).
+
+**Response (summary):** diagnosis: the program in the VM is still the Step 7 build (its usage line has no --debug), so the new code was not pushed/pulled or not rebuilt; "not enough slots" means Open MPI sees only 1 core in the VM (check with nproc; use --oversubscribe on one VM). Memory is enough for N = 8192. Asked for `git log --oneline -3`, `ls src`, `nproc` after push/pull/rebuild. Recorded as row 5 of Step 9 in PROGRESS.html.
+
+**Files created/modified:** `PROGRESS.html`, `llm_log/LOG.md`.
+
+---

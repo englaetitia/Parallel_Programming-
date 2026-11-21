@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 13:40</div>
+  <div class="chip"><b>Last update</b>21 Nov 2026, 13:50</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1181,7 +1181,16 @@ saved results/raw/convergence.csv and results/convergence.png</pre></td>
         <td>rank 2 owns rows 6..7, rank 1 rows 4..5, rank 0 rows 1..3 (3 + 2 + 2); top ghost of rank 2 = row 8 = all 1.0 (hot edge);
             bottom ghost of rank 0 = row 0 = all 1.0</td>
         <td>The uneven split and the ghost rows are right (the "debugging a halo exchange" check of the project sheet).</td></tr>
-    <tr><td>5</td><td>Laetitia, in her VM — <i>to do</i> (see "Next commands")</td><td></td><td></td></tr>
+    <tr><td>5</td><td>Laetitia (VM): the "Next commands" below</td>
+        <td>(1) Open MPI: <i>"There are not enough slots available in the system to satisfy the 2 slots that were requested …
+            Alternatively, you can use the --oversubscribe option"</i>.<br>
+            (2) <code>error: unknown option --debug</code> — and the usage line printed does <b>not</b> list <code>--debug</code>.<br>
+            (3) <code>free -h</code>: <code>Mem: total 3.8Gi, used 503Mi, available 3.3Gi</code>, no swap.</td>
+        <td>(2) means the program that ran is the <b>old</b> one (Step 7 version): the new code had not reached the VM
+            (not pushed from Windows, or <code>git pull</code> did not bring it, or the build did not run after the pull).
+            (1) means Open MPI thinks this VM has only 1 core: <code>mpirun -np 2</code> without <code>--oversubscribe</code> is refused
+            when there are fewer cores than processes. (3) Memory is fine: 3.3 GB available, enough for N = 8192 (≈ 1.1 GB).
+            → Next: check with <code>git log --oneline -3</code>, <code>ls src</code>, <code>nproc</code>.</td></tr>
   </table>
 
   <h4>Next commands (Laetitia, in the VM heat-laetitia)</h4>
