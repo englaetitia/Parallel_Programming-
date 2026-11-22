@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 11:15</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 12:40</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1373,6 +1373,64 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
             <code>err_l2=5.172124e-05</code> (unchanged); blocks P = 4 without <code>--out</code> ends right after the loop.</td>
         <td>The timed part of the program is unchanged, so old and new results can be mixed. Remaining runs ≈ 4 h (loops only).
             Plan: stop the current run, push, pull + rebuild on both VMs, restart (finished runs are skipped).</td></tr>
+    <tr><td>8</td><td>heat-laetitia, 11:15: <code>cp results/raw/scaling.txt ~/scaling_backup.txt</code> · <code>wc -l results/raw/scaling.txt</code> ·
+        <code>pkill -f perf_scaling.sh ; pkill mpirun</code>; heat-georges: <code>pkill -f build/heat</code></td>
+        <td><code>114 results/raw/scaling.txt</code></td>
+        <td>114 of the 162 runs are done and backed up in <code>~/scaling_backup.txt</code>; 48 left (≈ 4 h). After the restart the count must never go below 114.
+            (Ctrl+C only stops <code>tail -f</code>; a <code>nohup … &amp;</code> job is stopped with <code>pkill</code>.)</td></tr>
+    <tr><td>9</td><td>Windows: <code>git add . ; git commit -m "C2 done: 54/54 across two VMs" ; git push</code> → <code>12f6b99..923408b</code>;
+        power settings (<code>powercfg …</code>; check → <code>Current AC Power Setting Index: 0x00000000</code>); <code>multipass list</code> → heat-laetitia Running;
+        <code>git add . ; git commit -m "Gather the field only when needed (saves hours at N=8192)" ; git push</code> → <code>923408b..81a9948</code>.<br>
+        heat-laetitia: restart <code>nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;</code></td>
+        <td><code>skip exp=strong …</code> for every finished run, the last one <code>skip exp=strong map=node rep=3 blocks P=2 N=8192</code></td>
+        <td>The resume works: the 114 finished runs are skipped, and it continues with blocks P = 3, N = 8192 (map-by node). 48 runs left.
+            To confirm: both VMs must be on commit 81a9948 and rebuilt, otherwise the old program (with the slow gather) is still running.</td></tr>
+    <tr><td>10</td><td>heat-laetitia, 11:37: <code>cd ~/heat</code> · <code>wc -l results/raw/scaling.txt</code> · <code>tail -3 …</code> ·
+        <code>ps aux | grep perf_scaling.sh | grep -v grep</code></td>
+        <td><code>114</code>; last line still blocks P = 2 rep 3 (628 s); <b>three</b> scripts running:
+            <code>2284897 … 11:15 bash scripts/perf_scaling.sh</code>, <code>2289406 … 11:18 …</code>, <code>2294450 … 11:21 …</code></td>
+        <td><b>Problem:</b> the restart command was run 3 times, so 3 copies of the script were running the same test (blocks P = 3, N = 8192) at the same time —
+            9 processes on 4 cores sharing one network link: their times would be wrong. No new line had been written yet (still 114), so no bad result was saved.
+            Fix: stop everything on both VMs, check that nothing is left, restart <b>once</b>, and afterwards only watch (<code>tail -f scaling.log</code>), never run the
+            <code>nohup</code> line again while one is running.</td></tr>
+    <tr><td>11</td><td>heat-laetitia: <code>ps aux | grep -E "perf_scaling|mpirun|build/heat" | grep -v grep</code>, then
+        <code>pkill -9 -f perf_scaling.sh ; pkill -9 mpirun ; pkill -9 -f build/heat</code>; heat-georges: <code>pkill -9 -f build/heat ; pkill -9 -f orted</code>;
+        restart once: <code>nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;</code> · <code>sleep 2</code> ·
+        <code>ps aux | grep perf_scaling.sh | grep -v grep | wc -l</code></td>
+        <td>Before: 3 × (bash perf_scaling.sh + mpirun -np 3 + 2 × ./build/heat blocks N = 8192), started 11:15, 11:18, 11:21, each heat at 32–42 % CPU.
+            After the forced stop and restart: <code>[1] 2321143</code> and <code>1</code>.</td>
+        <td>The first plain <code>pkill</code> (11:15) had run before the restarts, so it could not stop them; <code>-9</code> stopped all three. Now exactly <b>one</b> copy runs,
+            on the new program (commit 81a9948). The first new run is blocks P = 3, N = 8192, map-by node. About 4 h left.</td></tr>
+    <tr><td>12</td><td>heat-laetitia: <code>tail -f scaling.log</code> → <code>FAILED: exp=strong map=node rep=1 blocks P=3 N=8192</code> (no error text);
+        check: <code>ps … mpirun|build/heat … | wc -l</code> → 3, <code>ssh heat-georges "ps … build/heat … | wc -l"</code> → 1</td>
+        <td>Rep 1 killed from outside (Georges-Anthony's <code>pkill -9</code> arrived after the restart); rep 2 was running normally.</td>
+        <td>A failed run writes nothing; running the script again later redoes it.</td></tr>
+    <tr><td>13</td><td>heat-laetitia, 11:44: <code>nohup bash scripts/perf_scaling.sh &gt; scaling2.log 2&gt;&amp;1 &amp;</code> → <code>[1] 2327114</code></td>
+        <td>A second copy started while the first was still running (the advice "run it once more at the end" was misread as "now").</td>
+        <td>Fix 11:45: <code>pkill -9 -f perf_scaling.sh ; pkill -9 mpirun ; pkill -9 -f build/heat</code> → check <code>0</code>, <code>wc -l</code> → <code>114</code>;
+            restart once → <code>ps aux | grep perf_scaling.sh | grep -v grep | wc -l</code> → <code>1</code>. Lesson for the report's "what went wrong":
+            a background job must be started from <i>one</i> place, once, and checked with <code>ps</code>; a stop must happen <i>before</i> the restart on <i>every</i> machine.
+            To check: no leftover process on heat-georges.</td></tr>
+    <tr><td>14</td><td>heat-laetitia 11:46 → 12:12: run blocks P = 3, N = 8192 (map-by node) started 11:45; 12:12 checks: 3 processes, tailscale0 tx +52 bytes and rx +0 bytes in 20 s,
+        ping 105 ms</td><td>No result line after 27 min; no data moving.</td><td>Run stuck → stopped on both VMs (pkill -9, incl. via <code>ssh heat-georges</code>).</td></tr>
+    <tr><td>15</td><td>Diagnosis, 12:14–12:29 (all typed on heat-laetitia):<br>
+        <code>bash scripts/run_mpi.sh --map-by node -np 3 ./build/heat --decomp blocks --case 2 --N 8192 --r 0.24 --steps 5</code> → hangs;<br>
+        <code>timeout 180 … --decomp strips … --steps 5</code> → <code>exit=124</code> (hangs too; it worked last night);<br>
+        <code>timeout 60 bash scripts/run_mpi.sh -np 4 tools/hello_mpi</code> → 4 hellos, <code>exit=0</code>;<br>
+        <code>ping -c 3 -s 1200 -M do</code> both ways → 0 % loss (a second try got no reply);<br>
+        5 MB with ssh: heat-laetitia → heat-georges 7.8 s (≈ 640 KB/s), heat-georges → heat-laetitia <b>55.7 s (≈ 90 KB/s)</b>;<br>
+        <code>timeout 120 … -np 2 tools/pingpong 1048576</code> → 8–128 bytes OK (round trip ≈ 55 ms), then stuck at 256 bytes;<br>
+        <code>ping -c 30 heat-georges</code> → 0 % loss but 45–367 ms (avg 98 ms); <code>tailscale status</code> → <code>active; direct 94.187.15.98:5655</code></td>
+        <td>Our code is not the cause (blocks P = 3, N = 8192 runs in Claude's sandbox; strips, which worked at night, now hangs too).
+            Small messages and pings pass, but bulk MPI traffic freezes: the connection from Georges-Anthony's home is weak and very irregular today
+            (upload 7× slower than the other way, round-trip time jumping from 45 to 367 ms).</td>
+        <td><b>Decision:</b> pause the performance runs and try again in the evening/night (when the same runs worked): first a 5-step test with
+            <code>timeout</code>; if <code>exit=0</code>, restart the script <b>once</b>. 114 / 162 runs are already saved. For the report: the runs depend on a home-internet link
+            whose quality changes during the day — a real limit of our "cluster".</td></tr>
+    <tr><td>16</td><td>Claude: <code>scripts/perf_scaling.sh local</code> (new option)</td>
+        <td>Runs only the tests whose processes all stay on heat-laetitia: P = 1, and P = 2 with <code>--map-by slot</code>. Tested in the sandbox: only those runs are selected.</td>
+        <td>These ≈ 18 remaining runs (N = 8192 map-by slot P = 1, 2; weak P = 1) need no traffic between the VMs, so they can be done now despite the bad link
+            (≈ 15 min). The ≈ 30 runs that cross the network wait for a better connection (evening/night).</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
