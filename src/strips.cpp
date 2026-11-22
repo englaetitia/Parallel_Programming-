@@ -76,6 +76,9 @@ Result run_strips(const Params& p, long steps, double r)
     res.t_total = MPI_Wtime() - t0;
 
     // 4. Collect the field on rank 0 (MPI_Gatherv: every process sends a different number of rows).
+    //    Only when it is needed (an output file, or case V for the error): for N = 8192 across our network,
+    //    collecting 270+ MB takes over an hour, and it is not part of the measured time anyway.
+    const bool need_field = !p.out.empty() || p.kase == "V";
     std::vector<int> counts(P), displs(P);
     for (int q = 0; q < P; ++q) {
         int f, c;
@@ -83,16 +86,18 @@ Result run_strips(const Params& p, long steps, double r)
         counts[q] = c * L;                                 // number of doubles sent by process q
         displs[q] = f * L;                                 // where they go, counted from global row 1
     }
-    if (rank == 0) {
-        res.u.assign(static_cast<std::size_t>(L) * L, 0.0);
-        for (int i = 0; i <= N; ++i) {                     // boundary rows j = 0 and j = N
-            res.u[idx(i, 0, L)] = initial_value(p.kase, i, 0, N);
-            res.u[idx(i, N, L)] = initial_value(p.kase, i, N, N);
+    if (need_field) {
+        if (rank == 0) {
+            res.u.assign(static_cast<std::size_t>(L) * L, 0.0);
+            for (int i = 0; i <= N; ++i) {                 // boundary rows j = 0 and j = N
+                res.u[idx(i, 0, L)] = initial_value(p.kase, i, 0, N);
+                res.u[idx(i, N, L)] = initial_value(p.kase, i, N, N);
+            }
         }
+        MPI_Gatherv(&u_old[idx(0, 1, L)], n * L, MPI_DOUBLE,
+                    rank == 0 ? &res.u[idx(0, 1, L)] : nullptr, counts.data(), displs.data(), MPI_DOUBLE,
+                    0, MPI_COMM_WORLD);
     }
-    MPI_Gatherv(&u_old[idx(0, 1, L)], n * L, MPI_DOUBLE,
-                rank == 0 ? &res.u[idx(0, 1, L)] : nullptr, counts.data(), displs.data(), MPI_DOUBLE,
-                0, MPI_COMM_WORLD);
 
     // 5. Report the slowest process (the one everybody waits for).
     double mine[3] = {res.t_total, res.t_comp, res.t_comm}, worst[3];

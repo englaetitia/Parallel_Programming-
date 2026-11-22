@@ -76,37 +76,41 @@ Result run_blocks(const Params& p, long steps, double r)
 
     // 4. Collect on rank 0: everyone packs its nx*ny interior values (row by row) and sends them;
     //    rank 0 knows where each block goes from that process's coordinates.
-    std::vector<double> mine(static_cast<std::size_t>(nx) * ny);
-    for (int b = 1; b <= ny; ++b)
-        for (int a = 1; a <= nx; ++a)
-            mine[static_cast<std::size_t>(b - 1) * nx + (a - 1)] = u_old[idx(a, b, RL)];
+    //    Only when it is needed (output file or case V) — see strips.cpp.
+    const bool need_field = !p.out.empty() || p.kase == "V";
+    if (need_field) {
+        std::vector<double> mine(static_cast<std::size_t>(nx) * ny);
+        for (int b = 1; b <= ny; ++b)
+            for (int a = 1; a <= nx; ++a)
+                mine[static_cast<std::size_t>(b - 1) * nx + (a - 1)] = u_old[idx(a, b, RL)];
 
-    std::vector<int> counts(P), displs(P), qfi(P), qnx(P), qfj(P), qny(P);
-    int total = 0;
-    for (int q = 0; q < P; ++q) {
-        int c[2];
-        MPI_Cart_coords(cart, q, 2, c);
-        split(N - 1, dims[0], c[0], qfi[q], qnx[q]);
-        split(N - 1, dims[1], c[1], qfj[q], qny[q]);
-        counts[q] = qnx[q] * qny[q];
-        displs[q] = total;
-        total += counts[q];
-    }
-    std::vector<double> all(rank == 0 ? total : 0);
-    MPI_Gatherv(mine.data(), nx * ny, MPI_DOUBLE, rank == 0 ? all.data() : nullptr,
-                counts.data(), displs.data(), MPI_DOUBLE, 0, cart);
+        std::vector<int> counts(P), displs(P), qfi(P), qnx(P), qfj(P), qny(P);
+        int total = 0;
+        for (int q = 0; q < P; ++q) {
+            int c[2];
+            MPI_Cart_coords(cart, q, 2, c);
+            split(N - 1, dims[0], c[0], qfi[q], qnx[q]);
+            split(N - 1, dims[1], c[1], qfj[q], qny[q]);
+            counts[q] = qnx[q] * qny[q];
+            displs[q] = total;
+            total += counts[q];
+        }
+        std::vector<double> all(rank == 0 ? total : 0);
+        MPI_Gatherv(mine.data(), nx * ny, MPI_DOUBLE, rank == 0 ? all.data() : nullptr,
+                    counts.data(), displs.data(), MPI_DOUBLE, 0, cart);
 
-    if (rank == 0) {
-        const int L = N + 1;
-        res.u.assign(static_cast<std::size_t>(L) * L, 0.0);
-        for (int j = 0; j <= N; ++j)                       // start with the boundary values everywhere
-            for (int i = 0; i <= N; ++i)
-                res.u[idx(i, j, L)] = initial_value(p.kase, i, j, N);
-        for (int q = 0; q < P; ++q)                        // then paste each block at its place
-            for (int b = 0; b < qny[q]; ++b)
-                for (int a = 0; a < qnx[q]; ++a)
-                    res.u[idx(1 + qfi[q] + a, 1 + qfj[q] + b, L)] =
-                        all[static_cast<std::size_t>(displs[q]) + static_cast<std::size_t>(b) * qnx[q] + a];
+        if (rank == 0) {
+            const int L = N + 1;
+            res.u.assign(static_cast<std::size_t>(L) * L, 0.0);
+            for (int j = 0; j <= N; ++j)                       // start with the boundary values everywhere
+                for (int i = 0; i <= N; ++i)
+                    res.u[idx(i, j, L)] = initial_value(p.kase, i, j, N);
+            for (int q = 0; q < P; ++q)                        // then paste each block at its place
+                for (int b = 0; b < qny[q]; ++b)
+                    for (int a = 0; a < qnx[q]; ++a)
+                        res.u[idx(1 + qfi[q] + a, 1 + qfj[q] + b, L)] =
+                            all[static_cast<std::size_t>(displs[q]) + static_cast<std::size_t>(b) * qnx[q] + a];
+        }
     }
 
     // 5. Report the slowest process.

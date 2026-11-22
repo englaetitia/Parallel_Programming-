@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>21 Nov 2026, 18:00</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 11:15</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1297,7 +1297,7 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
 <section class="step" id="step-11">
   <div class="step-head">
     <h3>Step 11 — Performance study (both) — checkpoint C3</h3>
-    <span class="badge progress">Scripts ready</span>
+    <span class="badge progress">Runs in progress</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> Project Part 4: measure how fast each version is for different N and P, compare with a model built from our
@@ -1323,6 +1323,57 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <code>weak_scaling.png</code></td><td>Anyone, after the runs</td></tr></table>
   <p>The scripts skip runs already in their file, so they can be stopped (Ctrl+C) and restarted. Claude tested all three in its sandbox with tiny grids
      (the test results were thrown away — only real runs count).</p>
+  <h4>Session log</h4>
+  <table><tr><th>#</th><th>Who / command</th><th>What we saw</th><th>What it meant</th></tr>
+    <tr><td>1</td><td>Both laptops (PowerShell): <code>powercfg /change standby-timeout-ac 0</code>, <code>hibernate-timeout-ac 0</code>, <code>disk-timeout-ac 0</code>,
+        <code>powercfg /setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 0</code>, <code>powercfg /setactive SCHEME_CURRENT</code>; Windows Update paused</td>
+        <td></td><td>No sleep, lid closed = nothing, no restart during the night.</td></tr>
+    <tr><td>2</td><td>heat-laetitia, 21 Nov evening: <code>nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;</code></td>
+        <td>Still running on 22 Nov 08:22. Last lines: N = 8192, map-by node — strips P = 2: t_total 568 s (t_comp 34 s, t_comm 544 s);
+            strips P = 3: 874 / 871 / 880 s (t_comp ≈ 26 s); strips P = 4: 1210 / 1189 / 1301 s (t_comp ≈ 20 s, t_comm ≈ 1200 s);
+            blocks P = 1: 70.6 / 73.0 / 72.7 s.</td>
+        <td><b>First results, N = 8192:</b> one process takes about 72 s; spread over the two VMs it takes <b>8× (P = 2) to 17× (P = 4) longer</b>.
+            The computing part does get faster (72 → 34 → 26 → 20 s: 2.1×, 2.8×, 3.6×), but the communication (544 → 857 → 1200 s) is 15–60× bigger.
+            Why it gets <i>worse</i> with more processes: with map-by node the ranks alternate VM (L, G, L, G), so <b>every</b> boundary crosses the network;
+            for P ≥ 3 the middle ranks have 2 network exchanges per step instead of 1, and all the messages share the same slow Tailscale link.
+            Exactly the slowdown Task 8.2(d) predicted (comm ≈ 30× comp at N = 8192). Also: P = 1 inside the scaling run (≈ 72 s) is slower than the baseline
+            (59.9 s on heat-laetitia) — to discuss (other load during the night? the MPI start-up is not counted, so it is not that).</td></tr>
+    <tr><td>3</td><td>(same run) 22 Nov 10:02</td>
+        <td>N = 8192, map-by node, blocks P = 2 (layout 2x1): 600.1 s (t_comp 36.9, t_comm 579.9) and 549.0 s (t_comp 30.2, t_comm 528.0)</td>
+        <td>Blocks with 2 processes ≈ strips with 2 processes (568 s): with a 2×1 grid each process sends one column of 8191 values — the same amount of data as a
+            strip row, so the same time, as Task 8.2 predicts for this case. Only 2 runs finished between 08:22 and 10:02 (about 19 min of runs in 100 min):
+            to check whether a run is stuck or the network got slower.</td></tr>
+    <tr><td>4</td><td>heat-laetitia (second shell): <code>date</code> · <code>ls -l --time-style=+%H:%M results/raw/scaling.txt</code> ·
+        <code>ps aux | grep "build/heat" | grep -v grep | wc -l</code> · <code>tailscale ping -c 3 heat-georges</code></td>
+        <td><code>Sun Nov 22 10:03:47 EET 2026</code> · <code>-rw-rw-r-- 1 ubuntu ubuntu 18850 09:51 results/raw/scaling.txt</code> · <code>2</code> ·
+            <code>pong from heat-georges (100.111.48.50) via 94.187.15.98:5655 in 624ms</code></td>
+        <td><b>Not stuck</b>: last result written 12 min earlier, 2 heat processes running on this VM (the current run). But the ping is now <b>624 ms</b>
+            (65 ms when we measured on 21 Nov): the internet connection between the two homes is much slower this morning (other traffic on the line).
+            → Runs from the night and from the day were made under different network conditions; this must be said in the report and is visible in the
+            spread of the 3 repeats. Asked both of us to avoid streaming/downloads on our home networks until the runs end.</td></tr>
+    <tr><td>5</td><td>heat-laetitia, 10:55: Tailscale byte counters twice, 20 s apart:
+        <code>cat /sys/class/net/tailscale0/statistics/tx_bytes /sys/class/net/tailscale0/statistics/rx_bytes</code>, <code>sleep 20</code>, again;
+        <code>tailscale ping -c 3 heat-georges</code></td>
+        <td>tx 1 335 132 303 → 1 335 164 375 (+32 KB); rx 4 800 623 634 → 4 801 717 442 (+1.09 MB) · <code>ping "100.111.48.50" timed out</code>,
+            <code>pong … in 188ms</code></td>
+        <td><b>Alive but crawling.</b> In 20 s this VM sent only 32 KB to heat-georges (1.6 KB/s) and received 1.1 MB (55 KB/s). One column message of the
+            blocks P = 2 run is 8191 × 8 = 65 KB, so sending <i>one</i> message now takes about 40 s; a 500-step run would take hours.
+            The direction Laetitia → Georges-Anthony (her home's upload) is the bottleneck this morning, and one ping was lost.
+            Decision: stop the runs now and resume tonight, when the network was fast, so the remaining runs are measured in the same conditions as the others.</td></tr>
+    <tr><td>6</td><td>(same run) 11:05: <code>exp=strong map=node rep=3 decomp=blocks P=2 layout=2x1 … N=8192 … t_total=628.390496 t_comp=32.155876 t_comm=605.813176</code></td>
+        <td>The timed loop took 628 s (≈ reps 1–2), but the run took about 73 min of real time (started ≈ 09:51, ended ≈ 11:04).</td>
+        <td><b>Correction of rows 4–5:</b> the network was not the main problem. After the timed loop, every run collected the <b>whole plate</b> on rank 0 with
+            <code>MPI_Gatherv</code>, even without <code>--out</code>. At N = 8192 heat-georges's half is 8191 × 4095 × 8 B = <b>268 MB</b>; at the 55 KB/s we saw,
+            that is ≈ 80 min — exactly the missing time. That transfer filled the link, which is also why the ping was 624 ms and why heat-laetitia
+            mostly <i>received</i> (rx 55 KB/s, tx 1.6 KB/s). Our measured times are still valid (the collection happens after the timer stops),
+            but it wasted hours.</td></tr>
+    <tr><td>7</td><td>Claude: <code>src/strips.cpp</code>, <code>src/blocks.cpp</code> — collect the plate only when it is needed
+        (<code>need_field = !p.out.empty() || p.kase == "V"</code>)</td>
+        <td>Sandbox (MPI stand-in): <code>check_identical.sh</code> → <code>54 / 54 identical to the serial result</code>; test V with strips P = 3:
+            <code>err_l2=5.172124e-05</code> (unchanged); blocks P = 4 without <code>--out</code> ends right after the loop.</td>
+        <td>The timed part of the program is unchanged, so old and new results can be mixed. Remaining runs ≈ 4 h (loops only).
+            Plan: stop the current run, push, pull + rebuild on both VMs, restart (finished runs are skipped).</td></tr>
+  </table>
   <h4>Things to know before running</h4>
   <ul>
     <li><b>Memory:</b> N = 8192 needs 2 × 8193² × 8 bytes ≈ <b>1.1 GB</b>. Check the VM with <code>free -h</code>. If the VM has only 1 GB, give it more
