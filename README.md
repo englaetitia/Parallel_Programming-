@@ -12,7 +12,7 @@ in three versions: serial, 1D strips and 2D blocks.
 
 | Path            | Content                                                           |
 | --------------- | ----------------------------------------------------------------- |
-| `src/`          | The `heat` solver (serial, strips, blocks; optional CUDA)         |
+| `src/`          | The `heat` solver (serial, strips, blocks)                        |
 | `tools/`        | `hello_mpi.cpp`, `pingpong.cpp`                                   |
 | `scripts/`      | Run scripts, output comparison script, plotting scripts           |
 | `results/raw/`  | Raw outputs of every run (never deleted)                          |
@@ -78,10 +78,15 @@ for parallel runs, each is the maximum over the processes. With `--out`, the ful
 
 | Script | What it does |
 | ------ | ------------ |
-| `scripts/check_identical.sh` | strips (P = 1–4) and blocks (P = 1–4, 6) vs serial, cases 1/2/V, N = 64 and 67, compared with `cmp` (`MPIRUN="bash scripts/run_mpi.sh"` for the cluster) |
+| `scripts/check_identical.sh` | serial vs strips (P = 1–4) and blocks (P = 1–4, 6), cases 1/2/V, N = 64 and 67, compared with `cmp`; a run that fails to start is reported `FAILED`. On the cluster: `MPIRUN="bash scripts/run_mpi.sh --oversubscribe" bash scripts/check_identical.sh` (P = 6 needs more than the 4 slots; correctness only). Output: `results/check_identical_cluster.txt` |
+| `scripts/convergence.py` | Task 7.2: test V, N = 16 … 256, r = 0.2, T = 0.05 → table, `results/raw/convergence.csv`, `results/convergence.png` |
+| `scripts/heatmap.py` | `python3 scripts/heatmap.py u.bin N [out.png]`: picture of a field file |
+| `tools/pingpong.cpp`, `scripts/fit_pingpong.py` | network latency ts and time per byte tw (Part 0): `bash scripts/run_mpi.sh --map-by node -np 2 tools/pingpong [max_bytes]` (build: `mpicxx -O2 -o tools/pingpong tools/pingpong.cpp`) |
 | `scripts/perf_baseline.sh` | Part 4 exp. 1: serial, N = 512 … 8192, 500 steps, 3 repeats → `results/raw/baseline_<vm>.txt` |
-| `scripts/perf_scaling.sh` | Part 4 exp. 2–3 on the cluster: strong (N = 512, 2048, 8192; P = 1–4; map-by node/slot) and weak scaling → `results/raw/scaling.txt` |
-| `scripts/analyze_perf.py` | medians, spread, speed-up, efficiency, comm share, performance model → `results/perf_summary.csv` + plots |
-| `tools/pingpong.cpp`, `scripts/fit_pingpong.py` | network latency ts and bandwidth 1/tw (Part 0) |
+| `scripts/perf_scaling.sh` | Part 4 exp. 2–3 on the cluster: strong (N = 512, 2048, 8192; P = 1–4; strips and blocks; `--map-by node` and `--map-by slot`) and weak scaling (≈ 1024² nodes per process) → `results/raw/scaling.txt`. Options: `strong`, `weak`, `local` (only the runs that stay on the first VM). Runs already in the file are skipped, so it can be stopped and restarted |
+| `scripts/analyze_perf.py` | medians, spread, speed-up, efficiency, communication share and the performance model → `results/perf_summary.csv` and the plots in `results/` |
 
-The performance scripts skip runs that are already in their output file, so they can be stopped and restarted.
+`results/raw/scaling_partial_22nov.txt` is a backup copy of the first 132 lines of `scaling.txt`, taken before the last runs; `scaling.txt` is the complete file.
+
+**Before every cluster run:** after a `git pull` that changes `src/`, rebuild on **every** VM (`cmake --build build`) and check that
+`md5sum build/heat` is identical on all VMs — two different programs deadlock at the end of a run.
