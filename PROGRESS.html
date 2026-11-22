@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 12:55</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 13:10</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1439,6 +1439,12 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
             computing part: 47–50 s instead of 36 s. Reason (Task 5.2(d)): the update does only ≈ 0.3 flop per byte, so it is limited by memory bandwidth, and the
             two cores of one VM share the same memory → each runs slower when both work. Compare with the two-VM runs: 550–630 s. All local runs done;
             ≈ 30 runs that cross the network remain (tonight).</td></tr>
+    <tr><td>18</td><td>heat-laetitia, 13:04–13:08: <code>ping -c 10 heat-georges</code>;
+        <code>timeout 180 bash scripts/run_mpi.sh --map-by node -np 3 ./build/heat --decomp strips --case 2 --N 8192 --r 0.24 --steps 5 ; echo "exit=$?"</code>;
+        cleanup <code>pkill -9 mpirun ; pkill -9 -f build/heat ; ssh heat-georges "pkill -9 -f build/heat ; pkill -9 -f orted"</code></td>
+        <td>ping: 0 % loss, rtt min/avg/max = 51 / 92 / 121 ms; test: no result line, <code>mpirun: Forwarding signal 18 to job</code>, <code>exit=124</code></td>
+        <td>The link is still too irregular for MPI between the VMs (the 5-step test freezes). 132 / 162 runs saved. Retry the same test tonight; start the script
+            once only if it prints a result line and <code>exit=0</code>.</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
