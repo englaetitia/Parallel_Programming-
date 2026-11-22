@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 13:10</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 13:25</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1445,6 +1445,19 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <td>ping: 0 % loss, rtt min/avg/max = 51 / 92 / 121 ms; test: no result line, <code>mpirun: Forwarding signal 18 to job</code>, <code>exit=124</code></td>
         <td>The link is still too irregular for MPI between the VMs (the 5-step test freezes). 132 / 162 runs saved. Retry the same test tonight; start the script
             once only if it prints a result line and <code>exit=0</code>.</td></tr>
+    <tr><td>19</td><td>Windows: backup <code>multipass transfer heat-laetitia:/home/ubuntu/heat/results/raw/scaling.txt results\raw\scaling_partial_22nov.txt</code>,
+        push (→ f72c0d2); heat-laetitia: <code>python3 scripts/analyze_perf.py</code> (first version)</td>
+        <td>Table of 46 configurations (132 runs). Every run across the 2 VMs: speed-up 0.00–0.12, 96–99.9 % of the time in the exchange.
+            On one VM, 2 processes: 1.49–1.58× (N = 2048, 8192), 1.02–1.09× (N = 512).</td>
+        <td>The first model was too rough: it used heat-georges's speed (rank 0 runs on the slower heat-laetitia), counted 4 messages for blocks P = 2 (2×1 grid: only 2),
+            and ignored that messages share the one link.</td></tr>
+    <tr><td>20</td><td>Claude: new <code>scripts/analyze_perf.py</code>, run in the sandbox on the 132 saved results</td>
+        <td>Model per step = max over ranks of (compute with c(N) measured by the P = 1 runs: ≈ 2.1–2.3 ns/node on heat-laetitia) + for each MPI_Sendrecv
+            max(send, receive) with ts + m·tw·k (k = messages crossing the link in the same direction), placement as Open MPI does it (node: rank r on VM r mod 2; slot: 0,1 | 2,3),
+            exact message sizes of each layout. New plot <code>model_vs_measured.png</code>.</td>
+        <td><b>The model now matches within ≈ 10 %</b> most configurations, from 0.5 ms to 2.4 s per step (e.g. N = 512 across VMs: 113 ms predicted, 117–126 ms measured;
+            N = 8192 P = 1: 145 vs 145 ms). Where it is too optimistic, the reasons are known: 2 processes on one VM share the memory bandwidth (97 ms vs 72 ms),
+            and with 3–4 processes across the VMs the slow, irregular upload from heat-georges (measured 22 Nov: 90 KB/s vs 640 KB/s the other way) and queuing on the link.</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
