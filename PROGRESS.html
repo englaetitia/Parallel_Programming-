@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 17:30</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 22:10</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1297,7 +1297,7 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
 <section class="step" id="step-11">
   <div class="step-head">
     <h3>Step 11 — Performance study (both) — checkpoint C3</h3>
-    <span class="badge progress">Runs in progress</span>
+    <span class="badge done">Done — 162 runs analysed</span>
     <span class="date">21 Nov 2026</span>
   </div>
   <div class="why"><b>Why?</b> Project Part 4: measure how fast each version is for different N and P, compare with a model built from our
@@ -1489,6 +1489,20 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <td><code>8b7e930408d8f047feabc6057f5c5bc9</code> on both VMs</td>
         <td>Same program everywhere again. Lesson (for the report): after every <code>git pull</code> that touches <code>src/</code>, rebuild on <b>every</b> VM and compare
             <code>md5sum build/heat</code> before a cluster run.</td></tr>
+    <tr><td>26</td><td>heat-laetitia 17:29: <code>nohup bash scripts/perf_scaling.sh &gt; scaling.log 2&gt;&amp;1 &amp;</code> (1 copy) → 17:50: 133 · 19:39: 140 · 21:12: 148 · 22:01: 162</td>
+        <td>All 30 remaining runs finished without a single freeze (same program on both VMs). Runs at N = 8192 took 9–20 min each.</td>
+        <td><b>Performance runs complete: 162 / 162.</b></td></tr>
+    <tr><td>27</td><td>heat-laetitia: <code>git pull</code>, <code>python3 scripts/analyze_perf.py</code>; Windows: <code>multipass transfer</code> of
+        <code>results/raw/scaling.txt</code>, <code>perf_summary.csv</code>, the 6 plots; push → <code>29c336d Performance study complete: 162 runs, analysis and plots</code></td>
+        <td>54 configurations. Main numbers (N = 8192, 500 steps): 1 process ≈ 67–74 s; 2 processes on one VM 48–49 s (S ≈ 1.49);
+            across the two VMs 491–1219 s (S = 0.06–0.15). With 4 processes, blocks beat strips: 601 vs 1210 s (map-by node), 491 vs 763 s (map-by slot).
+            Weak scaling (≈ 1024² nodes per process): compute stays 1.2–1.7 s, total 1.2 s → 110–150 s (P = 2) → 141 s blocks / 341 s strips (P = 4).
+            Model: median model/measured = 0.82 over all P &gt; 1; within 15 % for 19 of 34 configurations that use the network.</td>
+        <td><b>Conclusions for the report:</b> (1) On our home-internet cluster, spreading a run over the two VMs is 7–17× slower than one process at every N we can run —
+            the network (ts ≈ 29 ms, ≈ 0.15 MB/s) dominates, as Task 8.2(d) predicted. (2) On one VM, 2 processes give ≈ 1.5× (memory bandwidth shared).
+            (3) Blocks send less data across the link and win clearly at P = 4; the simple Task 8.2 formula (no link sharing) predicted strips, the layout-aware
+            model with link sharing explains why blocks win. (4) The model is optimistic where processes have two cross-VM neighbours or share the slow upload
+            direction, and where both cores compete for memory.</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
