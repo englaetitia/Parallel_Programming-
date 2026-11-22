@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 13:25</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 17:30</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1458,6 +1458,37 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <td><b>The model now matches within ≈ 10 %</b> most configurations, from 0.5 ms to 2.4 s per step (e.g. N = 512 across VMs: 113 ms predicted, 117–126 ms measured;
             N = 8192 P = 1: 145 vs 145 ms). Where it is too optimistic, the reasons are known: 2 processes on one VM share the memory bandwidth (97 ms vs 72 ms),
             and with 3–4 processes across the VMs the slow, irregular upload from heat-georges (measured 22 Nov: 90 KB/s vs 640 KB/s the other way) and queuing on the link.</td></tr>
+    <tr><td>21</td><td>heat-laetitia 13:19–13:28: test again (ping avg 69 ms) → <code>exit=124</code>; health check: both VMs 3.3–3.4 GB free, load &lt; 1, no leftover processes;
+        <code>sudo systemctl restart tailscaled</code> on heat-laetitia only (Georges-Anthony away: a remote restart of his Tailscale could cut his VM off);
+        name resolution back after ≈ 1 min, path first <code>via DERP(par)</code> (relay in Paris, 146–269 ms), then direct again <code>via 94.187.15.98:5655 in 73ms</code>;
+        test again → <code>exit=124</code></td>
+        <td>VMs healthy, direct path, decent ping — and the 5-step MPI test still freezes. <code>hello_mpi</code> (start-up only, no point-to-point traffic) works;
+            real exchanges stall (ping-pong stalled at 256 bytes at 12:26).</td>
+        <td><i>[Wrong diagnosis, corrected in row 24.]</i> Since the 268 MB transfers of the morning, bulk MPI traffic between the homes keeps stalling, whatever we do on the VMs. Not fixable from here.
+            Next: Georges-Anthony restarts his router / laptop when back; retry tonight. If it still fails, we finish the study with the 132 runs we have
+            (all of N = 512 and 2048, most of N = 8192) and explain the missing ones in the report.</td></tr>
+    <tr><td>22</td><td>13:31–13:35: Windows <code>multipass restart heat-laetitia</code> (first <code>multipass shell</code> → <code>ssh connection failed</code> while booting, then OK);
+        VM: <code>sudo ip link set dev eth0 mtu 1400</code>, <code>tailscale ping</code> until direct, same 5-step test</td>
+        <td><code>exit=124</code></td>
+        <td>A fresh heat-laetitia (new network stack, MTU fix re-applied) changes nothing → "Laetitia's side ruled out". <i>[Wrong conclusion, corrected in row 24: Georges-Anthony's connection was <b>not</b> the cause.
+            The freezes came from the two VMs running different versions of our program — heat-laetitia had not been rebuilt after the 12:34 pull.]</i></td></tr>
+    <tr><td>23</td><td>17:02–17:26 (heat-laetitia): test again → <code>exit=124</code>; small grid (N = 64, P = 2) → <code>exit=124</code>;
+        <code>nc</code> on ports 5555 / 5556 both ways → both messages arrive; <code>tools/pingpong 64</code> with <code>--mca btl_base_verbose 100</code> →
+        <code>connect() to 100.75.82.44:1024 completed</code>, <code>exit=0</code></td>
+        <td>The network carries new connections both ways and the ping-pong works, but our <code>heat</code> program freezes even with a tiny grid.</td>
+        <td>So the problem is not the network but our program.</td></tr>
+    <tr><td>24</td><td><code>md5sum build/heat ; git log --oneline -1</code> on both VMs</td>
+        <td>heat-laetitia: <code>92ee468d…</code>, commit a331e17; heat-georges: <code>8b7e9304…</code>, commit 81a9948, built 22-11:15</td>
+        <td><b>Real cause of all the freezes since 11:15:</b> the two VMs ran <b>different programs</b>. heat-georges was rebuilt at 11:15 with the fix
+            "gather only when needed"; heat-laetitia got the new sources only at its 12:34 pull and was <b>never rebuilt</b>. At the end of each cross-VM run,
+            the old program (rank 0) waited in <code>MPI_Gatherv</code> while the new one (other ranks) skipped it and waited in <code>MPI_Reduce</code>: a collective-call
+            mismatch → deadlock (no traffic at all, as the byte counters showed). Rows 4–5 and 14–22 blamed the network: wrong (the morning <i>was</i> slow because of
+            the 268 MB gathers, but the later freezes were this). The 132 saved results are valid: the night runs used the same program everywhere, and the
+            local runs used only heat-laetitia.</td></tr>
+    <tr><td>25</td><td>heat-laetitia: <code>cmake --build build</code> (recompiles strips.cpp, blocks.cpp) ; md5 on both</td>
+        <td><code>8b7e930408d8f047feabc6057f5c5bc9</code> on both VMs</td>
+        <td>Same program everywhere again. Lesson (for the report): after every <code>git pull</code> that touches <code>src/</code>, rebuild on <b>every</b> VM and compare
+            <code>md5sum build/heat</code> before a cluster run.</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
