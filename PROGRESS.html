@@ -66,7 +66,7 @@
   <div class="chip"><b>Current step</b>Step 6 (maths, Georges-Anthony) + Steps 9–10 (parallel versions, Laetitia)</div>
   <div class="chip"><b>Steps done</b>6 of 9 (Steps 0–5)</div>
   <div class="chip"><b>Next checkpoint</b>C1 — end of week 1</div>
-  <div class="chip"><b>Last update</b>22 Nov 2026, 12:40</div>
+  <div class="chip"><b>Last update</b>22 Nov 2026, 12:55</div>
 </div>
 
 <h2 class="section-title">Steps done</h2>
@@ -1431,6 +1431,14 @@ mpirun --oversubscribe -np 3 ./build/heat --decomp strips --case 2 --N 8 --r 0.2
         <td>Runs only the tests whose processes all stay on heat-laetitia: P = 1, and P = 2 with <code>--map-by slot</code>. Tested in the sandbox: only those runs are selected.</td>
         <td>These ≈ 18 remaining runs (N = 8192 map-by slot P = 1, 2; weak P = 1) need no traffic between the VMs, so they can be done now despite the bad link
             (≈ 15 min). The ≈ 30 runs that cross the network wait for a better connection (evening/night).</td></tr>
+    <tr><td>17</td><td>Windows push (<code>perf_scaling.sh: local mode</code>); heat-laetitia: <code>git pull</code> (923408b..5bc84e4), <code>wc -l</code> → 114,
+        <code>nohup bash scripts/perf_scaling.sh local &gt; scaling_local.log 2&gt;&amp;1 &amp;</code> → 1 copy; 12:35–12:52</td>
+        <td>18 new lines, N = 8192 map-by slot: strips P = 1: 72.3 s; strips P = 2 (both on heat-laetitia): 49.5 / 51.2 / 48.0 s (t_comm 1.6–2.0 s);
+            blocks P = 1: 72.0 / 71.5 / 74.4 s; blocks P = 2 (2x1): 48.3 / 48.8 / 47.9 s (t_comm 1.9–2.1 s); weak P = 1 (N = 1024): 1.14–1.22 s.</td>
+        <td><b>Two processes on one VM: 72 s → 48 s, speed-up ≈ 1.5×, not 2×.</b> The exchange is cheap here (≈ 2 s, shared memory), so the loss is in the
+            computing part: 47–50 s instead of 36 s. Reason (Task 5.2(d)): the update does only ≈ 0.3 flop per byte, so it is limited by memory bandwidth, and the
+            two cores of one VM share the same memory → each runs slower when both work. Compare with the two-VM runs: 550–630 s. All local runs done;
+            ≈ 30 runs that cross the network remain (tonight).</td></tr>
   </table>
   <h4>Things to know before running</h4>
   <ul>
