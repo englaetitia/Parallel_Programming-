@@ -1030,3 +1030,11 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified:** `llm_log/LOG.md`.
 
 ---
+
+## 2026-11-22 12:19 → 22:50 (Asia/Beirut) · Laetitia Daou · Claude (claude.ai app) · Claude Opus 5.5
+
+**Note on this period.** At 12:19 Laetitia asked the assistant to stop writing entries in this file ("do not write transcript anymore, i will be sharing the link of the session later") because the full conversation will be exported. The interactions of this period — the network diagnosis, the discovery that the two VMs ran different builds (md5 mismatch → deadlock), the last 30 performance runs, the new layout-aware model in `scripts/analyze_perf.py`, the cluster correctness evidence (`results/check_identical_cluster.txt`), the check of every requirement of the project sheet, the README fixes, the halo debug outputs, the cross-VM ping-pong up to 16 MB, the report draft (Claude Docs) and the converter `llm_log/convert_claude_export.py` — are recorded with their complete prompts and responses in the exported transcript in `llm_log/transcripts/`, and step by step in `PROGRESS.html`.
+
+**Files created/modified in this period:** `src/strips.cpp`, `src/blocks.cpp` (gather only when needed), `scripts/check_identical.sh`, `scripts/perf_scaling.sh` (local mode), `scripts/analyze_perf.py`, `README.md`, `PROGRESS.html`, `results/*`, `llm_log/convert_claude_export.py`, `llm_log/transcripts/README.md`, `llm_log/LOG.md` (this entry).
+
+---
