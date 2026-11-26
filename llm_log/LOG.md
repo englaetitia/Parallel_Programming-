@@ -1044,3 +1044,12 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Who used AI.** Every AI interaction in this project was made by Laetitia Daou, with Claude (Anthropic) in the claude.ai app. Georges-Anthony El Hajj did not use any AI tool, so there is no log for him. The complete conversations from 22 Nov 12:19 to the end of the project are in `llm_log/transcripts/`, exported from Laetitia's claude.ai account.
 
 ---
+
+## 2026-11-26 12:27 (Asia/Beirut) · team note
+
+**Shared link to the full conversation.** The complete conversation with Claude (Laetitia Daou, claude.ai app, Claude Opus), with every prompt and every response, is shared here:
+https://claude.ai/share/3bf2ab85-e210-40a0-97c5-c4b807126c8a
+
+**About PROGRESS.html.** Several entries above say that details are "in PROGRESS.html". That file was our personal step-by-step journal; it is not a deliverable and is no longer in the repository (it can still be found in the Git history, e.g. `git show 72f0174:PROGRESS.html`). The full detail of every interaction is in the shared conversation above and in `llm_log/transcripts/`.
+
+---

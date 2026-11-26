@@ -6,6 +6,7 @@ verbatim prompt, summary of the response, files changed); **this folder holds th
 
 | File | Team member | Tool / model | Period | Content |
 | --- | --- | --- | --- | --- |
+| [Shared conversation on claude.ai](https://claude.ai/share/3bf2ab85-e210-40a0-97c5-c4b807126c8a) | Laetitia Daou | Claude (claude.ai app), Claude Opus | whole project | every prompt and response (link) |
 | *(one line per exported conversation, filled when the exports are added)* | | | | |
 
 ## How the files were made
@@ -19,8 +20,7 @@ verbatim prompt, summary of the response, files changed); **this folder holds th
    ```
    One Markdown file per conversation: every message in order, with its time, who wrote it and its full text,
    unchanged (tool calls and their results included).
-3. Each team member does this for their own account (Georges-Anthony too, for any AI use, e.g. while
-   writing the Tasks).
+3. Only Laetitia Daou used AI in this project; Georges-Anthony El Hajj used no AI tool.
 4. Commit the files; never edit them afterwards (`AGENTS.md` / `CLAUDE.md`: existing log entries are never changed).
 
 The raw export .zip itself is **not** committed: it contains the whole account history, including
