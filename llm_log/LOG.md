@@ -1038,3 +1038,9 @@ Tests in the assistant's sandbox, which has no MPI: a small MPI stand-in written
 **Files created/modified in this period:** `src/strips.cpp`, `src/blocks.cpp` (gather only when needed), `scripts/check_identical.sh`, `scripts/perf_scaling.sh` (local mode), `scripts/analyze_perf.py`, `README.md`, `PROGRESS.html`, `results/*`, `llm_log/convert_claude_export.py`, `llm_log/transcripts/README.md`, `llm_log/LOG.md` (this entry).
 
 ---
+
+## 2026-11-26 12:11 (Asia/Beirut) · team note
+
+**Who used AI.** Every AI interaction in this project was made by Laetitia Daou, with Claude (Anthropic) in the claude.ai app. Georges-Anthony El Hajj did not use any AI tool, so there is no log for him. The complete conversations from 22 Nov 12:19 to the end of the project are in `llm_log/transcripts/`, exported from Laetitia's claude.ai account.
+
+---
