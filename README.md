@@ -86,7 +86,5 @@ for parallel runs, each is the maximum over the processes. With `--out`, the ful
 | `scripts/perf_scaling.sh` | Part 4 exp. 2–3 on the cluster: strong (N = 512, 2048, 8192; P = 1–4; strips and blocks; `--map-by node` and `--map-by slot`) and weak scaling (≈ 1024² nodes per process) → `results/raw/scaling.txt`. Options: `strong`, `weak`, `local` (only the runs that stay on the first VM). Runs already in the file are skipped, so it can be stopped and restarted |
 | `scripts/analyze_perf.py` | medians, spread, speed-up, efficiency, communication share and the performance model → `results/perf_summary.csv` and the plots in `results/` |
 
-`results/raw/scaling_partial_22nov.txt` is a backup copy of the first 132 lines of `scaling.txt`, taken before the last runs; `scaling.txt` is the complete file.
-
 **Before every cluster run:** after a `git pull` that changes `src/`, rebuild on **every** VM (`cmake --build build`) and check that
 `md5sum build/heat` is identical on all VMs — two different programs deadlock at the end of a run.

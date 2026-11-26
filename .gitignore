@@ -16,3 +16,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+demo_out/
+Demo_and_finishing_checklist.pdf
+PROGRESS.html
+SETUP.md
