@@ -5,6 +5,7 @@
 # Grids are small on purpose: each step across the VMs costs ~0.1 s of network, so every run takes 15-60 s.
 # Pictures and the animation are written to demo_out/ (on heat-laetitia).
 #
+# On a cable/switch network instead of Tailscale:  MPI_IFACE=192.168.50.0/24 bash scripts/demo.sh
 # Change N or P on request at the end:  bash scripts/demo.sh custom <case> <N> <P> <strips|blocks>
 #     e.g.  bash scripts/demo.sh custom 1 128 3 strips
 
@@ -39,7 +40,11 @@ fi
 
 # ---------------------------------------------------------------- Part 1
 title "Part 1 - Our cluster: two VMs joined by Tailscale"
-say "The two VMs on the tailnet:";            tailscale status | grep -E "heat-(laetitia|georges)"
+if [ -n "${MPI_IFACE:-}" ]; then
+    say "MPI uses the cable network ($MPI_IFACE). Addresses of both VMs:"; ip -4 -br addr | grep -v '^lo'; ssh heat-georges "ip -4 -br addr | grep -v '^lo'"
+else
+    say "The two VMs on the tailnet:";            tailscale status | grep -E "heat-(laetitia|georges)"
+fi
 say "The hostfile (2 slots per VM):";         cat hosts
 say "Same program on both VMs (same md5):";   md5sum build/heat; ssh heat-georges "md5sum ~/heat/build/heat"
 say "One mpirun, 4 processes, on both machines:"

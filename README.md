@@ -88,3 +88,14 @@ for parallel runs, each is the maximum over the processes. With `--out`, the ful
 
 **Before every cluster run:** after a `git pull` that changes `src/`, rebuild on **every** VM (`cmake --build build`) and check that
 `md5sum build/heat` is identical on all VMs — two different programs deadlock at the end of a run.
+
+## Running on a cable / switch network instead of Tailscale
+
+MPI does not need Tailscale, only a network on which the VMs reach each other. On a switch, give each VM a bridged network card with a fixed address, map the names `heat-laetitia` / `heat-georges` to those addresses in `/etc/hosts` on both VMs, and tell our scripts which card to use:
+
+```bash
+MPI_IFACE=192.168.50.0/24 bash scripts/run_mpi.sh -np 4 ./build/heat --decomp blocks --case 2 --N 512 --r 0.24 --steps 500
+MPI_IFACE=192.168.50.0/24 bash scripts/demo.sh
+```
+
+(`MPI_IFACE` takes a card name or, as here, the subnet of the cable network, which works even if the card has a different name on each VM.) The program itself does not change.

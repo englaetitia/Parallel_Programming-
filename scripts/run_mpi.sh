@@ -8,9 +8,12 @@
 # --mca btl tcp,self                     : use TCP between processes (and "self" for a process talking to itself)
 # Without the two "tailscale0" options, MPI may try the VM's private 10.x address, which the other VM can't reach, and hang.
 
+# MPI_IFACE: the network to use (default tailscale0). On a cable/switch network give the subnet, e.g. MPI_IFACE=192.168.50.0/24
+# (a subnet works even if the card has a different name on each VM).
+IFACE="${MPI_IFACE:-tailscale0}"
 cd "$(dirname "$0")/.." || exit 1
 exec mpirun --hostfile hosts \
-     --mca oob_tcp_if_include tailscale0 \
-     --mca btl_tcp_if_include tailscale0 \
+     --mca oob_tcp_if_include "$IFACE" \
+     --mca btl_tcp_if_include "$IFACE" \
      --mca btl tcp,self \
      "$@"
